@@ -1,10 +1,10 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, cast
+from typing import Any, Dict, Generic, List, Type, TypeVar
 
 from sqlalchemy import select, func, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from src.db_adapter import Base
+from src.adapters.database.models import Base
 from src.utils.exceptions import ResultNotFound
 
 ModelType = TypeVar("ModelType", bound=Base)

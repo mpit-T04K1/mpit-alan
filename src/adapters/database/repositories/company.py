@@ -1,94 +1,143 @@
-from typing import Dict, List, Optional, Any, Tuple
+"""
+Репозиторий для работы с компаниями
+"""
 
-from sqlalchemy import select, and_, or_
+from datetime import datetime
+from typing import Optional, List, Dict, Any
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
-
-from src.adapters.database.models.company import Company, ModerationStatus
-from src.adapters.database.models.location import Location
-from src.adapters.database.models.working_hours import WorkingHours
-from src.adapters.database.models.media import Media
-from src.adapters.database.models.user import User
-from src.adapters.database.repositories.base import BaseRepository
+from src.adapters.database.models.company import Company
 
 
-class CompanyRepository(BaseRepository[Company]):
+class CompanyRepository:
     """Репозиторий для работы с компаниями"""
 
-    def __init__(self, session: AsyncSession):
-        super().__init__(session, Company)
+    def __init__(self, db: AsyncSession):
+        self.db = db
 
-    async def get_by_id_with_relations(self, company_id: int) -> Optional[Company]:
-        """Получить компанию по ID со всеми связанными данными"""
-        query = (
-            select(Company)
-            .where(Company.id == company_id)
-            .options(
-                selectinload(Company.locations),
-                selectinload(Company.services),
-                selectinload(Company.working_hours),
-                selectinload(Company.media),
-                joinedload(Company.owner),
-            )
-        )
-        result = await self.session.execute(query)
+    async def get_by_id(self, company_id: int) -> Optional[Company]:
+        """
+        Получить компанию по ID
+
+        Args:
+            company_id: ID компании
+
+        Returns:
+            Объект компании или None
+        """
+        query = select(Company).where(Company.id == company_id)
+        result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_by_owner(self, owner_id: int) -> List[Company]:
-        """Получить все компании пользователя"""
+    async def get_by_owner_id(self, owner_id: int) -> List[Company]:
+        """
+        Получить компании по ID владельца
+
+        Args:
+            owner_id: ID владельца
+
+        Returns:
+            Список компаний
+        """
         query = select(Company).where(Company.owner_id == owner_id)
-        result = await self.session.execute(query)
-        return list(result.scalars())
+        result = await self.db.execute(query)
+        return result.scalars().all()
 
-    async def get_by_business_type(self, business_type: str) -> List[Company]:
-        """Получить компании по типу бизнеса"""
-        query = select(Company).where(
-            and_(
-                Company.business_type == business_type,
-                Company.moderation_status == ModerationStatus.APPROVED.value,
-                Company.is_active == True,
-            )
-        )
-        result = await self.session.execute(query)
-        return list(result.scalars())
+    async def create(self, company_data: Dict[str, Any]) -> Company:
+        """
+        Создать новую компанию
 
-    async def search_companies(
-        self, search_term: str, business_type: Optional[str] = None
-    ) -> List[Company]:
-        """Поиск компаний по названию, описанию, и т.д."""
-        filters = [
-            Company.moderation_status == ModerationStatus.APPROVED.value,
-            Company.is_active == True,
-            or_(
-                Company.name.ilike(f"%{search_term}%"),
-                Company.description.ilike(f"%{search_term}%"),
-            ),
-        ]
+        Args:
+            company_data: Данные компании
 
-        if business_type:
-            filters.append(Company.business_type == business_type)
-
-        query = select(Company).where(and_(*filters))
-        result = await self.session.execute(query)
-        return list(result.scalars())
-
-    async def get_pending_moderation(self) -> List[Company]:
-        """Получить компании, ожидающие модерации"""
-        query = select(Company).where(
-            Company.moderation_status == ModerationStatus.PENDING.value
-        )
-        result = await self.session.execute(query)
-        return list(result.scalars())
-
-    async def update_moderation_status(
-        self, company_id: int, status: str, notes: Optional[str] = None
-    ) -> Company:
-        """Обновить статус модерации компании"""
-        company = await self.find_one(id=company_id)
-
-        company.moderation_status = status
-        if notes:
-            company.moderation_notes = notes
-
-        self.session.add(company)
+        Returns:
+            Объект созданной компании
+        """
+        company = Company(**company_data)
+        self.db.add(company)
+        await self.db.commit()
+        await self.db.refresh(company)
         return company
+
+    async def update(
+        self, company_id: int, company_data: Dict[str, Any]
+    ) -> Optional[Company]:
+        """
+        Обновить данные компании
+
+        Args:
+            company_id: ID компании
+            company_data: Новые данные компании
+
+        Returns:
+            Объект обновленной компании или None
+        """
+        company = await self.get_by_id(company_id)
+        if not company:
+            return None
+
+        for key, value in company_data.items():
+            if hasattr(company, key):
+                setattr(company, key, value)
+
+        company.updated_at = datetime.utcnow()
+        await self.db.commit()
+        await self.db.refresh(company)
+        return company
+
+    async def delete(self, company_id: int) -> bool:
+        """
+        Удалить компанию
+
+        Args:
+            company_id: ID компании
+
+        Returns:
+            True если компания удалена, иначе False
+        """
+        company = await self.get_by_id(company_id)
+        if not company:
+            return False
+
+        await self.db.delete(company)
+        await self.db.commit()
+        return True
+
+    async def get_all(self, skip: int = 0, limit: int = 100) -> List[Company]:
+        """
+        Получить список всех компаний
+
+        Args:
+            skip: Количество пропускаемых записей
+            limit: Максимальное количество записей
+
+        Returns:
+            Список компаний
+        """
+        query = select(Company).offset(skip).limit(limit)
+        result = await self.db.execute(query)
+        return result.scalars().all()
+
+    async def search_by_name(
+        self, name: str, skip: int = 0, limit: int = 100
+    ) -> List[Company]:
+        """
+        Поиск компаний по названию
+
+        Args:
+            name: Строка поиска
+            skip: Количество пропускаемых записей
+            limit: Максимальное количество записей
+
+        Returns:
+            Список компаний, соответствующих поисковому запросу
+        """
+        query = (
+            select(Company)
+            .where(Company.name.ilike(f"%{name}%"))
+            .offset(skip)
+            .limit(limit)
+        )
+        result = await self.db.execute(query)
+        return result.scalars().all()

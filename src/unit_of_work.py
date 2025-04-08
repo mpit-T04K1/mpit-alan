@@ -9,7 +9,7 @@ from src.adapters.filestorage.repository import (
     FileStorageProtocol,
     FileStorageRepository,
 )
-from src.adapters.filestorage.session import s3_session_factory
+from adapters.filestorage.s3_session import s3_session_factory
 from src.adapters.telegram import TelegramGateway, TelegramGatewayProtocol
 from src.utils.unit_of_work import UnitOfWorkProtocol
 
