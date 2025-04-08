@@ -4,11 +4,9 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
-from sqlalchemy import select, update, delete, and_, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.db_adapter import get_db
-from src.models.company import Company
+from src.adapters.database.models.company import Company
 
 
 class CompanyRepository:

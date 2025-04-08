@@ -1,13 +1,11 @@
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+from typing import Dict, Optional, Any
 
 from sqlalchemy import func, and_, select, text
-from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.booking import Booking
-from src.models.service import Service
-from src.models.user import User
+from src.adapters.database.models.booking import Booking
+from src.adapters.database.models.service import Service
 from src.schemas.analytics import (
     AnalyticsServiceStat, 
     AnalyticsServiceStats,

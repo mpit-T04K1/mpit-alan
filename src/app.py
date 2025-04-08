@@ -1,39 +1,33 @@
-from fastapi import FastAPI, Depends, Request, HTTPException, status, Form, Path
-from sqlalchemy.orm import Session
+from fastapi import FastAPI, Depends, Request, Form, Path
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import asyncio
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import RedirectResponse
-from jose import jwt, JWTError
+from jose import jwt
 from src.core.errors import UnauthorizedError
 import urllib.parse
 import logging
 
-from src.core.config import settings
-from src.db.database import get_db, engine, Base
+from src.settings import settings
+from src.adapters.database.session import get_db
 from src.api.health import router as health_router
-from src.api.endpoints.auth import router as auth_router
-from src.api.endpoints.companies import router as companies_router
-from src.api.endpoints.services import router as services_router
-from src.api.endpoints.bookings import router as bookings_router
-from src.api.endpoints.schedule import router as schedule_router
-from src.api.endpoints.analytics import router as analytics_router
-from src.api.endpoints.users import router as users_router
-from src.api.endpoints.notifications import router as notifications_router
-from src.api.endpoints.moderation import router as moderation_router
+from src.api.auth import router as auth_router
+from src.api.companies import router as companies_router
+from src.api.services import router as services_router
+from src.api.bookings import router as bookings_router
+from src.api.schedule import router as schedule_router
+from src.api.analytics import router as analytics_router
+from src.api.users import router as users_router
+from src.api.notifications import router as notifications_router
 from src.api.form_config import router as form_config_router
 from src.api.business_module import router as business_module_router
 from src.core.jinja_filters import configure_jinja_filters
-from src.db_adapter import create_default_admin
-from src.api.endpoints.auth import register_user, login_for_access_token, OAuth2PasswordRequestForm
+from src.adapters.database.scripts import create_default_admin
+from src.api.auth import register_user, login_for_access_token
 from src.schemas.user import UserCreate, UserResponse, Token, LoginRequest
 from src.repositories.user import UserRepository
-from src.models.user import UserRole
-from src.utils.security import get_password_hash, verify_password
-from src.services.auth_service import create_access_token, get_current_user
 
 # Настройка логгера
 logging.basicConfig(level=logging.INFO)
@@ -356,4 +350,4 @@ async def admin_post_handler(
         return RedirectResponse(
             url="/login?error=" + urllib.parse.quote(str(e)),
             status_code=303
-        ) 
+        )

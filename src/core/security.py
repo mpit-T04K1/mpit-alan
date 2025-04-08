@@ -4,7 +4,7 @@ from typing import Any, Union, Optional
 from jose import jwt
 from passlib.context import CryptContext
 
-from src.core.config import settings
+from src.settings import settings
 
 # Контекст для хеширования паролей
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

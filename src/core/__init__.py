@@ -1,4 +1,4 @@
-from src.core.config import settings
+from src.settings import settings
 from src.core.security import (
     create_access_token,
     verify_password,

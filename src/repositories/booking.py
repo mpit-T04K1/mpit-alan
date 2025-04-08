@@ -1,10 +1,9 @@
-from sqlalchemy import select, update, delete, func
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from src.models.booking import Booking
-from src.models.service import Service
-from src.models.user import User
+from src.adapters.database.models.booking import Booking
+from src.adapters.database.models.service import Service
 from src.schemas.booking import BookingCreate, BookingUpdate, BookingStatusUpdate, BookingPaymentUpdate
 from src.core.errors import NotFoundError
 

@@ -2,10 +2,10 @@
 Репозиторий для работы с уведомлениями
 """
 from typing import List, Optional, Dict, Any
-from sqlalchemy import select, update, and_, or_, delete, func
+from sqlalchemy import select, update, and_, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.notification import Notification
+from src.adapters.database.models.notification import Notification
 
 
 class NotificationRepository:
@@ -67,7 +67,7 @@ class NotificationRepository:
         query = select(func.count()).where(
             and_(
                 Notification.user_id == user_id,
-                Notification.read == False
+                not Notification.read
             )
         )
         result = await self.session.execute(query)
@@ -120,7 +120,7 @@ class NotificationRepository:
         query = update(Notification).where(
             and_(
                 Notification.user_id == user_id,
-                Notification.read == False
+                not Notification.read
             )
         ).values(read=True)
         result = await self.session.execute(query)

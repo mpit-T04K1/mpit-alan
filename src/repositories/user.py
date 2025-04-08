@@ -4,11 +4,10 @@
 from datetime import datetime
 from typing import Optional, List
 
-from sqlalchemy import select, update, and_
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db_adapter import get_db
-from src.models.user import User, UserRole
+from src.adapters.database.models.user import User
 
 
 class UserRepository:

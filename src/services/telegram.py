@@ -1,10 +1,10 @@
 import json
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 import aiohttp
 from fastapi import BackgroundTasks
 
-from src.core.config import settings
+from src.settings import settings
 from src.core.errors import TelegramError
 from src.schemas.booking import BookingDetailResponse
 
@@ -276,7 +276,7 @@ class TelegramService:
                 
         # Обработка коллбеков от inline-кнопок
         elif "callback_query" in update:
-            callback_id = update["callback_query"]["id"]
+            # callback_id = update["callback_query"]["id"]
             chat_id = update["callback_query"]["message"]["chat"]["id"]
             callback_data = update["callback_query"]["data"]
             

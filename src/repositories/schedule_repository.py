@@ -1,9 +1,8 @@
-from typing import List, Optional, Dict, Any
-from datetime import datetime, time, timedelta
+from typing import List, Optional, Dict
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, or_, extract
 
-from src.models.schedule import Schedule, TimeSlot
+from src.adapters.database.models.schedule import Schedule, TimeSlot
 from src.schemas.schedule import ScheduleCreate, ScheduleUpdate, TimeSlotCreate, TimeSlotUpdate
 
 
@@ -100,7 +99,7 @@ class ScheduleRepository:
         # Получаем стандартное расписание на неделю
         week_schedules = db.query(Schedule).filter(
             Schedule.company_id == company_id,
-            Schedule.is_special_day == False
+            not Schedule.is_special_day
         ).all()
         
         # Преобразуем в словарь для удобного доступа
@@ -114,7 +113,7 @@ class ScheduleRepository:
         """Получение особых дней для компании в заданном диапазоне дат"""
         return db.query(Schedule).filter(
             Schedule.company_id == company_id,
-            Schedule.is_special_day == True,
+            Schedule.is_special_day,
             Schedule.specific_date >= start_date,
             Schedule.specific_date <= end_date
         ).all()
@@ -129,7 +128,7 @@ class ScheduleRepository:
         # Проверяем, есть ли особый день на эту дату
         special_day = db.query(Schedule).filter(
             Schedule.company_id == company_id,
-            Schedule.is_special_day == True,
+            Schedule.is_special_day,
             Schedule.specific_date == date.date()  # Сравниваем только дату
         ).first()
         
@@ -141,7 +140,7 @@ class ScheduleRepository:
         
         return db.query(Schedule).filter(
             Schedule.company_id == company_id,
-            Schedule.is_special_day == False,
+            not Schedule.is_special_day,
             Schedule.day_of_week == day_of_week
         ).first()
 
@@ -245,7 +244,7 @@ class TimeSlotRepository:
             TimeSlot.service_id == service_id,
             TimeSlot.start_time >= start_date,
             TimeSlot.start_time <= end_date,
-            TimeSlot.is_blocked == False,
+            not TimeSlot.is_blocked,
             TimeSlot.status.in_(["available", "partially_booked"])
         ).order_by(TimeSlot.start_time).all()
     

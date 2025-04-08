@@ -1,16 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Form, Query, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from typing import Optional, List, Dict, Any
-import json
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_db
+from src.adapters.database.session import get_db
 from src.services.auth_service import get_current_user
 from src.services.company_service import CompanyService
 from src.services.moderation_service import ModerationService
 from src.services.booking_service import BookingService
-from src.models.user import User
+from src.adapters.database.models import User
 from src.utils.permissions import check_company_permission
 
 router = APIRouter()

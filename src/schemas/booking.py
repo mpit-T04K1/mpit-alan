@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional
 
 from pydantic import BaseModel, Field, validator
 
-from src.models.booking import BookingStatus
+from src.adapters.database.models import BookingStatus
 
 
 class BookingBase(BaseModel):

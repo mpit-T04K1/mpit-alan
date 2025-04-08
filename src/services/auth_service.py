@@ -2,15 +2,15 @@
 Сервис аутентификации пользователей
 """
 from datetime import datetime, timedelta
-from typing import Optional, Any, Union, Dict
+from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db_adapter import get_db
-from src.core.config import settings
+from src.adapters.database.session import get_db
+from src.settings import settings
 from src.repositories.user import UserRepository
 from src.schemas.user import TokenData, UserResponse
 

@@ -1,21 +1,33 @@
-"""
-Файл-обертка для импорта компонентов базы данных из адаптера.
-"""
-from src.db_adapter import (
-    Base, 
-    get_db, 
-    check_db_connection, 
-    engine, 
-    async_session_factory
-)
+from typing import AsyncGenerator
+import logging
 
-# Для обратной совместимости
-async_session_maker = async_session_factory
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-__all__ = [
-    "Base", 
-    "get_db", 
-    "check_db_connection", 
-    "engine", 
-    "async_session_maker"
-] 
+from src.settings import settings
+
+
+logger = logging.getLogger(__name__)
+
+
+engine = create_async_engine(settings.DATABASE_URL)
+async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
+
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Зависимость для получения сессии базы данных.
+    Используется в FastAPI ручках.
+    """
+    async with async_session_maker() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+
+
+
+

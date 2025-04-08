@@ -1,9 +1,9 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
-from sqlalchemy import select, update, and_
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.moderation import ModerationRecord, ModerationStatus
+from src.adapters.database.models.moderation import ModerationRecord, ModerationStatus
 from src.schemas.moderation import ModerationRecordCreate, ModerationUpdate, AutoCheckResult
 
 

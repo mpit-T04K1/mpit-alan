@@ -1,28 +1,21 @@
-from fastapi import APIRouter
+from src.api.endpoints.auth import router as auth_router
+from src.api.endpoints.schedule import router as schedule_router
+from src.api.endpoints.users import router as users_router
+from src.api.endpoints.companies import router as companies_router
+from src.api.endpoints.services import router as services_router
+from src.api.endpoints.bookings import router as bookings_router
+from src.api.endpoints.moderation import router as moderation_router
+from src.api.endpoints.analytics import router as analytics_router
+from src.api.endpoints.notifications import router as notifications_router
 
-from src.api.endpoints import (
-    auth,
-    users,
-    companies,
-    services,
-    bookings,
-    moderation,
-    analytics,
-    notifications,
-    schedule,
-)
-
-
-# Создаем главный роутер API v1
-api_router_v1 = APIRouter()
-
-# Регистрируем все маршруты
-api_router_v1.include_router(auth.router, prefix="/auth", tags=["auth"])
-api_router_v1.include_router(users.router, prefix="/users", tags=["users"])
-api_router_v1.include_router(companies.router, prefix="/companies", tags=["companies"])
-api_router_v1.include_router(services.router, prefix="/services", tags=["services"])
-api_router_v1.include_router(bookings.router, prefix="/bookings", tags=["bookings"])
-api_router_v1.include_router(moderation.router, prefix="/moderation", tags=["moderation"])
-api_router_v1.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
-api_router_v1.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
-api_router_v1.include_router(schedule.router, prefix="/schedule", tags=["schedule"]) 
+__all__ = [
+    "auth_router",
+    "schedule_router",
+    "users_router",
+    "companies_router",
+    "services_router",
+    "bookings_router",
+    "moderation_router",
+    "analytics_router",
+    "notifications_router",
+] 

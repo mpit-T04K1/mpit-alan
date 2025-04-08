@@ -1,5 +1,5 @@
-from datetime import datetime, time
-from typing import Optional, List, Dict, Any, Union
+from datetime import datetime
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, validator, Field
 
 # Схемы для работы с расписанием

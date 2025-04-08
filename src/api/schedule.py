@@ -1,377 +1,294 @@
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-import json
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Optional
+from datetime import datetime
 
-from src.db.database import get_db
-from src.models.schedule import Schedule, TimeSlot
+from src.adapters.database.session import get_db
 from src.schemas.schedule import (
-    ScheduleCreate, ScheduleUpdate, ScheduleOut, 
-    TimeSlotCreate, TimeSlotUpdate, TimeSlotOut,
-    WeekSchedule, ScheduleTemplate
+    ScheduleCreate, ScheduleUpdate, ScheduleResponse, 
+    TimeSlotCreate, TimeSlotUpdate, TimeSlotResponse,
+    GenerateSlotsRequest, GenerateSlotsResponse
 )
-from src.repositories.schedule_repository import ScheduleRepository, TimeSlotRepository
-from src.services.company_service import CompanyService
+from src.services.schedule_service import ScheduleService
+from src.services.auth_service import get_current_user
+from src.adapters.database.models.user import User
+from src.utils.permissions import check_company_permission
 
-router = APIRouter(prefix="/schedule", tags=["schedule"])
+router = APIRouter()
 
+# Эндпоинты для управления расписанием
 
-# API для управления расписанием
-@router.post("/company/{company_id}/schedule", response_model=ScheduleOut)
-def create_company_schedule(
-    company_id: int,
-    schedule_data: ScheduleCreate,
-    db: Session = Depends(get_db)
+@router.post("/schedules/", response_model=ScheduleResponse, status_code=status.HTTP_201_CREATED)
+async def create_schedule(
+    schedule: ScheduleCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Создание расписания для компании"""
-    # Проверяем, существует ли компания
-    company = CompanyService.get_company_by_id(db, company_id)
-    if not company:
-        raise HTTPException(status_code=404, detail="Компания не найдена")
+    """Создать новое расписание для компании или услуги"""
+    await check_company_permission(db, current_user, schedule.company_id)
     
-    # Создаем расписание
-    schedule_data.company_id = company_id
-    db_schedule = ScheduleRepository.create_schedule(db, schedule_data)
-    
-    return db_schedule
+    schedule_service = ScheduleService(db)
+    return await schedule_service.create_schedule(schedule)
 
-
-@router.get("/company/{company_id}/schedule", response_model=List[ScheduleOut])
-def get_company_schedules(
-    company_id: int,
-    db: Session = Depends(get_db)
+@router.get("/schedules/{schedule_id}", response_model=ScheduleResponse)
+async def get_schedule(
+    schedule_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Получение всех расписаний компании"""
-    # Проверяем, существует ли компания
-    company = CompanyService.get_company_by_id(db, company_id)
-    if not company:
-        raise HTTPException(status_code=404, detail="Компания не найдена")
+    """Получить расписание по ID"""
+    schedule_service = ScheduleService(db)
+    schedule = await schedule_service.get_schedule(schedule_id)
     
-    # Получаем расписания
-    schedules = ScheduleRepository.get_company_schedules(db, company_id)
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Расписание не найдено"
+        )
     
+    await check_company_permission(db, current_user, schedule.company_id)
+    return schedule
+
+@router.get("/schedules/", response_model=List[ScheduleResponse])
+async def list_schedules(
+    company_id: int = Query(..., description="ID компании"),
+    service_id: Optional[int] = Query(None, description="ID услуги (опционально)"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Получить список расписаний для компании или услуги"""
+    await check_company_permission(db, current_user, company_id)
+    
+    schedule_service = ScheduleService(db)
+    schedules = await schedule_service.list_schedules(company_id, service_id)
     return schedules
 
-
-@router.get("/company/{company_id}/week-schedule", response_model=WeekSchedule)
-def get_company_week_schedule(
-    company_id: int,
-    db: Session = Depends(get_db)
+@router.put("/schedules/{schedule_id}", response_model=ScheduleResponse)
+async def update_schedule(
+    schedule_id: int,
+    schedule_update: ScheduleUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Получение стандартного расписания компании на неделю"""
-    # Проверяем, существует ли компания
-    company = CompanyService.get_company_by_id(db, company_id)
-    if not company:
-        raise HTTPException(status_code=404, detail="Компания не найдена")
-    
-    # Получаем расписание на неделю
-    schedule_dict = ScheduleRepository.get_company_week_schedule(db, company_id)
-    
-    # Преобразуем словарь в список для вывода
-    schedules = list(schedule_dict.values())
-    
-    return WeekSchedule(company_id=company_id, schedules=schedules)
-
-
-@router.get("/company/{company_id}/special-days", response_model=List[ScheduleOut])
-def get_company_special_days(
-    company_id: int,
-    start_date: str = Query(..., description="Начальная дата в формате YYYY-MM-DD"),
-    end_date: str = Query(..., description="Конечная дата в формате YYYY-MM-DD"),
-    db: Session = Depends(get_db)
-):
-    """Получение особых дней для компании в заданном диапазоне дат"""
-    # Проверяем, существует ли компания
-    company = CompanyService.get_company_by_id(db, company_id)
-    if not company:
-        raise HTTPException(status_code=404, detail="Компания не найдена")
-    
-    # Преобразуем строки дат в объекты datetime
-    try:
-        start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
-        end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Неверный формат даты")
-    
-    # Получаем особые дни
-    special_days = ScheduleRepository.get_company_special_day_schedules(
-        db, company_id, start_datetime, end_datetime
-    )
-    
-    return special_days
-
-
-@router.get("/company/{company_id}/schedule/date/{date}", response_model=ScheduleOut)
-def get_schedule_for_date(
-    company_id: int,
-    date: str,
-    db: Session = Depends(get_db)
-):
-    """Получение расписания компании на конкретную дату"""
-    # Проверяем, существует ли компания
-    company = CompanyService.get_company_by_id(db, company_id)
-    if not company:
-        raise HTTPException(status_code=404, detail="Компания не найдена")
-    
-    # Преобразуем строку даты в объект datetime
-    try:
-        date_obj = datetime.strptime(date, "%Y-%m-%d")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Неверный формат даты")
-    
-    # Получаем расписание на указанную дату
-    schedule = ScheduleRepository.get_schedule_for_date(db, company_id, date_obj)
+    """Обновить существующее расписание"""
+    schedule_service = ScheduleService(db)
+    schedule = await schedule_service.get_schedule(schedule_id)
     
     if not schedule:
-        raise HTTPException(status_code=404, detail="Расписание на указанную дату не найдено")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Расписание не найдено"
+        )
     
-    return schedule
+    await check_company_permission(db, current_user, schedule.company_id)
+    return await schedule_service.update_schedule(schedule_id, schedule_update)
 
-
-@router.get("/schedule/{schedule_id}", response_model=ScheduleOut)
-def get_schedule(
+@router.delete("/schedules/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_schedule(
     schedule_id: int,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Получение расписания по ID"""
-    schedule = ScheduleRepository.get_schedule_by_id(db, schedule_id)
+    """Удалить расписание"""
+    schedule_service = ScheduleService(db)
+    schedule = await schedule_service.get_schedule(schedule_id)
     
     if not schedule:
-        raise HTTPException(status_code=404, detail="Расписание не найдено")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Расписание не найдено"
+        )
     
-    return schedule
+    await check_company_permission(db, current_user, schedule.company_id)
+    await schedule_service.delete_schedule(schedule_id)
+    return None
 
+# Эндпоинты для управления временными слотами
 
-@router.put("/schedule/{schedule_id}", response_model=ScheduleOut)
-def update_schedule(
-    schedule_id: int,
-    schedule_data: ScheduleUpdate,
-    db: Session = Depends(get_db)
+@router.post("/slots/", response_model=TimeSlotResponse, status_code=status.HTTP_201_CREATED)
+async def create_timeslot(
+    timeslot: TimeSlotCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Обновление расписания"""
-    updated_schedule = ScheduleRepository.update_schedule(db, schedule_id, schedule_data)
+    """Создать новый временной слот в расписании"""
+    schedule_service = ScheduleService(db)
+    schedule = await schedule_service.get_schedule(timeslot.schedule_id)
     
-    if not updated_schedule:
-        raise HTTPException(status_code=404, detail="Расписание не найдено")
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Расписание не найдено"
+        )
     
-    return updated_schedule
+    await check_company_permission(db, current_user, schedule.company_id)
+    return await schedule_service.create_timeslot(timeslot)
 
-
-@router.delete("/schedule/{schedule_id}", response_model=dict)
-def delete_schedule(
-    schedule_id: int,
-    db: Session = Depends(get_db)
+@router.get("/slots/{slot_id}", response_model=TimeSlotResponse)
+async def get_timeslot(
+    slot_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Удаление расписания"""
-    success = ScheduleRepository.delete_schedule(db, schedule_id)
+    """Получить временной слот по ID"""
+    schedule_service = ScheduleService(db)
+    timeslot = await schedule_service.get_timeslot(slot_id)
     
-    if not success:
-        raise HTTPException(status_code=404, detail="Расписание не найдено")
+    if not timeslot:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Временной слот не найден"
+        )
     
-    return {"message": "Расписание успешно удалено"}
+    schedule = await schedule_service.get_schedule(timeslot.schedule_id)
+    await check_company_permission(db, current_user, schedule.company_id)
+    return timeslot
 
-
-# API для управления временными слотами
-@router.post("/service/{service_id}/timeslot", response_model=TimeSlotOut)
-def create_time_slot(
-    service_id: int,
-    slot_data: TimeSlotCreate,
-    db: Session = Depends(get_db)
+@router.get("/slots/", response_model=List[TimeSlotResponse])
+async def list_timeslots(
+    schedule_id: int = Query(..., description="ID расписания"),
+    start_date: Optional[str] = Query(None, description="Начальная дата (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="Конечная дата (YYYY-MM-DD)"),
+    is_available: Optional[bool] = Query(None, description="Фильтр по доступности"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Создание временного слота для услуги"""
-    # Устанавливаем service_id из пути
-    slot_data.service_id = service_id
+    """Получить список временных слотов для расписания"""
+    schedule_service = ScheduleService(db)
+    schedule = await schedule_service.get_schedule(schedule_id)
     
-    # Создаем временной слот
-    db_time_slot = TimeSlotRepository.create_time_slot(db, slot_data)
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Расписание не найдено"
+        )
     
-    return db_time_slot
-
-
-@router.get("/service/{service_id}/timeslots", response_model=List[TimeSlotOut])
-def get_service_time_slots(
-    service_id: int,
-    start_date: Optional[str] = Query(None, description="Начальная дата в формате YYYY-MM-DD HH:MM"),
-    end_date: Optional[str] = Query(None, description="Конечная дата в формате YYYY-MM-DD HH:MM"),
-    db: Session = Depends(get_db)
-):
-    """Получение временных слотов для услуги"""
-    # Преобразуем строки дат в объекты datetime, если они переданы
+    await check_company_permission(db, current_user, schedule.company_id)
+    
+    # Обработка параметров фильтрации дат
     start_datetime = None
     end_datetime = None
     
     if start_date:
         try:
-            start_datetime = datetime.strptime(start_date, "%Y-%m-%d %H:%M")
+            start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
         except ValueError:
-            raise HTTPException(status_code=400, detail="Неверный формат начальной даты")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Неверный формат начальной даты. Ожидается YYYY-MM-DD"
+            )
     
     if end_date:
         try:
-            end_datetime = datetime.strptime(end_date, "%Y-%m-%d %H:%M")
+            end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+            # Устанавливаем конец дня
+            end_datetime = end_datetime.replace(hour=23, minute=59, second=59)
         except ValueError:
-            raise HTTPException(status_code=400, detail="Неверный формат конечной даты")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Неверный формат конечной даты. Ожидается YYYY-MM-DD"
+            )
     
-    # Получаем временные слоты
-    time_slots = TimeSlotRepository.get_service_time_slots(
-        db, service_id, start_datetime, end_datetime
+    return await schedule_service.list_timeslots(
+        schedule_id, 
+        start_time=start_datetime, 
+        end_time=end_datetime,
+        is_available=is_available
     )
-    
-    return time_slots
 
-
-@router.get("/service/{service_id}/available-timeslots", response_model=List[TimeSlotOut])
-def get_available_time_slots(
-    service_id: int,
-    start_date: str = Query(..., description="Начальная дата в формате YYYY-MM-DD HH:MM"),
-    end_date: str = Query(..., description="Конечная дата в формате YYYY-MM-DD HH:MM"),
-    db: Session = Depends(get_db)
+@router.put("/slots/{slot_id}", response_model=TimeSlotResponse)
+async def update_timeslot(
+    slot_id: int,
+    timeslot_update: TimeSlotUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Получение доступных для бронирования временных слотов"""
-    # Преобразуем строки дат в объекты datetime
+    """Обновить существующий временной слот"""
+    schedule_service = ScheduleService(db)
+    timeslot = await schedule_service.get_timeslot(slot_id)
+    
+    if not timeslot:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Временной слот не найден"
+        )
+    
+    schedule = await schedule_service.get_schedule(timeslot.schedule_id)
+    await check_company_permission(db, current_user, schedule.company_id)
+    return await schedule_service.update_timeslot(slot_id, timeslot_update)
+
+@router.delete("/slots/{slot_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_timeslot(
+    slot_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Удалить временной слот"""
+    schedule_service = ScheduleService(db)
+    timeslot = await schedule_service.get_timeslot(slot_id)
+    
+    if not timeslot:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Временной слот не найден"
+        )
+    
+    schedule = await schedule_service.get_schedule(timeslot.schedule_id)
+    await check_company_permission(db, current_user, schedule.company_id)
+    await schedule_service.delete_timeslot(slot_id)
+    return None
+
+# Эндпоинты для генерации временных слотов
+
+@router.post("/slots/generate/", response_model=GenerateSlotsResponse)
+async def generate_timeslots(
+    request: GenerateSlotsRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Сгенерировать временные слоты на основе расписания"""
+    schedule_service = ScheduleService(db)
+    schedule = await schedule_service.get_schedule(request.schedule_id)
+    
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Расписание не найдено"
+        )
+    
+    await check_company_permission(db, current_user, schedule.company_id)
+    
     try:
-        start_datetime = datetime.strptime(start_date, "%Y-%m-%d %H:%M")
-        end_datetime = datetime.strptime(end_date, "%Y-%m-%d %H:%M")
+        start_date = datetime.strptime(request.start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(request.end_date, '%Y-%m-%d')
     except ValueError:
-        raise HTTPException(status_code=400, detail="Неверный формат даты")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Неверный формат даты. Ожидается YYYY-MM-DD"
+        )
     
-    # Получаем доступные временные слоты
-    time_slots = TimeSlotRepository.get_available_time_slots(
-        db, service_id, start_datetime, end_datetime
+    if start_date > end_date:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Начальная дата должна быть раньше или равна конечной дате"
+        )
+    
+    if (end_date - start_date).days > 90:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Период генерации не может превышать 90 дней"
+        )
+    
+    result = await schedule_service.generate_timeslots(
+        request.schedule_id,
+        start_date,
+        end_date,
+        request.override_existing
     )
     
-    return time_slots
-
-
-@router.get("/timeslot/{slot_id}", response_model=TimeSlotOut)
-def get_time_slot(
-    slot_id: int,
-    db: Session = Depends(get_db)
-):
-    """Получение временного слота по ID"""
-    time_slot = TimeSlotRepository.get_time_slot_by_id(db, slot_id)
-    
-    if not time_slot:
-        raise HTTPException(status_code=404, detail="Временной слот не найден")
-    
-    return time_slot
-
-
-@router.put("/timeslot/{slot_id}", response_model=TimeSlotOut)
-def update_time_slot(
-    slot_id: int,
-    slot_data: TimeSlotUpdate,
-    db: Session = Depends(get_db)
-):
-    """Обновление временного слота"""
-    updated_slot = TimeSlotRepository.update_time_slot(db, slot_id, slot_data)
-    
-    if not updated_slot:
-        raise HTTPException(status_code=404, detail="Временной слот не найден")
-    
-    return updated_slot
-
-
-@router.delete("/timeslot/{slot_id}", response_model=dict)
-def delete_time_slot(
-    slot_id: int,
-    db: Session = Depends(get_db)
-):
-    """Удаление временного слота"""
-    success = TimeSlotRepository.delete_time_slot(db, slot_id)
-    
-    if not success:
-        raise HTTPException(status_code=404, detail="Временной слот не найден")
-    
-    return {"message": "Временной слот успешно удален"}
-
-
-@router.post("/timeslot/{slot_id}/book", response_model=TimeSlotOut)
-def book_time_slot(
-    slot_id: int,
-    db: Session = Depends(get_db)
-):
-    """Бронирование временного слота"""
-    booked_slot = TimeSlotRepository.book_time_slot(db, slot_id)
-    
-    if not booked_slot:
-        raise HTTPException(status_code=400, detail="Невозможно забронировать слот")
-    
-    return booked_slot
-
-
-@router.post("/timeslot/{slot_id}/cancel", response_model=TimeSlotOut)
-def cancel_booking(
-    slot_id: int,
-    db: Session = Depends(get_db)
-):
-    """Отмена бронирования временного слота"""
-    cancelled_slot = TimeSlotRepository.cancel_booking(db, slot_id)
-    
-    if not cancelled_slot:
-        raise HTTPException(status_code=400, detail="Невозможно отменить бронирование")
-    
-    return cancelled_slot
-
-
-@router.post("/service/{service_id}/generate-timeslots", response_model=List[TimeSlotOut])
-def generate_time_slots(
-    service_id: int,
-    start_date: str = Query(..., description="Начальная дата и время в формате YYYY-MM-DD HH:MM"),
-    end_date: str = Query(..., description="Конечная дата и время в формате YYYY-MM-DD HH:MM"),
-    duration: int = Query(..., ge=5, le=480, description="Продолжительность слота в минутах"),
-    interval: int = Query(..., ge=5, le=480, description="Интервал между слотами в минутах"),
-    max_clients: int = Query(1, ge=1, description="Максимальное количество клиентов на слот"),
-    db: Session = Depends(get_db)
-):
-    """Генерация временных слотов для услуги на указанный период"""
-    # Преобразуем строки дат в объекты datetime
-    try:
-        start_datetime = datetime.strptime(start_date, "%Y-%m-%d %H:%M")
-        end_datetime = datetime.strptime(end_date, "%Y-%m-%d %H:%M")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Неверный формат даты")
-    
-    # Генерируем временные слоты
-    time_slots = TimeSlotRepository.generate_time_slots(
-        db, service_id, start_datetime, end_datetime, duration, interval, max_clients
-    )
-    
-    return time_slots
-
-
-@router.post("/service/{service_id}/generate-from-schedule", response_model=List[TimeSlotOut])
-def generate_slots_from_schedule(
-    service_id: int,
-    company_id: int = Query(..., description="ID компании"),
-    start_date: str = Query(..., description="Начальная дата в формате YYYY-MM-DD"),
-    end_date: str = Query(..., description="Конечная дата в формате YYYY-MM-DD"),
-    duration: int = Query(..., ge=5, le=480, description="Продолжительность слота в минутах"),
-    interval: int = Query(..., ge=5, le=480, description="Интервал между слотами в минутах"),
-    max_clients: int = Query(1, ge=1, description="Максимальное количество клиентов на слот"),
-    db: Session = Depends(get_db)
-):
-    """Генерация временных слотов на основе расписания компании"""
-    # Преобразуем строки дат в объекты datetime
-    try:
-        start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
-        end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Неверный формат даты")
-    
-    # Получаем расписание компании на неделю
-    schedules = ScheduleRepository.get_company_week_schedule(db, company_id)
-    
-    # Получаем особые дни в заданном диапазоне дат
-    special_days = ScheduleRepository.get_company_special_day_schedules(
-        db, company_id, start_datetime, end_datetime
-    )
-    
-    # Генерируем временные слоты на основе расписания
-    time_slots = TimeSlotRepository.generate_slots_from_schedule(
-        db, service_id, schedules, special_days, 
-        start_datetime, end_datetime, duration, interval, max_clients
-    )
-    
-    return time_slots 
+    return GenerateSlotsResponse(
+        success=True,
+        message=f"Слоты успешно сгенерированы с {request.start_date} по {request.end_date}",
+        slots_created=result["created"],
+        slots_skipped=result["skipped"]
+    ) 

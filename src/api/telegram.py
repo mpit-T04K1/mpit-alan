@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, BackgroundTasks, Body, HTTPException, st
 from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.database import get_db
-from src.core.config import settings
+from src.adapters.database.session import get_db
+from src.settings import settings
 from src.services.telegram import TelegramService
 from src.api.auth import get_current_admin_user
 from src.schemas.user import UserResponse

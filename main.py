@@ -1,7 +1,6 @@
 import uvicorn
 import os
 import logging
-from dotenv import load_dotenv
 
 # Настройка логирования
 logging.basicConfig(
@@ -10,12 +9,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Загрузка переменных окружения из .env файла
-load_dotenv()
-
 # Импортируем адаптер базы данных для инициализации
 # Это должно происходить до импорта приложения
-import src.db_adapter
+import src.db_adapter  # noqa
 
 if __name__ == "__main__":
     logger.info("Запуск приложения...")

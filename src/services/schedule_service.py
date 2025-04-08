@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, time
-from typing import Dict, List, Optional, Any, Union
-from sqlalchemy import select, and_, or_, func
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.schedule import Schedule, TimeSlot
+from src.adapters.database.models import Schedule, TimeSlot
 from src.schemas.schedule import ScheduleCreate, ScheduleUpdate, TimeSlotCreate, TimeSlotUpdate
 
 class ScheduleService:

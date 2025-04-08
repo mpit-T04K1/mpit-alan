@@ -3,7 +3,7 @@ from typing import Optional, List, Dict, Any
 
 from pydantic import BaseModel, EmailStr, Field, validator
 
-from src.models.user import UserRole
+from src.adapters.database.models import UserRole
 
 
 class UserBase(BaseModel):

@@ -1,8 +1,8 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.form_config import FormConfig
+from src.adapters.database.models.form_config import FormConfig
 from src.schemas.form_config import FormConfigCreate, FormConfigUpdate, EXAMPLE_COMPANY_REGISTRATION_CONFIG
 
 class FormConfigRepository:
@@ -61,7 +61,7 @@ class FormConfigRepository:
         query = select(FormConfig).where(
             FormConfig.business_type == business_type,
             FormConfig.form_type == form_type,
-            FormConfig.is_active == True
+            FormConfig.is_active
         ).order_by(FormConfig.version.desc())
         
         result = await db.execute(query)
@@ -87,7 +87,7 @@ class FormConfigRepository:
         query = select(FormConfig).where(FormConfig.business_type == business_type)
         
         if active_only:
-            query = query.where(FormConfig.is_active == True)
+            query = query.where(FormConfig.is_active)
         
         result = await db.execute(query)
         return result.scalars().all()

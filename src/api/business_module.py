@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, Request, Form, Query
+from fastapi import APIRouter, Depends, Request, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.database import get_db
+from src.adapters.database.session import get_db
 from src.api.auth import get_current_user_optional
-from src.core.config import settings
 from src.repositories.company import CompanyRepository
 from src.repositories.service import ServiceRepository
 from src.repositories.booking import BookingRepository
