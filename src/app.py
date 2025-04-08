@@ -65,17 +65,38 @@ configure_jinja_filters(app)
 # Подключение API роутеров
 app.include_router(health_router, prefix="/health", tags=["Health"])
 app.include_router(auth_router, prefix=f"{settings.API_PREFIX}")
-app.include_router(companies_router, prefix=f"{settings.API_PREFIX}/companies", tags=["Companies"])
-app.include_router(services_router, prefix=f"{settings.API_PREFIX}/services", tags=["Services"])
-app.include_router(bookings_router, prefix=f"{settings.API_PREFIX}/bookings", tags=["Bookings"])
-app.include_router(schedule_router, prefix=f"{settings.API_PREFIX}/schedule", tags=["Schedule"])
-app.include_router(analytics_router, prefix=f"{settings.API_PREFIX}/analytics", tags=["Analytics"])
+app.include_router(
+    companies_router, prefix=f"{settings.API_PREFIX}/companies", tags=["Companies"]
+)
+app.include_router(
+    services_router, prefix=f"{settings.API_PREFIX}/services", tags=["Services"]
+)
+app.include_router(
+    bookings_router, prefix=f"{settings.API_PREFIX}/bookings", tags=["Bookings"]
+)
+app.include_router(
+    schedule_router, prefix=f"{settings.API_PREFIX}/schedule", tags=["Schedule"]
+)
+app.include_router(
+    analytics_router, prefix=f"{settings.API_PREFIX}/analytics", tags=["Analytics"]
+)
 app.include_router(users_router, prefix=f"{settings.API_PREFIX}/users", tags=["Users"])
-app.include_router(notifications_router, prefix=f"{settings.API_PREFIX}/notifications", tags=["Notifications"])
-app.include_router(form_config_router, prefix=f"{settings.API_PREFIX}/form-configs", tags=["FormConfigs"])
+app.include_router(
+    notifications_router,
+    prefix=f"{settings.API_PREFIX}/notifications",
+    tags=["Notifications"],
+)
+app.include_router(
+    form_config_router,
+    prefix=f"{settings.API_PREFIX}/form-configs",
+    tags=["FormConfigs"],
+)
 
 # Подключение бизнес-модуля
-app.include_router(business_module_router, prefix=f"{settings.ADMIN_PATH}", tags=["BusinessModule"])
+app.include_router(
+    business_module_router, prefix=f"{settings.ADMIN_PATH}", tags=["BusinessModule"]
+)
+
 
 # Событие запуска приложения
 @app.on_event("startup")
@@ -85,45 +106,48 @@ async def startup_event():
         # Таблицы уже должны быть созданы через миграции или другие механизмы
         # Просто создаем администратора по умолчанию, если его нет
         await create_default_admin()
-        
+
         print("Приложение успешно запущено")
     except Exception as e:
         print(f"Ошибка при запуске приложения: {e}")
+
 
 @app.get("/")
 def read_root(request: Request):
     """
     Главная страница приложения
-    
+
     Args:
         request: Запрос
-        
+
     Returns:
         HTML шаблон главной страницы
     """
     return templates.TemplateResponse("index.html", {"request": request})
 
+
 @app.get("/login")
 def login_page(request: Request):
     """
     Страница входа
-    
+
     Args:
         request: Запрос
-        
+
     Returns:
         HTML шаблон страницы входа
     """
     return templates.TemplateResponse("login.html", {"request": request})
 
+
 @app.get("/logout")
 def logout(request: Request):
     """
     Выход из системы
-    
+
     Args:
         request: Запрос
-        
+
     Returns:
         Перенаправление на страницу входа
     """
@@ -131,18 +155,20 @@ def logout(request: Request):
     response.delete_cookie(key="access_token", path="/")
     return response
 
+
 @app.get("/register")
 def register_page(request: Request):
     """
     Страница регистрации
-    
+
     Args:
         request: Запрос
-        
+
     Returns:
         HTML шаблон страницы регистрации
     """
     return templates.TemplateResponse("register.html", {"request": request})
+
 
 # Прямой маршрут для регистрации пользователя
 @app.post("/api/auth/register", response_model=UserResponse)
@@ -158,9 +184,10 @@ async def register_direct(user: UserCreate, db: AsyncSession = Depends(get_db)):
         Данные созданного пользователя
     """
     print(f"Попытка регистрации пользователя с email: {user.email}")
-    
+
     # Используем функцию из auth.py для унификации логики
     return await register_user(user=user, db=db)
+
 
 # Прямой маршрут для входа пользователя
 @app.post("/api/auth/token", response_model=Token)
@@ -176,37 +203,40 @@ async def login_direct(login_data: LoginRequest, db: AsyncSession = Depends(get_
         Токен доступа
     """
     print(f"Попытка входа с email: {login_data.email}")
-    
+
     # Создаем форму OAuth2 из данных логина
     form_data = OAuth2PasswordRequestForm(
-        username=login_data.email, 
+        username=login_data.email,
         password=login_data.password,
         scope="",
         client_id=None,
-        client_secret=None
+        client_secret=None,
     )
-    
+
     # Используем функцию из auth.py для унификации логики
     return await login_for_access_token(form_data=form_data, db=db)
+
 
 # Диагностический маршрут для проверки состояния приложения
 @app.get("/api/test-api")
 async def test_api():
     """
     Диагностический маршрут для проверки работы API
-    
+
     Returns:
         Информация о состоянии API
     """
     # Собираем информацию о зарегистрированных маршрутах
     routes_info = []
     for route in app.routes:
-        routes_info.append({
-            "path": getattr(route, "path", None),
-            "name": getattr(route, "name", None),
-            "methods": getattr(route, "methods", None),
-        })
-    
+        routes_info.append(
+            {
+                "path": getattr(route, "path", None),
+                "name": getattr(route, "name", None),
+                "methods": getattr(route, "methods", None),
+            }
+        )
+
     # Информация о настройках приложения
     config_info = {
         "API_PREFIX": settings.API_PREFIX,
@@ -214,7 +244,7 @@ async def test_api():
         "HOST": settings.HOST,
         "PORT": settings.PORT,
     }
-    
+
     return {
         "status": "ok",
         "message": "API работает корректно",
@@ -223,19 +253,21 @@ async def test_api():
         "config": config_info,
     }
 
+
 # Мост для аутентификации при переходе в административную панель
 @app.get("/auth-bridge")
 def auth_bridge(request: Request):
     """
     Страница-мост для передачи токена аутентификации
-    
+
     Args:
         request: Запрос
-        
+
     Returns:
         HTML шаблон страницы-моста для аутентификации
     """
     return templates.TemplateResponse("auth_bridge.html", {"request": request})
+
 
 # Обработчик POST-запросов административного интерфейса с токеном в форме
 @app.post("/admin{path:path}")
@@ -243,17 +275,17 @@ async def admin_post_handler(
     request: Request,
     path: str = Path(...),
     token: str = Form(...),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Обработчик POST-запросов к административной панели с передачей токена через форму
-    
+
     Args:
         request: Запрос
         path: Путь запроса
         token: Токен аутентификации
         db: Сессия базы данных
-        
+
     Returns:
         Перенаправляет запрос к бизнес-модулю с сохранением токена в сессии
     """
@@ -262,35 +294,33 @@ async def admin_post_handler(
         logger.info(f"POST /admin{path} - Получен token: {token[:15]}...")
         logger.info(f"User-Agent: {request.headers.get('user-agent')}")
         logger.info(f"Cookies: {request.cookies}")
-        
+
         # Проверяем, что токен имеет формат JWT (содержит две точки)
-        if token.count('.') != 2:
+        if token.count(".") != 2:
             logger.error(f"Токен не соответствует формату JWT: {token[:15]}...")
             raise UnauthorizedError("Невалидный формат токена")
-        
+
         # Декодируем токен
         try:
             payload = jwt.decode(
-                token,
-                settings.JWT_SECRET_KEY,
-                algorithms=[settings.JWT_ALGORITHM]
+                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
             )
             logger.info(f"Токен декодирован успешно: {payload}")
         except jwt.JWTError as e:
             logger.error(f"Ошибка при декодировании токена: {str(e)}")
             raise UnauthorizedError(f"Ошибка декодирования токена: {str(e)}")
-        
+
         subject = payload.get("sub")
         logger.info(f"Subject из токена: {subject}")
-        
+
         if not subject:
             logger.error("Ошибка: subject отсутствует в токене")
             raise UnauthorizedError("Невалидный токен: отсутствует subject")
-        
+
         # Получаем пользователя по ID или email
         user_repo = UserRepository(db)
         user = None
-        
+
         # Проверяем, является ли значение числом
         if isinstance(subject, str) and subject.isdigit():
             logger.info(f"Поиск пользователя по ID: {subject}")
@@ -298,39 +328,36 @@ async def admin_post_handler(
         else:
             logger.info(f"Поиск пользователя по email: {subject}")
             user = await user_repo.get_by_email(subject)
-        
+
         if not user:
             logger.error(f"Пользователь с subject={subject} не найден")
             raise UnauthorizedError("Пользователь не найден")
-        
+
         logger.info(f"Пользователь найден: {user.email}, роль: {user.role}")
-        
+
         if not user.is_active:
             logger.error(f"Пользователь {user.email} неактивен")
             raise UnauthorizedError("Пользователь неактивен")
-        
+
         # Добавляем токен в заголовок запроса
         logger.info("Добавление токена в заголовок запроса")
         request.headers.__dict__["_list"].append(
             (b"authorization", f"Bearer {token}".encode())
         )
-        
+
         # Формируем URL для перенаправления
         redirect_url = f"{settings.ADMIN_PATH}/{path}"
         logger.info(f"Подготовка перенаправления на: {redirect_url}")
-        
+
         # Устанавливаем cookie с токеном
-        response = RedirectResponse(
-            url=redirect_url,
-            status_code=303
-        )
-        
+        response = RedirectResponse(url=redirect_url, status_code=303)
+
         # Добавляем отладочные заголовки в режиме разработки
         if settings.ENVIRONMENT == "development":
             response.headers["X-Debug-Token-Received"] = token[:10] + "..."
             response.headers["X-Debug-User"] = user.email
             response.headers["X-Debug-Role"] = user.role
-        
+
         logger.info(f"Установка cookie access_token для пользователя {user.email}")
         response.set_cookie(
             key="access_token",
@@ -339,15 +366,14 @@ async def admin_post_handler(
             secure=settings.SECURE_COOKIES,
             samesite="lax",
             max_age=60 * 60,  # 1 час
-            path="/",         # Доступен для всего сайта
+            path="/",  # Доступен для всего сайта
         )
-        
+
         logger.info(f"Перенаправление на {redirect_url}")
         return response
-        
+
     except (jwt.JWTError, UnauthorizedError) as e:
         logger.error(f"Ошибка при обработке токена: {str(e)}")
         return RedirectResponse(
-            url="/login?error=" + urllib.parse.quote(str(e)),
-            status_code=303
+            url="/login?error=" + urllib.parse.quote(str(e)), status_code=303
         )

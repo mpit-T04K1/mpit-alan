@@ -9,11 +9,7 @@ router = APIRouter()
 @router.get("/health")
 async def health_check():
     """Проверка работоспособности API"""
-    return {
-        "status": "ok",
-        "version": "0.1.0",
-        "app_name": settings.APP_NAME
-    }
+    return {"status": "ok", "version": "0.1.0", "app_name": settings.APP_NAME}
 
 
 @router.get("/health/db")
@@ -26,10 +22,10 @@ async def db_health_check():
         else:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Database connection failed"
+                detail="Database connection failed",
             )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Database connection failed: {str(e)}"
-        ) 
+            detail=f"Database connection failed: {str(e)}",
+        )

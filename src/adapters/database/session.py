@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 engine = create_async_engine(settings.DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Зависимость для получения сессии базы данных.
@@ -26,8 +27,3 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
-
-
-
-
-

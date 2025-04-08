@@ -1,9 +1,5 @@
 from src.settings import settings
-from src.core.security import (
-    create_access_token,
-    verify_password,
-    get_password_hash
-)
+from src.core.security import create_access_token, verify_password, get_password_hash
 from src.core.errors import (
     BadRequestError,
     ConflictError,
@@ -16,5 +12,5 @@ from src.core.errors import (
     forbidden_exception_handler,
     not_found_exception_handler,
     unauthorized_exception_handler,
-    validation_exception_handler
-) 
+    validation_exception_handler,
+)

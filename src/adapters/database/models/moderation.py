@@ -8,26 +8,29 @@ from .base import Base
 
 class ModerationStatus(str, enum.Enum):
     """Статусы модерации"""
-    PENDING = "pending"       # Ожидает модерации
-    APPROVED = "approved"     # Одобрено
-    REJECTED = "rejected"     # Отклонено
-    REVOKED = "revoked"       # Отозвано (после одобрения)
-    MODIFIED = "modified"     # Изменено (требует повторной модерации)
+
+    PENDING = "pending"  # Ожидает модерации
+    APPROVED = "approved"  # Одобрено
+    REJECTED = "rejected"  # Отклонено
+    REVOKED = "revoked"  # Отозвано (после одобрения)
+    MODIFIED = "modified"  # Изменено (требует повторной модерации)
 
 
 class ModerationAction(str, enum.Enum):
     """Действия модерации"""
-    SUBMIT = "submit"       # Отправить на модерацию
-    APPROVE = "approve"     # Одобрить
-    REJECT = "reject"       # Отклонить
-    REVOKE = "revoke"       # Отозвать одобрение
-    MODIFY = "modify"       # Изменить
+
+    SUBMIT = "submit"  # Отправить на модерацию
+    APPROVE = "approve"  # Одобрить
+    REJECT = "reject"  # Отклонить
+    REVOKE = "revoke"  # Отозвать одобрение
+    MODIFY = "modify"  # Изменить
 
 
 class ModerationRecord(Base):
     """Модель записи модерации"""
+
     __tablename__ = "moderation_records"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
@@ -43,15 +46,15 @@ class ModerationRecord(Base):
     moderator = relationship("User")
 
     def __init__(
-        self, 
-        entity_type: str, 
-        entity_id: int, 
+        self,
+        entity_type: str,
+        entity_id: int,
         action: ModerationAction,
         comments: str = None,
-        moderator_id: int = None
+        moderator_id: int = None,
     ):
         self.entity_type = entity_type
         self.entity_id = entity_id
         self.action = action
         self.comments = comments
-        self.moderator_id = moderator_id 
+        self.moderator_id = moderator_id

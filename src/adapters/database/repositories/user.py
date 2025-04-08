@@ -33,14 +33,14 @@ class UserRepository(BaseRepository[User]):
         user = await self.get_by_email(email)
         if not user:
             raise InvalidCredentials("User not found")
-        
+
         if not verify_password(password, user.password_hash):
             raise InvalidCredentials("Invalid password")
-        
+
         # Обновляем время последнего входа
         user.last_login = datetime.utcnow()
         self.session.add(user)
-        
+
         return user
 
     async def create_user(self, user_data: Dict[str, Any]) -> User:
@@ -49,13 +49,13 @@ class UserRepository(BaseRepository[User]):
         existing_user = await self.get_by_email(user_data["email"])
         if existing_user:
             raise UserAlreadyExists("User with this email already exists")
-        
+
         # Если указан телефон, проверяем его тоже
         if "phone" in user_data and user_data["phone"]:
             existing_user = await self.get_by_phone(user_data["phone"])
             if existing_user:
                 raise UserAlreadyExists("User with this phone already exists")
-        
+
         # Создаем пользователя
         user = await self.create(user_data)
         return user
@@ -64,4 +64,4 @@ class UserRepository(BaseRepository[User]):
         """Получить пользователей по роли"""
         query = select(User).where(User.role == role)
         result = await self.session.execute(query)
-        return list(result.scalars()) 
+        return list(result.scalars())

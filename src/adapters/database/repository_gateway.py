@@ -11,7 +11,7 @@ from src.adapters.database.repositories.analytics import AnalyticsRepository
 
 class RepositoriesGatewayProtocol(Protocol):
     """Протокол Gateway для всех репозиториев"""
-    
+
     user: UserRepository
     company: CompanyRepository
     service: ServiceRepository
@@ -21,10 +21,10 @@ class RepositoriesGatewayProtocol(Protocol):
 
 class RepositoriesGateway:
     """Gateway для доступа ко всем репозиториям"""
-    
+
     def __init__(self, session: AsyncSession):
         self.user = UserRepository(session)
         self.company = CompanyRepository(session)
         self.service = ServiceRepository(session)
         self.booking = BookingRepository(session)
-        self.analytics = AnalyticsRepository(session) 
+        self.analytics = AnalyticsRepository(session)

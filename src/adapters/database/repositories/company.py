@@ -28,7 +28,7 @@ class CompanyRepository(BaseRepository[Company]):
                 selectinload(Company.services),
                 selectinload(Company.working_hours),
                 selectinload(Company.media),
-                joinedload(Company.owner)
+                joinedload(Company.owner),
             )
         )
         result = await self.session.execute(query)
@@ -42,14 +42,11 @@ class CompanyRepository(BaseRepository[Company]):
 
     async def get_by_business_type(self, business_type: str) -> List[Company]:
         """Получить компании по типу бизнеса"""
-        query = (
-            select(Company)
-            .where(
-                and_(
-                    Company.business_type == business_type,
-                    Company.moderation_status == ModerationStatus.APPROVED.value,
-                    Company.is_active == True
-                )
+        query = select(Company).where(
+            and_(
+                Company.business_type == business_type,
+                Company.moderation_status == ModerationStatus.APPROVED.value,
+                Company.is_active == True,
             )
         )
         result = await self.session.execute(query)
@@ -64,20 +61,22 @@ class CompanyRepository(BaseRepository[Company]):
             Company.is_active == True,
             or_(
                 Company.name.ilike(f"%{search_term}%"),
-                Company.description.ilike(f"%{search_term}%")
-            )
+                Company.description.ilike(f"%{search_term}%"),
+            ),
         ]
-        
+
         if business_type:
             filters.append(Company.business_type == business_type)
-        
+
         query = select(Company).where(and_(*filters))
         result = await self.session.execute(query)
         return list(result.scalars())
 
     async def get_pending_moderation(self) -> List[Company]:
         """Получить компании, ожидающие модерации"""
-        query = select(Company).where(Company.moderation_status == ModerationStatus.PENDING.value)
+        query = select(Company).where(
+            Company.moderation_status == ModerationStatus.PENDING.value
+        )
         result = await self.session.execute(query)
         return list(result.scalars())
 
@@ -86,10 +85,10 @@ class CompanyRepository(BaseRepository[Company]):
     ) -> Company:
         """Обновить статус модерации компании"""
         company = await self.find_one(id=company_id)
-        
+
         company.moderation_status = status
         if notes:
             company.moderation_notes = notes
-        
+
         self.session.add(company)
-        return company 
+        return company

@@ -16,14 +16,8 @@ class ServiceRepository(BaseRepository[Service]):
 
     async def get_by_company(self, company_id: int) -> List[Service]:
         """Получить все услуги компании"""
-        query = (
-            select(Service)
-            .where(
-                and_(
-                    Service.company_id == company_id,
-                    Service.is_active == True
-                )
-            )
+        query = select(Service).where(
+            and_(Service.company_id == company_id, Service.is_active == True)
         )
         result = await self.session.execute(query)
         return list(result.scalars())
@@ -38,19 +32,21 @@ class ServiceRepository(BaseRepository[Service]):
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
-    async def search_services(self, search_term: str, company_id: Optional[int] = None) -> List[Service]:
+    async def search_services(
+        self, search_term: str, company_id: Optional[int] = None
+    ) -> List[Service]:
         """Поиск услуг по названию и описанию"""
         filters = [
             Service.is_active == True,
             or_(
                 Service.name.ilike(f"%{search_term}%"),
-                Service.description.ilike(f"%{search_term}%")
-            )
+                Service.description.ilike(f"%{search_term}%"),
+            ),
         ]
-        
+
         if company_id:
             filters.append(Service.company_id == company_id)
-        
+
         query = select(Service).where(and_(*filters))
         result = await self.session.execute(query)
         return list(result.scalars())
@@ -69,12 +65,12 @@ class ServiceRepository(BaseRepository[Service]):
         filters = [
             Service.is_active == True,
             Service.price >= min_price,
-            Service.price <= max_price
+            Service.price <= max_price,
         ]
-        
+
         if company_id:
             filters.append(Service.company_id == company_id)
-        
+
         query = select(Service).where(and_(*filters))
         result = await self.session.execute(query)
-        return list(result.scalars()) 
+        return list(result.scalars())

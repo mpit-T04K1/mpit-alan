@@ -29,17 +29,17 @@ def create_access_token(
 ) -> str:
     """Создание JWT токена доступа"""
     to_encode = data.copy()
-    
+
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.JWT_TOKEN_LIFETIME)
-    
+
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
-        to_encode, 
-        settings.JWT_SECRET_KEY.get_secret_value(), 
-        algorithm=settings.JWT_ALGORITHM
+        to_encode,
+        settings.JWT_SECRET_KEY.get_secret_value(),
+        algorithm=settings.JWT_ALGORITHM,
     )
     return encoded_jwt
 
@@ -50,8 +50,8 @@ def decode_token(token: str) -> Dict[str, Union[str, int]]:
         payload = jwt.decode(
             token,
             settings.JWT_SECRET_KEY.get_secret_value(),
-            algorithms=[settings.JWT_ALGORITHM]
+            algorithms=[settings.JWT_ALGORITHM],
         )
         return payload
     except jwt.PyJWTError:
-        raise ValueError("Invalid token") 
+        raise ValueError("Invalid token")

@@ -4,10 +4,12 @@ from sqlalchemy import Column, Integer, DateTime, ForeignKey, Float, JSON
 
 from .base import Base
 
+
 class Analytics(Base):
     """Модель аналитики"""
+
     __tablename__ = "analytics"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
@@ -16,16 +18,20 @@ class Analytics(Base):
     total_revenue = Column(Float, default=0.0, nullable=False)
     total_bookings = Column(Integer, default=0, nullable=False)
     average_booking_value = Column(Float, default=0.0, nullable=False)
-    completion_rate = Column(Float, default=0.0, nullable=False)  # процент завершенных бронирований
-    cancellation_rate = Column(Float, default=0.0, nullable=False)  # процент отмененных бронирований
+    completion_rate = Column(
+        Float, default=0.0, nullable=False
+    )  # процент завершенных бронирований
+    cancellation_rate = Column(
+        Float, default=0.0, nullable=False
+    )  # процент отмененных бронирований
     most_popular_service_id = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    
+
     # Детальная статистика по услугам, времени и т.д.
     service_statistics = Column(JSON, nullable=True)
     time_statistics = Column(JSON, nullable=True)
     client_statistics = Column(JSON, nullable=True)
-    
+
     def __repr__(self):
         period = f"{self.date_range_start.date()} to {self.date_range_end.date()}"
-        return f"<Analytics {period} ({self.company_id})>" 
+        return f"<Analytics {period} ({self.company_id})>"

@@ -5,9 +5,11 @@ from sqlalchemy.orm import relationship
 
 from .base import Base
 
+
 # Перечисление типов медиа
 class MediaType(str, enum.Enum):
     """Типы медиафайлов"""
+
     IMAGE = "image"
     VIDEO = "video"
     DOCUMENT = "document"
@@ -17,8 +19,9 @@ class MediaType(str, enum.Enum):
 
 class Media(Base):
     """Модель медиафайлов"""
+
     __tablename__ = "media"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
@@ -27,9 +30,9 @@ class Media(Base):
     url = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    
+
     # Отношения
     company = relationship("Company", back_populates="media")
-    
+
     def __repr__(self):
-        return f"<Media {self.name} ({self.type})>" 
+        return f"<Media {self.name} ({self.type})>"

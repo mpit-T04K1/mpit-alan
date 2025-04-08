@@ -4,8 +4,10 @@ from sqlalchemy.orm import relationship
 
 from .base import Base
 
+
 class DayOfWeek(str, Enum):
     """Дни недели"""
+
     MONDAY = "monday"
     TUESDAY = "tuesday"
     WEDNESDAY = "wednesday"
@@ -17,8 +19,9 @@ class DayOfWeek(str, Enum):
 
 class WorkingHours(Base):
     """Модель рабочих часов"""
+
     __tablename__ = "working_hours"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
@@ -26,11 +29,11 @@ class WorkingHours(Base):
     open_time = Column(Time, nullable=True)
     close_time = Column(Time, nullable=True)
     is_working_day = Column(Boolean, default=True, nullable=False)
-    
+
     # Отношения
     company = relationship("Company", back_populates="working_hours")
-    
+
     def __repr__(self):
         if not self.is_working_day:
             return f"<WorkingHours {self.day} (выходной)>"
-        return f"<WorkingHours {self.day} ({self.open_time}-{self.close_time})>" 
+        return f"<WorkingHours {self.day} ({self.open_time}-{self.close_time})>"
