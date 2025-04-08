@@ -1,33 +1,33 @@
 # Main dependencies
-fastapi>=0.102.0,<0.103.0
-uvicorn>=0.23.0,<0.24.0
-pydantic>=2.0.0,<3.0.0
-pydantic-settings>=2.0.0,<3.0.0
-email-validator>=2.0.0,<3.0.0
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+email-validator
 
 # Working with database
-sqlalchemy>=2.0.0,<3.0.0
-psycopg>=3.1.10,<4.0.0
+sqlalchemy
+psycopg
 asyncpg
-alembic>=1.12.0,<2.0.0
+alembic
 
 # Security
-passlib>=1.7.4,<2.0.0
-bcrypt>=4.0.1,<5.0.0
-python-jose>=3.3.0,<4.0.0
-python-multipart>=0.0.6,<0.1.0
-PyJWT>=2.5.0,<3.0.0
+passlib
+bcrypt
+python-jose
+python-multipart
+PyJWT
 
 # Working with files
-boto3>=1.28.50,<2.0.0
-aiofiles>=23.0.0,<24.0.0
+boto3
+aiofiles
 
 # HTTP client
-aiohttp>=3.8.5,<4.0.0
-httpx>=0.24.1,<0.25.0
+aiohttp
+httpx
 
 # Template engine
-jinja2>=3.1.0,<3.2.0 
+jinja2
 
 # Development
 ruff

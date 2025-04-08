@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
 from src.adapters.database.scripts import check_db_connection
-from src.settings import settings
 
 router = APIRouter()
 
@@ -9,7 +8,7 @@ router = APIRouter()
 @router.get("/health")
 async def health_check():
     """Проверка работоспособности API"""
-    return {"status": "ok", "version": "0.1.0", "app_name": settings.APP_NAME}
+    return {"status": "ok", "version": "0.1.0"}
 
 
 @router.get("/health/db")

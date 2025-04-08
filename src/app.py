@@ -24,7 +24,6 @@ from src.api.notifications import router as notifications_router
 from src.api.form_config import router as form_config_router
 from src.api.business_module import router as business_module_router
 from src.core.jinja_filters import configure_jinja_filters
-from src.adapters.database.scripts import create_default_admin
 from src.api.auth import register_user, login_for_access_token
 from src.schemas.user import UserCreate, UserResponse, Token, LoginRequest
 from src.repositories.user import UserRepository
@@ -97,19 +96,6 @@ app.include_router(
     business_module_router, prefix=f"{settings.ADMIN_PATH}", tags=["BusinessModule"]
 )
 
-
-# Событие запуска приложения
-@app.on_event("startup")
-async def startup_event():
-    """Выполняется при запуске приложения"""
-    try:
-        # Таблицы уже должны быть созданы через миграции или другие механизмы
-        # Просто создаем администратора по умолчанию, если его нет
-        await create_default_admin()
-
-        print("Приложение успешно запущено")
-    except Exception as e:
-        print(f"Ошибка при запуске приложения: {e}")
 
 
 @app.get("/")

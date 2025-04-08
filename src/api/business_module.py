@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.adapters.database.session import get_db
-from src.services.auth_service import get_current_user_optional
+from src.api.auth import get_current_user_optional
 from src.repositories.company import CompanyRepository
 from src.repositories.service import ServiceRepository
 from src.repositories.booking import BookingRepository
