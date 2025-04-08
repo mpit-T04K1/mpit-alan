@@ -58,9 +58,12 @@ app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 # Настройка шаблонов Jinja2
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
 def https_url_for(request: Request, name: str, **path_params: Any) -> str:
-    http_url = request.url_for(name, **path_params)
-    # Replace 'http' with 'https'
-    return http_url.replace("http", "https", 1)
+    url = settings.MAIN_PATH + name
+    if path_params:
+        params = [f"{name}={value}" for name, value in path_params.items()]
+        url += "?" + "&".join(params)
+    return url
+
 templates.env.globals["https_url_for"] = https_url_for
 
 app.state.templates = templates

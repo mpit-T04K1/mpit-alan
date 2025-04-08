@@ -44,7 +44,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Активные бронирования</h5>
                         <p class="card-text display-4">{{ active_bookings_count }}</p>
-                        <a href="{{ url_for('company_bookings', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
+                        <a href="{{ https_url_for(request, '/company_bookings', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
                             Подробнее <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
@@ -56,7 +56,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Услуги</h5>
                         <p class="card-text display-4">{{ services_count }}</p>
-                        <a href="{{ url_for('company_services', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
+                        <a href="{{ https_url_for(request, '/company_services', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
                             Подробнее <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
@@ -142,7 +142,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <a href="{{ url_for('company_bookings', company_id=company.id) }}" class="btn btn-sm btn-primary">
+                        <a href="{{ https_url_for(request, '/company_bookings', company_id=company.id) }}" class="btn btn-sm btn-primary">
                             Все бронирования <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
@@ -158,7 +158,7 @@
                         <canvas id="servicesChart" height="200" data-labels='["Услуга 1", "Услуга 2", "Услуга 3", "Услуга 4", "Другие"]' data-values='[35, 25, 15, 10, 15]'></canvas>
                     </div>
                     <div class="card-footer text-end">
-                        <a href="{{ url_for('company_services', company_id=company.id) }}" class="btn btn-sm btn-primary">
+                        <a href="{{ https_url_for(request, '/company_services', company_id=company.id) }}" class="btn btn-sm btn-primary">
                             Все услуги <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
@@ -175,7 +175,7 @@
         
         <div class="situation-card">
             <div class="text-center mb-3">
-                <img src="{{ company.logo_url or url_for('static', path='img/default-company-logo.png') }}" alt="{{ company.name }}" class="img-fluid rounded-circle company-logo" style="max-width: 120px;">
+                <img src="{{ company.logo_url or https_url_for(request, '/static/img/default-company-logo.png') }}" alt="{{ company.name }}" class="img-fluid rounded-circle company-logo" style="max-width: 120px;">
                 <h4 class="mt-2">{{ company.name }}</h4>
                 <p class="text-muted">{{ company.business_type }}</p>
             </div>
@@ -207,7 +207,7 @@
             </div>
             
             <div>
-                <a href="{{ url_for('company_settings', company_id=company.id) }}" class="btn btn-primary w-100">
+                <a href="{{ https_url_for(request, '/company_settings', company_id=company.id) }}" class="btn btn-primary w-100">
                     <i class="fas fa-edit"></i> Редактировать
                 </a>
             </div>
@@ -229,7 +229,7 @@
                 </ul>
             </div>
             <div class="situation-card-footer text-end">
-                <a href="{{ url_for('company_settings', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
+                <a href="{{ https_url_for(request, '/company_settings', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
                     Изменить расписание
                 </a>
             </div>
@@ -252,7 +252,7 @@
                 
                 // Если это не панель управления, перенаправляем на соответствующую страницу
                 if (section !== 'dashboard') {
-                    window.location.href = `{{ url_for('company_dashboard', company_id=company.id) }}`.replace('dashboard', section);
+                    window.location.href = `{{ https_url_for(request, '/company_dashboard', company_id=company.id) }}`.replace('dashboard', section);
                 }
             });
         });
