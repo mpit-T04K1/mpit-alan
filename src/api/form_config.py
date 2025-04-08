@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.adapters.database.session import get_db
-from src.api.auth import get_current_admin_user
+from src.services.auth_service import get_current_admin_user
 from src.repositories.form_config import FormConfigRepository
 from src.schemas.form_config import (
     FormConfigCreate,

@@ -7,7 +7,6 @@ from sqlalchemy import (
     ForeignKey,
     Text,
     Boolean,
-    Enum,
 )
 from sqlalchemy.orm import relationship
 import enum

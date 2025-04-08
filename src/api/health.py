@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from src.adapters.database.session import check_db_connection
+from src.adapters.database.scripts import check_db_connection
 from src.settings import settings
 
 router = APIRouter()

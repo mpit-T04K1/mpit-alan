@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, validator
 
-from src.adapters.database.models import BookingStatus
+from src.adapters.database.models.booking import BookingStatus
 
 
 class BookingBase(BaseModel):

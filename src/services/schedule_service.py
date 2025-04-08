@@ -3,7 +3,9 @@ from typing import Dict, List, Optional, Any
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.adapters.database.models import Schedule, TimeSlot
+from src.adapters.database.models import Schedule
+from src.adapters.database.models.schedule import TimeSlot
+
 from src.schemas.schedule import (
     ScheduleCreate,
     ScheduleUpdate,
