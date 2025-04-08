@@ -41,9 +41,6 @@ class LocationInDB(LocationBase):
     id: int
     company_id: int
 
-    class Config:
-        orm_mode = True
-
 
 class LocationResponse(LocationBase):
     """Схема ответа с данными локации"""
@@ -51,5 +48,3 @@ class LocationResponse(LocationBase):
     id: int
     company_id: int
 
-    class Config:
-        orm_mode = True

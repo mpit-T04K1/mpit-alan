@@ -68,8 +68,6 @@ class ModerationRecordInDB(ModerationRecordBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
 
 
 class ModerationRecordResponse(ModerationRecordBase):
@@ -81,9 +79,6 @@ class ModerationRecordResponse(ModerationRecordBase):
     auto_check_passed: bool
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class AutoCheckResult(BaseModel):

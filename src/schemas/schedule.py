@@ -136,9 +136,6 @@ class ScheduleInDB(ScheduleBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class ScheduleResponse(ScheduleInDB):
     """Схема ответа с данными расписания"""
@@ -179,9 +176,6 @@ class TimeSlotInDB(TimeSlotBase):
 
     id: int
     current_bookings: int = 0
-
-    class Config:
-        orm_mode = True
 
 
 class TimeSlotResponse(TimeSlotInDB):

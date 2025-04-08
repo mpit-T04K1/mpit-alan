@@ -79,8 +79,6 @@ class AnalyticsResponse(AnalyticsBase):
     client_statistics: AnalyticsClientStats
     created_at: datetime
 
-    class Config:
-        orm_mode = True
 
 
 class AnalyticsCreate(AnalyticsBase):

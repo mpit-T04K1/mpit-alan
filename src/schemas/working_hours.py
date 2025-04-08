@@ -50,8 +50,6 @@ class WorkingHoursInDB(WorkingHoursBase):
     id: int
     company_id: int
 
-    class Config:
-        orm_mode = True
 
 
 class WorkingHoursResponse(WorkingHoursBase):
@@ -59,6 +57,3 @@ class WorkingHoursResponse(WorkingHoursBase):
 
     id: int
     company_id: int
-
-    class Config:
-        orm_mode = True
