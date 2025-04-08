@@ -289,7 +289,7 @@ async def admin_post_handler(
         # Декодируем токен
         try:
             payload = jwt.decode(
-                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+                token, settings.JWT_SECRET_KEY.get_secret_value(), algorithms=[settings.JWT_ALGORITHM]
             )
             logger.info(f"Токен декодирован успешно: {payload}")
         except jwt.JWTError as e:
@@ -339,17 +339,16 @@ async def admin_post_handler(
         response = RedirectResponse(url=redirect_url, status_code=303)
 
         # Добавляем отладочные заголовки в режиме разработки
-        if settings.ENVIRONMENT == "development":
-            response.headers["X-Debug-Token-Received"] = token[:10] + "..."
-            response.headers["X-Debug-User"] = user.email
-            response.headers["X-Debug-Role"] = user.role
+
+        # response.headers["X-Debug-Token-Received"] = token[:10] + "..."
+        # response.headers["X-Debug-User"] = user.email
+        # response.headers["X-Debug-Role"] = user.role
 
         logger.info(f"Установка cookie access_token для пользователя {user.email}")
         response.set_cookie(
             key="access_token",
             value=token,
             httponly=True,
-            secure=settings.SECURE_COOKIES,
             samesite="lax",
             max_age=60 * 60,  # 1 час
             path="/",  # Доступен для всего сайта

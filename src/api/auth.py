@@ -188,7 +188,6 @@ async def login_for_access_token(
             key="access_token",
             value=access_token,
             httponly=True,
-            secure=settings.SECURE_COOKIES,
             samesite="lax",
             max_age=60 * 60,  # 1 час
             path="/",  # Доступен для всего сайта
