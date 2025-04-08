@@ -1,0 +1,20 @@
+{% extends "business/base.html" %}
+
+{% block title %}Доступ запрещен{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="error-container mt-5">
+            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 5rem;"></i>
+            <h1 class="mt-4">Доступ запрещен</h1>
+            <p class="lead">У вас нет прав для доступа к запрашиваемой странице.</p>
+            <div class="mt-4">
+                <a href="{{ url_for('business_module_home') }}" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i> Вернуться на главную
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Business Management API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Вход в систему</h1>
+        
+        <div class="alert alert-info mb-4">
+            <p class="mb-0">Введите данные вашего аккаунта</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success">Войти</button>
+            </div>
+        </form>
+        
+        <div class="text-center mt-4">
+            <p>Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+            <hr>
+            <p>
+                <a href="/" class="btn btn-link">На главную</a>
+                <a href="/docs" class="btn btn-link">API Документация</a>
+            </p>
+            
+            <!-- Отладочные кнопки -->
+            <div class="mt-3" style="border-top: 1px dashed #ccc; padding-top: 15px;">
+                <p class="text-muted small">Отладка API:</p>
+                <button id="testApiButton" class="btn btn-sm btn-outline-secondary" type="button">Проверить API напрямую</button>
+                <div id="apiTestResult" class="mt-2 small" style="white-space: pre-wrap;"></div>
+            </div>
+        </div>
+        
+        <!-- Модальное окно с результатом -->
+        <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" id="resultModalHeader">
+                        <h5 class="modal-title" id="resultModalLabel">Результат входа</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body" id="resultModalBody">
+                        <!-- Здесь будет текст результата -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalCloseButton">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Создаём FormData объект вместо JSON
+            const formData = new FormData();
+            formData.append('username', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+            
+            // Отображаем данные в консоли для отладки
+            console.log('Отправляемые данные:', {
+                username: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            });
+            
+            // Путь API для авторизации
+            const apiUrl = '/api/auth/token';
+            console.log('Отправка запроса на URL:', apiUrl);
+            
+            fetch(apiUrl, {
+                method: 'POST',
+                // Не указываем заголовки, чтобы браузер автоматически установил правильный Content-Type для FormData
+                body: formData
+            })
+            .then(response => {
+                console.log('Статус ответа:', response.status);
+                
+                // Возвращаем Promise с текстом и статусом
+                return response.text().then(text => {
+                    console.log('Текст ответа:', text);
+                    
+                    try {
+                        // Пробуем распарсить как JSON
+                        const data = JSON.parse(text);
+                        return { status: response.status, data, ok: response.ok };
+                    } catch (e) {
+                        // Если не удалось распарсить как JSON, возвращаем текст
+                        console.error('Ошибка парсинга JSON:', e);
+                        return { 
+                            status: response.status, 
+                            data: { detail: text || 'Ошибка входа' },
+                            ok: response.ok 
+                        };
+                    }
+                });
+            })
+            .then(result => {
+                console.log('Полученные данные:', result.data);
+                if (result.status === 200 && result.data.access_token) {
+                    localStorage.setItem('token', result.data.access_token);
+                    showModal('Успех!', 'Вход выполнен успешно. Вы будете перенаправлены в панель управления.', 'success');
+                    
+                    // Автоматическое перенаправление через 2 секунды
+                    setTimeout(function() {
+                        window.location.href = '/auth-bridge?redirect=/admin';
+                    }, 2000);
+                    
+                    // Также можно нажать кнопку закрытия для немедленного перенаправления
+                    document.getElementById('modalCloseButton').addEventListener('click', function() {
+                        window.location.href = '/auth-bridge?redirect=/admin';
+                    });
+                } else {
+                    let errorMessage = 'Произошла ошибка при входе';
+                    if (result.data && result.data.detail) {
+                        errorMessage = result.data.detail;
+                    } else if (result.data && result.data.error) {
+                        errorMessage = result.data.error;
+                    } else if (typeof result.data === 'string') {
+                        errorMessage = result.data;
+                    } else if (result.data) {
+                        errorMessage = typeof result.data === 'object' ? 
+                            'Ошибка сервера: ' + (JSON.stringify(result.data) || 'Неизвестная ошибка') : 
+                            result.data;
+                    }
+                    showModal('Ошибка!', errorMessage, 'danger');
+                    showDebugInfo(result);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                showModal('Ошибка!', 'Произошла ошибка при отправке данных: ' + error, 'danger');
+                showDebugInfo({error: error.toString(), message: 'Ошибка в catch блоке'});
+            });
+        });
+        
+        function showDebugInfo(error) {
+            // Создаем область для отладочной информации, если её ещё нет
+            let debugArea = document.getElementById('debugInfo');
+            if (!debugArea) {
+                debugArea = document.createElement('div');
+                debugArea.id = 'debugInfo';
+                debugArea.className = 'mt-3 p-2 border border-danger rounded bg-light text-danger';
+                debugArea.style.whiteSpace = 'pre-wrap';
+                debugArea.style.wordBreak = 'break-all';
+                document.querySelector('.container').appendChild(debugArea);
+            }
+            
+            // Выводим подробную информацию
+            debugArea.innerHTML = '<strong>Подробная информация об ошибке:</strong>\n';
+            debugArea.innerHTML += JSON.stringify(error, null, 2);
+        }
+        
+        function showModal(title, message, type) {
+            const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+            const modalHeader = document.getElementById('resultModalHeader');
+            const modalLabel = document.getElementById('resultModalLabel');
+            const modalBody = document.getElementById('resultModalBody');
+            
+            modalLabel.textContent = title;
+            modalBody.textContent = message;
+            
+            // Установка цвета заголовка модального окна
+            modalHeader.className = 'modal-header';
+            if (type === 'success') {
+                modalHeader.classList.add('bg-success', 'text-white');
+            } else if (type === 'danger') {
+                modalHeader.classList.add('bg-danger', 'text-white');
+            }
+            
+            modal.show();
+        }
+        
+        // Отладочный код для проверки API напрямую
+        document.getElementById('testApiButton').addEventListener('click', function() {
+            const resultDiv = document.getElementById('apiTestResult');
+            resultDiv.innerHTML = 'Отправка тестового запроса...\n';
+            
+            const username = 'test'+ Math.floor(Math.random()*10000) +'@example.com';
+            const password = 'password123';
+            
+            resultDiv.innerHTML += `Логин: ${username}, Пароль: ${password}\n`;
+            
+            // Проверяем с разными URL для выяснения правильного маршрута
+            const urls = [
+                '/api/auth/token',
+                '/auth/token',
+                '/api/auth/login',
+                '/auth/login'
+            ];
+            
+            let completedRequests = 0;
+            
+            urls.forEach(url => {
+                resultDiv.innerHTML += `\nПробуем URL: ${url}\n`;
+                
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    resultDiv.innerHTML += `Статус: ${response.status}\n`;
+                    return response.text();
+                })
+                .then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        resultDiv.innerHTML += `Ответ: ${JSON.stringify(data)}\n`;
+                    } catch (e) {
+                        resultDiv.innerHTML += `Текст ответа: ${text}\n`;
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML += `Ошибка: ${error}\n`;
+                })
+                .finally(() => {
+                    completedRequests++;
+                    if (completedRequests === urls.length) {
+                        resultDiv.innerHTML += '\nВсе тесты завершены.\n';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,272 @@
+{% extends "business/base.html" %}
+
+{% block title %}Регистрация бизнеса | QWERTYTOWN{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/business.css') }}">
+<style>
+    /* Стили, соответствующие дизайну kaliningrad-1 */
+    body {
+        background-color: var(--bg-dark);
+        color: var(--text-white);
+        font-family: var(--font-family-primary);
+    }
+    
+    .business-form-container {
+        background-color: var(--bg-panel);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: var(--shadow-blue);
+        border: 1px solid rgba(71, 193, 232, 0.2);
+        margin-top: 20px;
+    }
+    
+    .business-form-container:hover {
+        box-shadow: var(--shadow-pink);
+    }
+    
+    .form-title {
+        color: var(--text-white);
+        position: relative;
+        display: inline-block;
+        margin-bottom: 30px;
+    }
+    
+    .form-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -5px;
+        width: 100%;
+        height: 2px;
+        background: var(--gradient-primary);
+    }
+    
+    .form-control {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-white);
+        border-radius: 8px;
+        padding: 12px 15px;
+    }
+    
+    .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 0.2rem rgba(71, 193, 232, 0.25);
+        color: var(--text-white);
+    }
+    
+    .btn-primary {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 25px;
+        font-weight: 600;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-blue);
+    }
+    
+    .form-label {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="form-title">Регистрация вашего бизнеса</h1>
+            
+            <div class="business-form-container">
+                <!-- Левая панель - Выбор типа бизнеса -->
+                <div class="situation-panel situation-panel-left">
+                    <div class="situation-panel-header">
+                        <h3>Типы бизнеса</h3>
+                    </div>
+                    
+                    <ul class="situation-item-list">
+                        {% for type in business_types %}
+                        <li class="situation-item {% if business_type == type.value %}active{% endif %}" data-business-type="{{ type.value }}">
+                            {% if type.value == 'restaurant' %}
+                            <i class="fas fa-utensils"></i>
+                            {% elif type.value == 'beauty' %}
+                            <i class="fas fa-cut"></i>
+                            {% elif type.value == 'clinic' %}
+                            <i class="fas fa-hospital"></i>
+                            {% elif type.value == 'service' %}
+                            <i class="fas fa-tools"></i>
+                            {% else %}
+                            <i class="fas fa-building"></i>
+                            {% endif %}
+                            {{ type.label }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <!-- Основная панель - Форма регистрации -->
+                <div class="situation-panel situation-panel-main">
+                    <div class="situation-panel-header">
+                        <h3>Регистрация компании</h3>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Выберите тип бизнеса в левой панели, чтобы получить оптимизированную форму регистрации для вашего типа бизнеса.
+                    </div>
+                    
+                    <div id="dynamic-form-container"></div>
+                </div>
+                
+                <!-- Правая панель - Информация и подсказки -->
+                <div class="situation-panel situation-panel-right">
+                    <div class="situation-panel-header">
+                        <h3>Полезная информация</h3>
+                    </div>
+                    
+                    <div class="situation-card">
+                        <div class="situation-card-header">
+                            <h5>Что такое ситуационный центр?</h5>
+                        </div>
+                        <div class="situation-card-body">
+                            <p>Вы используете интерфейс "ситуационного центра", который адаптируется к устройству, с которого вы работаете:</p>
+                            <ul>
+                                <li>На <strong>компьютере</strong> вы видите все три панели одновременно</li>
+                                <li>На <strong>планшете</strong> переключайтесь между панелями с помощью кнопок</li>
+                                <li>На <strong>смартфоне</strong> свайпайте для перехода между панелями</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="situation-card">
+                        <div class="situation-card-header">
+                            <h5>Процесс регистрации компании</h5>
+                        </div>
+                        <div class="situation-card-body">
+                            <ol>
+                                <li><strong>Заполните форму</strong><br>Укажите информацию о вашей компании</li>
+                                <li><strong>Модерация</strong><br>Данные будут проверены модератором</li>
+                                <li><strong>Активация</strong><br>После одобрения компания станет доступна клиентам</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="situation-card">
+                        <div class="situation-card-header">
+                            <h5>Советы по заполнению</h5>
+                        </div>
+                        <div class="situation-card-body">
+                            <ul>
+                                <li>Используйте реальные контактные данные</li>
+                                <li>Загрузите качественный логотип</li>
+                                <li>Укажите детальное описание ваших услуг</li>
+                                <li>Добавьте точное расписание работы</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Скрытый элемент для передачи данных из Jinja в JavaScript -->
+<div id="form-config-data" style="display:none" data-config="{{ form_config.config|tojson if form_config else '{}' }}"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получение параметров из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const businessType = urlParams.get('business_type') || 'default';
+        
+        // Получаем данные конфигурации из скрытого элемента
+        const configElement = document.getElementById('form-config-data');
+        let formConfig = {};
+        
+        try {
+            formConfig = JSON.parse(configElement.getAttribute('data-config'));
+        } catch (error) {
+            console.error('Error parsing form config:', error);
+        }
+        
+        // Загрузка формы
+        loadDynamicForm(businessType);
+        
+        // Обработчики событий для выбора типа бизнеса
+        document.querySelectorAll('.situation-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const type = this.getAttribute('data-business-type');
+                
+                // Обновляем активную ссылку
+                document.querySelectorAll('.situation-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Загружаем форму для выбранного типа бизнеса
+                loadDynamicForm(type);
+            });
+        });
+        
+        // Функция загрузки динамической формы
+        function loadDynamicForm(businessType) {
+            const url = `/api/form-configs?business_type=${businessType}&form_type=company_registration`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        formConfig = data[0].config;
+                    }
+                    
+                    // Добавляем обработчики событий
+                    formConfig.onSubmit = function(data) {
+                        // Отправка данных на сервер для создания компании
+                        fetch('/api/companies', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Ошибка создания компании');
+                            }
+                            return response.json();
+                        })
+                        .then(company => {
+                            showNotification('Компания успешно создана и отправлена на модерацию', 'success');
+                            // Перенаправление на страницу компании
+                            setTimeout(() => {
+                                window.location.href = `/admin/company/${company.id}`;
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            showNotification(`Ошибка: ${error.message}`, 'danger');
+                        });
+                    };
+                    
+                    formConfig.onCancel = function() {
+                        if (confirm('Вы уверены, что хотите отменить регистрацию компании?')) {
+                            window.location.href = '/admin';
+                        }
+                    };
+                    
+                    // Создаем экземпляр формы
+                    const form = new DynamicForm('dynamic-form-container', formConfig);
+                })
+                .catch(error => {
+                    console.error('Error loading form configuration:', error);
+                    showNotification('Ошибка загрузки конфигурации формы', 'danger');
+                });
+        }
+    });
+</script>
+{% endblock %}

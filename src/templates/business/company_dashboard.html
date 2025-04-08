@@ -1,0 +1,261 @@
+{% extends "business/base.html" %}
+
+{% block title %}Панель управления компанией {{ company.name }}{% endblock %}
+
+{% block content %}
+<div class="situation-center">
+    <!-- Левая панель - Список элементов -->
+    <div class="situation-panel situation-panel-left">
+        <div class="situation-panel-header">
+            <h3>Основные разделы</h3>
+        </div>
+        
+        <ul class="situation-item-list">
+            <li class="situation-item active" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Панель управления
+            </li>
+            <li class="situation-item" data-section="services">
+                <i class="fas fa-list"></i> Услуги
+                <span class="badge bg-primary">{{ services_count }}</span>
+            </li>
+            <li class="situation-item" data-section="bookings">
+                <i class="fas fa-calendar-alt"></i> Бронирования
+                <span class="badge bg-primary">{{ active_bookings_count }}</span>
+            </li>
+            <li class="situation-item" data-section="analytics">
+                <i class="fas fa-chart-line"></i> Аналитика
+            </li>
+            <li class="situation-item" data-section="settings">
+                <i class="fas fa-cog"></i> Настройки
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Основная панель - Содержимое -->
+    <div class="situation-panel situation-panel-main">
+        <div class="situation-panel-header">
+            <h3>Панель управления</h3>
+        </div>
+        
+        <div class="row">
+            <!-- Карточки с основными показателями -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Активные бронирования</h5>
+                        <p class="card-text display-4">{{ active_bookings_count }}</p>
+                        <a href="{{ url_for('company_bookings', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Услуги</h5>
+                        <p class="card-text display-4">{{ services_count }}</p>
+                        <a href="{{ url_for('company_services', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Рейтинг</h5>
+                        <p class="card-text display-4">{{ company.rating|default(0.0, true)|round(1) }} <small class="text-muted">/5</small></p>
+                        <div>
+                            {% for i in range(5) %}
+                                {% if i < (company.rating|default(0, true)|int) %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% elif i < (company.rating|default(0, true)) %}
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small class="text-muted ml-2">({{ company.ratings_count|default(0, true) }} оценок)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Статус модерации</h5>
+                        {% if company.moderation_status == 'approved' %}
+                            <p class="card-text display-6 text-success">Одобрено</p>
+                            <p class="text-muted">Компания прошла модерацию и доступна клиентам</p>
+                        {% elif company.moderation_status == 'pending' %}
+                            <p class="card-text display-6 text-warning">На проверке</p>
+                            <p class="text-muted">Компания ожидает проверки модератора</p>
+                        {% else %}
+                            <p class="card-text display-6 text-danger">Отклонено</p>
+                            <p class="text-muted">{{ company.moderation_comment or 'Компания не прошла модерацию' }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- График активности -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Активность бронирований</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="bookingsChart" height="300" data-labels='["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]' data-values='[5, 12, 8, 15, 25, 30, 22]'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Последние бронирования и активности -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5>Последние бронирования</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            {% for i in range(5) %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Услуга #{{ (i + 1) }}</h6>
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar"></i> {{ now().strftime('%d.%m.%Y') }} {{ (9 + (i % 8))|string }}:00
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-success">Подтверждено</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <a href="{{ url_for('company_bookings', company_id=company.id) }}" class="btn btn-sm btn-primary">
+                            Все бронирования <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5>Популярные услуги</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="servicesChart" height="200" data-labels='["Услуга 1", "Услуга 2", "Услуга 3", "Услуга 4", "Другие"]' data-values='[35, 25, 15, 10, 15]'></canvas>
+                    </div>
+                    <div class="card-footer text-end">
+                        <a href="{{ url_for('company_services', company_id=company.id) }}" class="btn btn-sm btn-primary">
+                            Все услуги <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Правая панель - Детальная информация -->
+    <div class="situation-panel situation-panel-right">
+        <div class="situation-panel-header">
+            <h3>Информация о компании</h3>
+        </div>
+        
+        <div class="situation-card">
+            <div class="text-center mb-3">
+                <img src="{{ company.logo_url or url_for('static', path='img/default-company-logo.png') }}" alt="{{ company.name }}" class="img-fluid rounded-circle company-logo" style="max-width: 120px;">
+                <h4 class="mt-2">{{ company.name }}</h4>
+                <p class="text-muted">{{ company.business_type }}</p>
+            </div>
+            
+            <div class="mb-3">
+                <h6>Описание</h6>
+                <p>{{ company.description or 'Описание отсутствует' }}</p>
+            </div>
+            
+            <div class="mb-3">
+                <h6>Контактная информация</h6>
+                <ul class="list-unstyled">
+                    {% if company.contact_name %}
+                    <li><i class="fas fa-user me-2"></i> {{ company.contact_name }}</li>
+                    {% endif %}
+                    
+                    {% if company.contact_phone %}
+                    <li><i class="fas fa-phone me-2"></i> {{ company.contact_phone }}</li>
+                    {% endif %}
+                    
+                    {% if company.contact_email %}
+                    <li><i class="fas fa-envelope me-2"></i> {{ company.contact_email }}</li>
+                    {% endif %}
+                    
+                    {% if company.website %}
+                    <li><i class="fas fa-globe me-2"></i> <a href="{{ company.website }}" target="_blank">{{ company.website }}</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <div>
+                <a href="{{ url_for('company_settings', company_id=company.id) }}" class="btn btn-primary w-100">
+                    <i class="fas fa-edit"></i> Редактировать
+                </a>
+            </div>
+        </div>
+        
+        <!-- Расписание работы -->
+        <div class="situation-card">
+            <div class="situation-card-header">
+                <h5>Расписание работы</h5>
+            </div>
+            <div class="situation-card-body">
+                <ul class="list-group list-group-flush">
+                    {% for day in ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"] %}
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>{{ day }}</span>
+                        <span>10:00 - 20:00</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="situation-card-footer text-end">
+                <a href="{{ url_for('company_settings', company_id=company.id) }}" class="btn btn-sm btn-outline-primary">
+                    Изменить расписание
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Переключение между разделами в левой панели
+        document.querySelectorAll('.situation-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.getAttribute('data-section');
+                
+                // Обновляем активную ссылку
+                document.querySelectorAll('.situation-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Если это не панель управления, перенаправляем на соответствующую страницу
+                if (section !== 'dashboard') {
+                    window.location.href = `{{ url_for('company_dashboard', company_id=company.id) }}`.replace('dashboard', section);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 
