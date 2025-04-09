@@ -1,0 +1,486 @@
+{% extends "modular_base.html" %}
+
+{% block title %}Конструктор интерфейса - {{ business.name if business else 'Бизнес' }}{% endblock %}
+
+{% block main_panel %}
+<div class="section active" style="padding: 30px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <div class="container">
+        <h2 class="text-center mb-4 text-light">Конструктор интерфейса</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card" style="background-color: #1a1a1a; border: 1px solid rgba(71, 193, 232, 0.3); border-radius: 15px; box-shadow: 0 0 20px rgba(71, 193, 232, 0.2);">
+                    <div class="card-header" style="background-color: rgba(71, 193, 232, 0.2); border-bottom: 1px solid rgba(71, 193, 232, 0.3); border-radius: 15px 15px 0 0;">
+                        <h4 class="text-light text-center mb-0">Настройка панелей</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="configForm" class="config-form">
+                            <input type="hidden" id="business_id" name="business_id" value="{{ business.id if business else '' }}">
+                            
+                            <div class="mb-4">
+                                <h5 class="text-light mb-3">Активные панели</h5>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="panel_business_info" name="panels.business-info" checked>
+                                    <label class="form-check-label text-light" for="panel_business_info">Информация о бизнесе</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="panel_menu" name="panels.menu" checked>
+                                    <label class="form-check-label text-light" for="panel_menu">Меню</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="panel_map" name="panels.map" checked>
+                                    <label class="form-check-label text-light" for="panel_map">Карта и адрес</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="panel_contacts" name="panels.contacts" checked>
+                                    <label class="form-check-label text-light" for="panel_contacts">Контакты</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="panel_gallery" name="panels.gallery" checked>
+                                    <label class="form-check-label text-light" for="panel_gallery">Галерея</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Секция настройки меню -->
+                            <div id="menu_config_section" class="mb-4">
+                                <h5 class="text-light mb-3">Настройка меню</h5>
+                                <div class="menu-categories">
+                                    <div id="menu_categories_container">
+                                        <!-- Здесь будут категории меню -->
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-sm btn-outline-info mt-2" id="add_category_btn" style="border-radius: 20px">
+                                        <i class="bi bi-plus-circle me-1"></i> Добавить категорию
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-neon" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 500;">
+                                    <i class="bi bi-save me-2"></i> Сохранить конфигурацию
+                                </button>
+                                <a href="/test" class="btn btn-outline-light" style="border-radius: 30px; font-weight: 500;">
+                                    <i class="bi bi-eye me-2"></i> Просмотреть страницу бизнеса
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card" style="background-color: #1a1a1a; border: 1px solid rgba(228, 43, 212, 0.3); border-radius: 15px; box-shadow: 0 0 20px rgba(228, 43, 212, 0.2);">
+                    <div class="card-header" style="background-color: rgba(228, 43, 212, 0.2); border-bottom: 1px solid rgba(228, 43, 212, 0.3); border-radius: 15px 15px 0 0;">
+                        <h4 class="text-light text-center mb-0">Предварительный просмотр</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="preview-container" style="background-color: #2a2a2a; border-radius: 10px; padding: 20px; min-height: 400px;">
+                            <div class="preview-sidebar" style="background-color: #1a1a1a; border-radius: 10px; padding: 15px; width: 100%; margin-bottom: 20px;">
+                                <h5 class="text-light text-center mb-3">Боковая панель</h5>
+                                <div id="preview-nav" class="preview-nav">
+                                    <div class="preview-nav-item preview-business-info">
+                                        <i class="bi bi-house text-light"></i>
+                                        <span class="text-light">О нас</span>
+                                    </div>
+                                    <div class="preview-nav-item preview-menu">
+                                        <i class="bi bi-journal-text text-light"></i>
+                                        <span class="text-light">Меню</span>
+                                    </div>
+                                    <div class="preview-nav-item preview-map">
+                                        <i class="bi bi-geo-alt text-light"></i>
+                                        <span class="text-light">Где мы</span>
+                                    </div>
+                                    <div class="preview-nav-item preview-contacts">
+                                        <i class="bi bi-telephone text-light"></i>
+                                        <span class="text-light">Контакты</span>
+                                    </div>
+                                    <div class="preview-nav-item preview-gallery">
+                                        <i class="bi bi-images text-light"></i>
+                                        <span class="text-light">Галерея</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="preview-main" style="background-color: #1a1a1a; border-radius: 10px; padding: 15px; width: 100%;">
+                                <h5 class="text-light text-center mb-3">Основная панель</h5>
+                                <div id="preview-content" class="preview-content text-center">
+                                    <p class="text-light-50">Здесь будет отображаться содержимое выбранной секции.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+.config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preview-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.preview-nav-item:hover {
+    background-color: rgba(71, 193, 232, 0.2);
+}
+
+.form-check-input {
+    cursor: pointer;
+    background-color: #2a2a2a;
+    border-color: #47c1e8;
+}
+
+.form-check-input:checked {
+    background-color: #47c1e8;
+    border-color: #47c1e8;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block sidebar_panel %}
+<div class="logo-container text-center mb-4" style="background-color: #1a1a1a;">
+    <div class="brand-logo">{{ business.name if business else 'QWERTYTOWN' }}</div>
+    <h4 class="text-light">Конструктор</h4>
+</div>
+
+<div class="navigation" style="background-color: #1a1a1a;">
+    <div class="nav-item active" data-target="welcome">
+        <i class="bi bi-tools text-light"></i>
+        <span class="text-light">Настройка</span>
+    </div>
+    <a href="/test" class="nav-item" style="text-decoration: none;">
+        <i class="bi bi-eye text-light"></i>
+        <span class="text-light">Просмотр</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block info_panel %}
+<div class="info-section active text-center" style="background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">Информация</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <div class="row w-100">
+            <div class="col-md-12">
+                <h5 class="text-light text-center">Конструктор интерфейса</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    Здесь вы можете настроить, какие элементы будут отображаться на странице вашего бизнеса.
+                    Отметьте галочками нужные панели и нажмите кнопку "Сохранить конфигурацию".
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    После сохранения вы сможете просмотреть результат, перейдя по ссылке "Просмотреть страницу бизнеса".
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Загружен шаблон конструктора');
+    
+    // Получаем существующую конфигурацию, если она есть
+    const configData = JSON.parse('{{ config|tojson if config else "null" }}');
+    const businessData = JSON.parse('{{ business|tojson if business else "null" }}');
+    
+    console.log('Текущая конфигурация:', configData);
+    console.log('Данные бизнеса:', businessData);
+    
+    // Инициализируем чекбоксы на основе данных конфигурации
+    if (configData && configData.panels) {
+        document.getElementById('panel_business_info').checked = configData.panels['business-info'] !== false;
+        document.getElementById('panel_menu').checked = configData.panels['menu'] !== false;
+        document.getElementById('panel_map').checked = configData.panels['map'] !== false;
+        document.getElementById('panel_contacts').checked = configData.panels['contacts'] !== false;
+        document.getElementById('panel_gallery').checked = configData.panels['gallery'] !== false;
+    }
+    
+    // Обновляем предпросмотр при изменении чекбоксов
+    const checkboxes = document.querySelectorAll('.form-check-input');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updatePreview);
+        // Инициализируем предпросмотр
+        updatePreview();
+    });
+    
+    // Функция обновления предпросмотра
+    function updatePreview() {
+        const businessInfoChecked = document.getElementById('panel_business_info').checked;
+        const menuChecked = document.getElementById('panel_menu').checked;
+        const mapChecked = document.getElementById('panel_map').checked;
+        const contactsChecked = document.getElementById('panel_contacts').checked;
+        const galleryChecked = document.getElementById('panel_gallery').checked;
+        
+        // Обновляем видимость элементов в предпросмотре
+        document.querySelector('.preview-business-info').style.display = businessInfoChecked ? 'flex' : 'none';
+        document.querySelector('.preview-menu').style.display = menuChecked ? 'flex' : 'none';
+        document.querySelector('.preview-map').style.display = mapChecked ? 'flex' : 'none';
+        document.querySelector('.preview-contacts').style.display = contactsChecked ? 'flex' : 'none';
+        document.querySelector('.preview-gallery').style.display = galleryChecked ? 'flex' : 'none';
+    }
+    
+    // Обработчик отправки формы
+    document.getElementById('configForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Показываем индикатор загрузки
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Сохранение...';
+        
+        // Сохранение конфигурации
+        try {
+            // Собираем данные о статусе панелей
+            const businessInfoChecked = document.getElementById('panel_business_info').checked;
+            const menuChecked = document.getElementById('panel_menu').checked;
+            const mapChecked = document.getElementById('panel_map').checked;
+            const contactsChecked = document.getElementById('panel_contacts').checked;
+            const galleryChecked = document.getElementById('panel_gallery').checked;
+            
+            // Собираем данные о меню, если оно активно
+            let menuData = null;
+            if (menuChecked) {
+                const categories = [];
+                
+                // Проходим по всем категориям в интерфейсе
+                const categoryElements = document.querySelectorAll('.menu-category-item');
+                categoryElements.forEach(categoryEl => {
+                    const categoryId = categoryEl.getAttribute('data-category-id');
+                    const categoryName = categoryEl.querySelector('.category-name').value.trim();
+                    
+                    if (categoryName) {
+                        const items = [];
+                        
+                        // Собираем позиции меню в категории
+                        const itemElements = categoryEl.querySelectorAll('.menu-item');
+                        itemElements.forEach(itemEl => {
+                            const itemId = itemEl.getAttribute('data-item-id');
+                            const itemName = itemEl.querySelector('.item-name').value.trim();
+                            const itemPrice = parseFloat(itemEl.querySelector('.item-price').value) || 0;
+                            const itemDescription = itemEl.querySelector('.item-description').value.trim();
+                            
+                            if (itemName) {
+                                items.push({
+                                    id: itemId,
+                                    name: itemName,
+                                    price: itemPrice,
+                                    description: itemDescription,
+                                    image: null
+                                });
+                            }
+                        });
+                        
+                        categories.push({
+                            id: categoryId,
+                            name: categoryName,
+                            items: items
+                        });
+                    }
+                });
+                
+                if (categories.length > 0) {
+                    menuData = {
+                        categories: categories
+                    };
+                }
+            }
+            
+            // Формируем объект конфигурации
+            const configData = {
+                business_id: '{{ business.id }}',
+                panels: {
+                    'business-info': businessInfoChecked,
+                    'menu': menuChecked,
+                    'map': mapChecked,
+                    'contacts': contactsChecked,
+                    'gallery': galleryChecked
+                },
+                menu: menuData
+            };
+            
+            console.log('Отправляемая конфигурация:', configData);
+            
+            // Отправляем данные на сервер
+            const response = await fetch('/api/save-config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(configData)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert('Конфигурация успешно сохранена');
+                // После успешного сохранения, перезагрузим страницу
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                alert('Ошибка при сохранении конфигурации: ' + (data.detail || 'Неизвестная ошибка'));
+            }
+        } catch (error) {
+            console.error('Ошибка при сохранении конфигурации:', error);
+            alert('Ошибка при сохранении конфигурации: ' + error.message);
+        } finally {
+            // Восстанавливаем кнопку
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+    
+    // Управление категориями и позициями меню
+    const menuConfigSection = document.getElementById('menu_config_section');
+    const menuCategoriesContainer = document.getElementById('menu_categories_container');
+    const addCategoryBtn = document.getElementById('add_category_btn');
+    
+    // Показываем/скрываем секцию настройки меню в зависимости от состояния чекбокса
+    function toggleMenuConfigSection() {
+        const menuChecked = document.getElementById('panel_menu').checked;
+        menuConfigSection.style.display = menuChecked ? 'block' : 'none';
+    }
+    
+    // Вызываем функцию при загрузке страницы и при изменении чекбокса
+    toggleMenuConfigSection();
+    document.getElementById('panel_menu').addEventListener('change', toggleMenuConfigSection);
+    
+    // Функция для генерации уникального ID
+    function generateUniqueId() {
+        return 'id_' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    // Загружаем существующие категории и позиции из конфигурации
+    function loadMenuData() {
+        menuCategoriesContainer.innerHTML = '';
+        
+        if (configData && configData.menu && configData.menu.categories) {
+            configData.menu.categories.forEach(category => {
+                addCategoryToUI(category.id, category.name, category.items);
+            });
+        }
+    }
+    
+    // Добавление категории в интерфейс
+    function addCategoryToUI(categoryId = generateUniqueId(), categoryName = '', items = []) {
+        const categoryElement = document.createElement('div');
+        categoryElement.className = 'menu-category-item card mb-3';
+        categoryElement.setAttribute('data-category-id', categoryId);
+        categoryElement.style.backgroundColor = '#2a2a2a';
+        categoryElement.style.borderRadius = '10px';
+        categoryElement.style.border = '1px solid rgba(71, 193, 232, 0.3)';
+        
+        categoryElement.innerHTML = `
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: rgba(71, 193, 232, 0.2);">
+                <input type="text" class="form-control form-control-sm category-name" placeholder="Название категории" value="${categoryName}" required style="background-color: #1a1a1a; color: white; border-color: #47c1e8;">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-category" style="border-radius: 20px">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="menu-items-container">
+                    <!-- Здесь будут позиции меню -->
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-light add-item mt-2" style="border-radius: 20px">
+                    <i class="bi bi-plus-circle me-1"></i> Добавить позицию
+                </button>
+            </div>
+        `;
+        
+        menuCategoriesContainer.appendChild(categoryElement);
+        
+        // Добавляем обработчик для удаления категории
+        categoryElement.querySelector('.remove-category').addEventListener('click', function() {
+            if (confirm('Вы уверены, что хотите удалить эту категорию?')) {
+                categoryElement.remove();
+            }
+        });
+        
+        // Добавляем обработчик для добавления позиции
+        categoryElement.querySelector('.add-item').addEventListener('click', function() {
+            addMenuItemToCategory(categoryElement);
+        });
+        
+        // Если есть позиции, добавляем их
+        if (items && items.length > 0) {
+            items.forEach(item => {
+                addMenuItemToCategory(categoryElement, item.id, item.name, item.price, item.description);
+            });
+        }
+    }
+    
+    // Добавление позиции меню в категорию
+    function addMenuItemToCategory(categoryElement, itemId = generateUniqueId(), itemName = '', itemPrice = '', itemDescription = '') {
+        const itemsContainer = categoryElement.querySelector('.menu-items-container');
+        const itemElement = document.createElement('div');
+        itemElement.className = 'menu-item card mb-2';
+        itemElement.setAttribute('data-item-id', itemId);
+        itemElement.style.backgroundColor = '#1a1a1a';
+        itemElement.style.borderRadius = '10px';
+        
+        itemElement.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <input type="text" class="form-control form-control-sm me-2 item-name" placeholder="Название позиции" value="${itemName}" required style="background-color: #2a2a2a; color: white;">
+                    <div class="input-group input-group-sm" style="max-width: 150px;">
+                        <input type="number" class="form-control item-price" placeholder="Цена" value="${itemPrice}" required style="background-color: #2a2a2a; color: white;">
+                        <span class="input-group-text" style="background-color: #2a2a2a; color: white;">₽</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-item ms-2" style="border-radius: 20px">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <textarea class="form-control form-control-sm item-description" placeholder="Описание позиции" rows="2" style="background-color: #2a2a2a; color: white;">${itemDescription}</textarea>
+            </div>
+        `;
+        
+        itemsContainer.appendChild(itemElement);
+        
+        // Добавляем обработчик для удаления позиции
+        itemElement.querySelector('.remove-item').addEventListener('click', function() {
+            itemElement.remove();
+        });
+    }
+    
+    // Обработчик нажатия на кнопку добавления категории
+    addCategoryBtn.addEventListener('click', function() {
+        addCategoryToUI();
+    });
+    
+    // Загружаем существующие данные меню при загрузке страницы
+    loadMenuData();
+});
+</script>
+
+<!-- Добавляем стиль для анимации вращения -->
+<style>
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %} 

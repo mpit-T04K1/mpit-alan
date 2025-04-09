@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Business Management API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Регистрация пользователя</h1>
+        
+        <div class="alert alert-info mb-4">
+            <p class="mb-0">Заполните форму для создания нового аккаунта</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email *</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль *</label>
+                <input type="password" class="form-control" id="password" name="password" minlength="8" required>
+                <div class="form-text">Минимум 8 символов</div>
+            </div>
+            <div class="mb-3">
+                <label for="password_confirm" class="form-label">Подтверждение пароля *</label>
+                <input type="password" class="form-control" id="password_confirm" name="password_confirm" minlength="8" required>
+            </div>
+            <div class="mb-3">
+                <label for="first_name" class="form-label">Имя</label>
+                <input type="text" class="form-control" id="first_name" name="first_name">
+            </div>
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Фамилия</label>
+                <input type="text" class="form-control" id="last_name" name="last_name">
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Телефон</label>
+                <input type="text" class="form-control" id="phone" name="phone">
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            </div>
+        </form>
+        
+        <div class="text-center mt-4">
+            <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+            <hr>
+            <p>
+                <a href="/" class="btn btn-link">На главную</a>
+                <a href="/docs" class="btn btn-link">API Документация</a>
+            </p>
+            
+            <!-- Отладочные кнопки, скрытые для обычных пользователей -->
+            <div class="mt-3" style="border-top: 1px dashed #ccc; padding-top: 15px;">
+                <p class="text-muted small">Отладка API:</p>
+                <button id="testApiButton" class="btn btn-sm btn-outline-secondary" type="button">Проверить API напрямую</button>
+                <button id="checkDiagnostic" class="btn btn-sm btn-outline-info" type="button">Проверить диагностику API</button>
+                <div id="apiTestResult" class="mt-2 small" style="white-space: pre-wrap;"></div>
+            </div>
+        </div>
+        
+        <!-- Модальное окно с результатом -->
+        <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" id="resultModalHeader">
+                        <h5 class="modal-title" id="resultModalLabel">Результат регистрации</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body" id="resultModalBody">
+                        <!-- Здесь будет текст результата -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalCloseButton">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Проверка совпадения паролей
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password_confirm').value;
+            
+            if (password !== passwordConfirm) {
+                showModal('Ошибка', 'Пароли не совпадают', 'danger');
+                return;
+            }
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                password_confirm: document.getElementById('password_confirm').value,
+                first_name: document.getElementById('first_name').value || null,
+                last_name: document.getElementById('last_name').value || null,
+                phone: document.getElementById('phone').value || null,
+                role: "client"
+            };
+            
+            // Очищаем все ненужные поля с null значениями
+            Object.keys(formData).forEach(key => {
+                if (formData[key] === null || formData[key] === '') {
+                    delete formData[key];
+                }
+            });
+            
+            // Отображаем данные в консоли для отладки
+            console.log('Отправляемые данные:', formData);
+            
+            // Путь API для регистрации
+            const apiUrl = '/api/auth/register';
+            console.log('Отправка запроса на URL:', apiUrl);
+            
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                console.log('Статус ответа:', response.status);
+                console.log('Заголовки ответа:', {...response.headers});
+                
+                // Возвращаем Promise с текстом и статусом
+                return response.text().then(text => {
+                    console.log('Текст ответа:', text);
+                    
+                    try {
+                        // Пробуем распарсить как JSON
+                        const data = JSON.parse(text);
+                        return { status: response.status, data, ok: response.ok };
+                    } catch (e) {
+                        // Если не удалось распарсить как JSON, возвращаем текст
+                        console.error('Ошибка парсинга JSON:', e);
+                        return { 
+                            status: response.status, 
+                            data: { detail: text || 'Ошибка регистрации' },
+                            ok: response.ok 
+                        };
+                    }
+                });
+            })
+            .then(result => {
+                console.log('Результат запроса:', result);
+                if (result.ok) {
+                    showModal('Успех!', 'Регистрация прошла успешно. Теперь вы можете войти в систему.', 'success');
+                    document.getElementById('modalCloseButton').addEventListener('click', function() {
+                        window.location.href = '/login';
+                    });
+                    document.getElementById('registerForm').reset();
+                } else {
+                    let errorMessage = 'Произошла ошибка при регистрации';
+                    if (result.data && result.data.detail) {
+                        errorMessage = result.data.detail;
+                    } else if (result.data && result.data.error) {
+                        errorMessage = result.data.error;
+                    } else if (typeof result.data === 'string') {
+                        errorMessage = result.data;
+                    } else {
+                        errorMessage = `Ошибка сервера (${result.status}): ${JSON.stringify(result.data)}`;
+                    }
+                    showModal('Ошибка!', errorMessage, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Глобальная ошибка:', error);
+                showModal('Ошибка!', 'Глобальная ошибка при отправке данных: ' + error.message, 'danger');
+            });
+        });
+        
+        function showModal(title, message, type) {
+            const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+            const modalHeader = document.getElementById('resultModalHeader');
+            const modalLabel = document.getElementById('resultModalLabel');
+            const modalBody = document.getElementById('resultModalBody');
+            
+            modalLabel.textContent = title;
+            modalBody.textContent = message;
+            
+            // Установка цвета заголовка модального окна
+            modalHeader.className = 'modal-header';
+            if (type === 'success') {
+                modalHeader.classList.add('bg-success', 'text-white');
+            } else if (type === 'danger') {
+                modalHeader.classList.add('bg-danger', 'text-white');
+            }
+            
+            modal.show();
+        }
+        
+        // Отладочный код для проверки API напрямую
+        document.getElementById('testApiButton').addEventListener('click', function() {
+            const resultDiv = document.getElementById('apiTestResult');
+            resultDiv.innerHTML = 'Отправка тестового запроса...\n';
+            
+            const testData = {
+                email: 'test'+ Math.floor(Math.random()*10000) +'@example.com',
+                password: 'password123',
+                password_confirm: 'password123',
+                first_name: 'Test',
+                last_name: 'User',
+                phone: '+7'+ Math.floor(Math.random()*1000000000),
+                role: 'client'
+            };
+            
+            resultDiv.innerHTML += 'Тестовые данные: ' + JSON.stringify(testData) + '\n';
+            
+            // Проверяем с разными URL для выяснения правильного маршрута
+            const urls = [
+                '/api/auth/register'
+            ];
+            
+            let completedRequests = 0;
+            
+            urls.forEach(url => {
+                resultDiv.innerHTML += `\nПробуем URL: ${url}\n`;
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                })
+                .then(response => {
+                    resultDiv.innerHTML += `Статус: ${response.status}\n`;
+                    return response.text();
+                })
+                .then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        resultDiv.innerHTML += `Ответ: ${JSON.stringify(data)}\n`;
+                    } catch (e) {
+                        resultDiv.innerHTML += `Текст ответа: ${text}\n`;
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML += `Ошибка: ${error}\n`;
+                })
+                .finally(() => {
+                    completedRequests++;
+                    if (completedRequests === urls.length) {
+                        resultDiv.innerHTML += '\nВсе тесты завершены.\n';
+                    }
+                });
+            });
+        });
+
+        // Проверка диагностического API
+        document.getElementById('checkDiagnostic').addEventListener('click', function() {
+            const resultDiv = document.getElementById('apiTestResult');
+            resultDiv.innerHTML = 'Проверка диагностического API...\n';
+            
+            fetch('/api/test-api')
+                .then(response => {
+                    resultDiv.innerHTML += `Статус ответа: ${response.status}\n`;
+                    return response.json();
+                })
+                .then(data => {
+                    resultDiv.innerHTML += `Результат: ${JSON.stringify(data, null, 2)}\n`;
+                    
+                    // Список всех маршрутов
+                    if (data.sample_routes) {
+                        resultDiv.innerHTML += '\nДоступные маршруты:\n';
+                        data.sample_routes.forEach(route => {
+                            if (route.path && route.methods) {
+                                resultDiv.innerHTML += `${route.methods} ${route.path}\n`;
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML += `Ошибка: ${error}\n`;
+                });
+        });
+    </script>
+</body>
+</html> 

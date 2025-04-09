@@ -1,0 +1,431 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Аналитика - Админ панель Джинсы{% endblock %}
+
+{% block main_panel %}
+<div class="container-fluid py-4">
+    <h1 class="text-center mb-5 gradient-text">Аналитика</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="visionos-card p-3 h-100">
+                <div class="text-center">
+                    <i class="bi bi-people fs-1 gradient-text"></i>
+                    <h3 class="mt-2">1,245</h3>
+                    <p class="text-muted">Клиентов</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="visionos-card p-3 h-100">
+                <div class="text-center">
+                    <i class="bi bi-bag-check fs-1 gradient-text"></i>
+                    <h3 class="mt-2">842</h3>
+                    <p class="text-muted">Заказов</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="visionos-card p-3 h-100">
+                <div class="text-center">
+                    <i class="bi bi-currency-dollar fs-1 gradient-text"></i>
+                    <h3 class="mt-2">2.4M ₽</h3>
+                    <p class="text-muted">Доход</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="visionos-card p-3 h-100">
+                <div class="text-center">
+                    <i class="bi bi-graph-up-arrow fs-1 gradient-text"></i>
+                    <h3 class="mt-2">+24%</h3>
+                    <p class="text-muted">Рост</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-8 mb-3">
+            <div class="visionos-card p-4">
+                <h3 class="gradient-text mb-3">Продажи за последние 6 месяцев</h3>
+                <canvas id="salesChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="visionos-card p-4">
+                <h3 class="gradient-text mb-3">Распределение по категориям</h3>
+                <canvas id="categoryPieChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="visionos-card p-4">
+                <h3 class="gradient-text mb-3">Топ продаж</h3>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Товар</th>
+                                <th>Категория</th>
+                                <th>Продажи</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Классические джинсы</td>
+                                <td>Мужские</td>
+                                <td>124</td>
+                            </tr>
+                            <tr>
+                                <td>Скинни</td>
+                                <td>Женские</td>
+                                <td>98</td>
+                            </tr>
+                            <tr>
+                                <td>Рваные джинсы</td>
+                                <td>Мужские</td>
+                                <td>87</td>
+                            </tr>
+                            <tr>
+                                <td>Джинсы с высокой талией</td>
+                                <td>Женские</td>
+                                <td>76</td>
+                            </tr>
+                            <tr>
+                                <td>Детские джинсы</td>
+                                <td>Детские</td>
+                                <td>65</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="visionos-card p-4">
+                <h3 class="gradient-text mb-3">Активность по времени</h3>
+                <canvas id="activityChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="visionos-card p-3">
+                <h4 class="gradient-text mb-3">Источники трафика</h4>
+                <canvas id="trafficSourceChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="visionos-card p-3">
+                <h4 class="gradient-text mb-3">Возрастные группы</h4>
+                <canvas id="ageGroupChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="visionos-card p-3">
+                <h4 class="gradient-text mb-3">Устройства</h4>
+                <canvas id="deviceChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar_panel %}
+<div class="nav-section">
+    <div class="nav-section-title">Меню</div>
+    <div class="nav-item" onclick="window.location='/admin/'">
+        <i class="bi bi-house-door"></i>
+        <span>О нас</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/menu'">
+        <i class="bi bi-list-check"></i>
+        <span>Меню</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/location'">
+        <i class="bi bi-geo-alt"></i>
+        <span>Где мы</span>
+    </div>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Управление</div>
+    <div class="nav-item" onclick="window.location='/admin/products'">
+        <i class="bi bi-bag"></i>
+        <span>Товары</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/orders'">
+        <i class="bi bi-cart-check"></i>
+        <span>Заказы</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/users'">
+        <i class="bi bi-people"></i>
+        <span>Пользователи</span>
+    </div>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Аналитика</div>
+    <div class="nav-item active" onclick="window.location='/admin/analytics'">
+        <i class="bi bi-graph-up"></i>
+        <span>Статистика</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/reports'">
+        <i class="bi bi-file-earmark-bar-graph"></i>
+        <span>Отчеты</span>
+    </div>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Настройки</div>
+    <div class="nav-item" onclick="window.location='/admin/settings'">
+        <i class="bi bi-gear"></i>
+        <span>Настройки</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/logout'">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Выход</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Анимация для карточек
+        const cards = document.querySelectorAll('.visionos-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('fade-in');
+            }, 100 * index);
+        });
+        
+        // График продаж за 6 месяцев
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь'],
+                datasets: [{
+                    label: 'Продажи (тыс. ₽)',
+                    data: [320, 420, 380, 450, 520, 580],
+                    backgroundColor: 'rgba(43, 99, 225, 0.2)',
+                    borderColor: '#2b63e1',
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cccccc'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cccccc'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // График категорий
+        const categoryCtx = document.getElementById('categoryPieChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Мужские', 'Женские', 'Детские'],
+                datasets: [{
+                    data: [45, 40, 15],
+                    backgroundColor: [
+                        '#2b63e1',
+                        '#7e3af2',
+                        '#3498db'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // График активности по времени
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+                datasets: [{
+                    label: 'Посещения',
+                    data: [12, 25, 45, 56, 78, 93, 85, 62],
+                    backgroundColor: '#7e3af2',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cccccc'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cccccc'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // График источников трафика
+        const trafficCtx = document.getElementById('trafficSourceChart').getContext('2d');
+        const trafficChart = new Chart(trafficCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Поиск', 'Соцсети', 'Реклама', 'Прямые'],
+                datasets: [{
+                    data: [35, 25, 20, 20],
+                    backgroundColor: [
+                        '#2b63e1',
+                        '#7e3af2',
+                        '#3498db',
+                        '#2ecc71'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // График возрастных групп
+        const ageCtx = document.getElementById('ageGroupChart').getContext('2d');
+        const ageChart = new Chart(ageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['18-24', '25-34', '35-44', '45-54', '55+'],
+                datasets: [{
+                    label: 'Клиенты',
+                    data: [15, 30, 25, 20, 10],
+                    backgroundColor: '#2b63e1',
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cccccc'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cccccc'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // График устройств
+        const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+        const deviceChart = new Chart(deviceCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Мобильные', 'Десктоп', 'Планшеты'],
+                datasets: [{
+                    data: [60, 30, 10],
+                    backgroundColor: [
+                        '#7e3af2',
+                        '#2b63e1',
+                        '#3498db'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

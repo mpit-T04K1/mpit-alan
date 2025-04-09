@@ -1,10 +1,10 @@
-from typing import Any, Dict, Generic, List, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, cast
 
 from sqlalchemy import select, func, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from src.adapters.database.models import Base
+from src.db_adapter import Base
 from src.utils.exceptions import ResultNotFound
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -58,19 +58,19 @@ class BaseRepository(Generic[ModelType]):
     def _build_query(self, **kwargs) -> Select:
         """Построить запрос с фильтрами"""
         query = select(self.model_cls)
-
+        
         for key, value in kwargs.items():
             if hasattr(self.model_cls, key):
                 query = query.where(getattr(self.model_cls, key) == value)
-
+        
         return query
 
     def _build_count_query(self, **kwargs) -> Select:
         """Построить запрос для подсчета записей с фильтрами"""
         query = select(func.count(self.model_cls.id))
-
+        
         for key, value in kwargs.items():
             if hasattr(self.model_cls, key):
                 query = query.where(getattr(self.model_cls, key) == value)
-
-        return query
+        
+        return query 

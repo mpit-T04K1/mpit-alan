@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Добро пожаловать в Джинсы - Админ панель{% endblock %}
+
+{% block main_panel %}
+<div class="container-fluid py-4">
+    <h1 class="text-center mb-5 gradient-text">Добро пожаловать в Джинсы</h1>
+    
+    <div class="text-center mb-5">
+        <img src="{{ url_for('static', path='images/logo.svg') }}" alt="Логотип Джинсы" class="img-fluid mb-4" style="max-width: 150px; max-height: 150px;">
+    </div>
+    
+    <div class="visionos-card mb-5 p-4">
+        <p class="mb-3 text-center">Добро пожаловать в наш мир стильных и уверенных решений! Представляем вам эксклюзивную коллекцию джинсов, созданных с душой и вниманием к каждой детали. Наши джинсы – это не просто одежда, а настоящий символ комфорта и стиля. Они идеально садятся по фигуре, подчеркивая вашу индивидуальность и позволяя чувствовать себя на высоте в любой ситуации. Качество наших джинсов – это наша гордость. Мы используем только лучшие материалы, чтобы каждая пара стала настоящим воплощением удобства и долговечности. Присоединяйтесь к числу тех, кто выбирает лучшее – выбирайте наши джинсы уже сегодня!</p>
+    </div>
+    
+    <h2 class="gradient-text text-center mb-4">Почему мы?</h2>
+    
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="visionos-card h-100 text-center">
+                <div class="feature-icon text-center mb-3">
+                    <i class="bi bi-stars fs-1 gradient-text"></i>
+                </div>
+                <h3 class="text-center">Особая атмосфера</h3>
+                <p class="text-center">Уникальный подход к каждому клиенту и особая атмосфера комфорта в нашем магазине.</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="visionos-card h-100 text-center">
+                <div class="feature-icon text-center mb-3">
+                    <i class="bi bi-cup-hot fs-1 gradient-text"></i>
+                </div>
+                <h3 class="text-center">Качественные продукты</h3>
+                <p class="text-center">Мы используем только лучшие материалы для создания наших джинсов.</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="visionos-card h-100 text-center">
+                <div class="feature-icon text-center mb-3">
+                    <i class="bi bi-people fs-1 gradient-text"></i>
+                </div>
+                <h3 class="text-center">Профессиональный персонал</h3>
+                <p class="text-center">Наши специалисты помогут с выбором идеальной пары джинсов для вашего стиля.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="visionos-card mt-4 px-4 py-3">
+        <h3 class="gradient-text">О нас</h3>
+        <p>Добро пожаловать в наш мир стильных и уверенных решений! Представляем вам эксклюзивную коллекцию джинсов, созданных с душой и вниманием к каждой детали. Наши джинсы – это не просто одежда, а настоящий символ комфорта и стиля. Они идеально садятся по фигуре, подчеркивая вашу индивидуальность и позволяя чувствовать себя на высоте в любой ситуации. Качество наших джинсов – это наша гордость. Мы используем только лучшие материалы, чтобы каждая пара стала настоящим воплощением удобства и долговечности. Присоединяйтесь к числу тех, кто выбирает лучшее – выбирайте наши джинсы уже сегодня!</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Анимация для карточек при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.visionos-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('fade-in');
+            }, 100 * index);
+        });
+    });
+</script>
+{% endblock %} 

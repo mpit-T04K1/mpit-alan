@@ -1,0 +1,1662 @@
+{% extends "business/base.html" %}
+
+{% block title %}Управление расписанием | {{ company.name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .calendar-container {
+        margin-top: 1.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        overflow: hidden;
+    }
+    
+    .calendar-header {
+        background-color: #f8f9fa;
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .calendar-title {
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin: 0;
+    }
+    
+    .calendar-body {
+        padding: 1rem;
+    }
+    
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .calendar-day-header {
+        text-align: center;
+        font-weight: 500;
+        padding: 0.5rem;
+    }
+    
+    .calendar-day {
+        border: 1px solid #dee2e6;
+        min-height: 100px;
+        padding: 0.5rem;
+        position: relative;
+    }
+    
+    .calendar-day-number {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .calendar-day.other-month {
+        background-color: #f8f9fa;
+        opacity: 0.7;
+    }
+    
+    .calendar-day.today {
+        background-color: #e8f4f8;
+        border-color: #0d6efd;
+    }
+    
+    .time-slot {
+        margin-bottom: 0.25rem;
+        padding: 0.25rem;
+        background-color: #e9ecef;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+    
+    .time-slot.available {
+        background-color: #d1e7dd;
+    }
+    
+    .time-slot.unavailable {
+        background-color: #f8d7da;
+        text-decoration: line-through;
+    }
+
+    /* Стили для модальных окон */
+    .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .modal-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    /* Стили для списка расписаний */
+    .schedules-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .schedule-item {
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        background-color: #fff;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .schedule-item:hover {
+        background-color: #f8f9fa;
+        border-color: #0d6efd;
+    }
+    
+    .schedule-item.active {
+        background-color: #e8f4f8;
+        border-color: #0d6efd;
+    }
+    
+    .schedule-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .schedule-item-title {
+        font-weight: 500;
+        margin: 0;
+    }
+    
+    .schedule-item-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Управление расписанием</h1>
+                <div>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createScheduleModal">
+                        <i class="bi bi-plus"></i> Создать расписание
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Боковая панель с расписаниями -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Расписания</h5>
+                </div>
+                <div class="card-body">
+                    <div class="schedules-list" id="schedulesList">
+                        <!-- Сюда будут загружены расписания через JavaScript -->
+                        <div class="text-center py-4" id="schedulesLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div>
+                            <p class="mt-2">Загрузка расписаний...</p>
+                        </div>
+                        
+                        <div class="text-center py-4 d-none" id="schedulesEmpty">
+                            <p class="text-muted">У вас пока нет расписаний</p>
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createScheduleModal">
+                                Создать первое расписание
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Кнопки управления выбранным расписанием -->
+            <div class="card mt-3 d-none" id="scheduleActionsCard">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Управление</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" id="editScheduleBtn">
+                            <i class="bi bi-pencil"></i> Редактировать расписание
+                        </button>
+                        <button type="button" class="btn btn-outline-success" id="generateSlotsBtn">
+                            <i class="bi bi-calendar-plus"></i> Генерировать слоты
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" id="deleteScheduleBtn">
+                            <i class="bi bi-trash"></i> Удалить расписание
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Основная панель с календарем -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Календарь</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Календарь -->
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <div class="calendar-nav">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="prevMonthBtn">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="nextMonthBtn">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary ms-2" id="todayBtn">
+                                    Сегодня
+                                </button>
+                            </div>
+                            <h3 class="calendar-title" id="calendarTitle">Август 2023</h3>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="monthViewBtn">Месяц</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="weekViewBtn">Неделя</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="dayViewBtn">День</button>
+                            </div>
+                        </div>
+                        <div class="calendar-body">
+                            <div id="calendarContainer">
+                                <div class="text-center py-5" id="calendarLoading">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Загрузка...</span>
+                                    </div>
+                                    <p class="mt-2">Загрузка календаря...</p>
+                                </div>
+                                
+                                <div class="text-center py-5 d-none" id="calendarEmpty">
+                                    <p class="text-muted">Выберите расписание для просмотра календаря</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания расписания -->
+<div class="modal fade" id="createScheduleModal" tabindex="-1" aria-labelledby="createScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createScheduleModalLabel">Создание расписания</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createScheduleForm">
+                    <div class="mb-3">
+                        <label for="scheduleName" class="form-label">Название расписания</label>
+                        <input type="text" class="form-control" id="scheduleName" name="name" required>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="scheduleType" class="form-label">Тип расписания</label>
+                            <select class="form-select" id="scheduleType" name="schedule_type">
+                                <option value="service">Для услуги</option>
+                                <option value="company">Для компании</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="serviceSelectContainer">
+                            <label for="serviceId" class="form-label">Услуга</label>
+                            <select class="form-select" id="serviceId" name="service_id">
+                                <option value="">Выберите услугу</option>
+                                <!-- Сюда будут загружены услуги через JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3">Расписание на неделю</h5>
+                    
+                    <div id="weeklyScheduleContainer">
+                        <!-- Здесь будут поля для настройки расписания по дням недели -->
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="slotDuration" class="form-label">Длительность слота (мин)</label>
+                            <input type="number" class="form-control" id="slotDuration" name="slot_duration" min="5" max="480" value="60">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="slotInterval" class="form-label">Интервал между слотами (мин)</label>
+                            <input type="number" class="form-control" id="slotInterval" name="slot_interval" min="0" max="60" value="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="maxConcurrentBookings" class="form-label">Макс. одновременных бронирований</label>
+                            <input type="number" class="form-control" id="maxConcurrentBookings" name="max_concurrent_bookings" min="1" max="100" value="1">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="createScheduleBtn">Создать</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования расписания -->
+<div class="modal fade" id="editScheduleModal" tabindex="-1" aria-labelledby="editScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editScheduleModalLabel">Редактирование расписания</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editScheduleForm">
+                    <input type="hidden" id="editScheduleId" name="id">
+                    
+                    <div class="mb-3">
+                        <label for="editScheduleName" class="form-label">Название расписания</label>
+                        <input type="text" class="form-control" id="editScheduleName" name="name" required>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editScheduleType" class="form-label">Тип расписания</label>
+                            <select class="form-select" id="editScheduleType" name="schedule_type">
+                                <option value="service">Для услуги</option>
+                                <option value="company">Для компании</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="editServiceSelectContainer">
+                            <label for="editServiceId" class="form-label">Услуга</label>
+                            <select class="form-select" id="editServiceId" name="service_id">
+                                <option value="">Выберите услугу</option>
+                                <!-- Сюда будут загружены услуги через JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3">Расписание на неделю</h5>
+                    
+                    <div id="editWeeklyScheduleContainer">
+                        <!-- Здесь будут поля для настройки расписания по дням недели -->
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="editSlotDuration" class="form-label">Длительность слота (мин)</label>
+                            <input type="number" class="form-control" id="editSlotDuration" name="slot_duration" min="5" max="480" value="60">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editSlotInterval" class="form-label">Интервал между слотами (мин)</label>
+                            <input type="number" class="form-control" id="editSlotInterval" name="slot_interval" min="0" max="60" value="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editMaxConcurrentBookings" class="form-label">Макс. одновременных бронирований</label>
+                            <input type="number" class="form-control" id="editMaxConcurrentBookings" name="max_concurrent_bookings" min="1" max="100" value="1">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="updateScheduleBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно генерации временных слотов -->
+<div class="modal fade" id="generateSlotsModal" tabindex="-1" aria-labelledby="generateSlotsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generateSlotsModalLabel">Генерация временных слотов</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="generateSlotsForm">
+                    <input type="hidden" id="generateScheduleId" name="schedule_id">
+                    
+                    <div class="alert alert-info">
+                        <p class="mb-0">Временные слоты будут сгенерированы на основе настроек расписания (расписание на неделю, длительность слота и т.д.).</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="generateStartDate" class="form-label">Начальная дата</label>
+                        <input type="date" class="form-control" id="generateStartDate" name="start_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="generateEndDate" class="form-label">Конечная дата</label>
+                        <input type="date" class="form-control" id="generateEndDate" name="end_date" required>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="overrideExisting" name="override_existing">
+                        <label class="form-check-label" for="overrideExisting">Перезаписать существующие слоты</label>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <p class="mb-0">Период генерации не может превышать 90 дней.</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="generateSlotsSubmitBtn">Сгенерировать</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно с информацией о временном слоте -->
+<div class="modal fade" id="timeSlotModal" tabindex="-1" aria-labelledby="timeSlotModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="timeSlotModalLabel">Информация о временном слоте</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="timeSlotInfo">
+                    <!-- Сюда будет загружена информация о слоте -->
+                </div>
+                
+                <form id="editTimeSlotForm" class="mt-3">
+                    <input type="hidden" id="editTimeSlotId" name="id">
+                    
+                    <div class="mb-3">
+                        <label for="editSlotMaxBookings" class="form-label">Максимальное количество бронирований</label>
+                        <input type="number" class="form-control" id="editSlotMaxBookings" name="max_bookings" min="1" max="100">
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editSlotIsAvailable" name="is_available">
+                        <label class="form-check-label" for="editSlotIsAvailable">Доступен для бронирования</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger me-auto" id="deleteTimeSlotBtn">Удалить слот</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" id="updateTimeSlotBtn">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления расписания -->
+<div class="modal fade" id="deleteScheduleModal" tabindex="-1" aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteScheduleModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы действительно хотите удалить расписание "<span id="deleteScheduleName"></span>"?</p>
+                <div class="alert alert-danger">
+                    <p class="mb-0">Это действие нельзя отменить. Все временные слоты, связанные с этим расписанием, также будут удалены.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteScheduleBtn">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления временного слота -->
+<div class="modal fade" id="deleteTimeSlotModal" tabindex="-1" aria-labelledby="deleteTimeSlotModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTimeSlotModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы действительно хотите удалить этот временной слот?</p>
+                <div id="deleteTimeSlotInfo"></div>
+                <div class="alert alert-danger mt-3">
+                    <p class="mb-0">Это действие нельзя отменить. Все бронирования, связанные с этим слотом, будут отменены.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteTimeSlotBtn">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Константы и переменные
+        const companyId = JSON.parse('{{ company.id|tojson }}');
+        const apiUrl = '/api/v1/schedule';
+        let currentSchedule = null;
+        let currentDate = new Date();
+        let currentView = 'month'; // month, week, day
+        let services = [];
+        let currentTimeSlot = null;
+        
+        // DOM-элементы
+        const schedulesList = document.getElementById('schedulesList');
+        const schedulesLoading = document.getElementById('schedulesLoading');
+        const schedulesEmpty = document.getElementById('schedulesEmpty');
+        const scheduleActionsCard = document.getElementById('scheduleActionsCard');
+        
+        const calendarContainer = document.getElementById('calendarContainer');
+        const calendarLoading = document.getElementById('calendarLoading');
+        const calendarEmpty = document.getElementById('calendarEmpty');
+        const calendarTitle = document.getElementById('calendarTitle');
+        
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        const todayBtn = document.getElementById('todayBtn');
+        const monthViewBtn = document.getElementById('monthViewBtn');
+        const weekViewBtn = document.getElementById('weekViewBtn');
+        const dayViewBtn = document.getElementById('dayViewBtn');
+        
+        const editScheduleBtn = document.getElementById('editScheduleBtn');
+        const generateSlotsBtn = document.getElementById('generateSlotsBtn');
+        const deleteScheduleBtn = document.getElementById('deleteScheduleBtn');
+        
+        const createScheduleForm = document.getElementById('createScheduleForm');
+        const createScheduleBtn = document.getElementById('createScheduleBtn');
+        const editScheduleForm = document.getElementById('editScheduleForm');
+        const updateScheduleBtn = document.getElementById('updateScheduleBtn');
+        
+        const scheduleType = document.getElementById('scheduleType');
+        const serviceSelectContainer = document.getElementById('serviceSelectContainer');
+        const serviceId = document.getElementById('serviceId');
+        const weeklyScheduleContainer = document.getElementById('weeklyScheduleContainer');
+        
+        const editScheduleType = document.getElementById('editScheduleType');
+        const editServiceSelectContainer = document.getElementById('editServiceSelectContainer');
+        const editServiceId = document.getElementById('editServiceId');
+        const editWeeklyScheduleContainer = document.getElementById('editWeeklyScheduleContainer');
+        
+        // Добавляем обработчики для новых кнопок
+        const generateSlotsSubmitBtn = document.getElementById('generateSlotsSubmitBtn');
+        const confirmDeleteScheduleBtn = document.getElementById('confirmDeleteScheduleBtn');
+        const updateTimeSlotBtn = document.getElementById('updateTimeSlotBtn');
+        const deleteTimeSlotBtn = document.getElementById('deleteTimeSlotBtn');
+        const confirmDeleteTimeSlotBtn = document.getElementById('confirmDeleteTimeSlotBtn');
+        
+        generateSlotsSubmitBtn.addEventListener('click', generateTimeSlots);
+        deleteScheduleBtn.addEventListener('click', openDeleteScheduleModal);
+        confirmDeleteScheduleBtn.addEventListener('click', deleteSchedule);
+        updateTimeSlotBtn.addEventListener('click', updateTimeSlot);
+        deleteTimeSlotBtn.addEventListener('click', openDeleteTimeSlotModal);
+        confirmDeleteTimeSlotBtn.addEventListener('click', deleteTimeSlot);
+        
+        // Инициализация
+        initPage();
+        
+        // Обработчики событий
+        prevMonthBtn.addEventListener('click', navigatePrevMonth);
+        nextMonthBtn.addEventListener('click', navigateNextMonth);
+        todayBtn.addEventListener('click', navigateToday);
+        monthViewBtn.addEventListener('click', () => setCalendarView('month'));
+        weekViewBtn.addEventListener('click', () => setCalendarView('week'));
+        dayViewBtn.addEventListener('click', () => setCalendarView('day'));
+        
+        editScheduleBtn.addEventListener('click', openEditScheduleModal);
+        generateSlotsBtn.addEventListener('click', openGenerateSlotsModal);
+        deleteScheduleBtn.addEventListener('click', confirmDeleteSchedule);
+        
+        createScheduleBtn.addEventListener('click', createSchedule);
+        updateScheduleBtn.addEventListener('click', updateSchedule);
+        
+        scheduleType.addEventListener('change', handleScheduleTypeChange);
+        editScheduleType.addEventListener('change', handleEditScheduleTypeChange);
+        
+        // Функции инициализации
+        function initPage() {
+            // Загрузка списка услуг
+            fetchServices();
+            
+            // Загрузка списка расписаний
+            fetchSchedules();
+            
+            // Инициализация полей для еженедельного расписания
+            initWeeklyScheduleFields(weeklyScheduleContainer);
+            initWeeklyScheduleFields(editWeeklyScheduleContainer);
+            
+            // Установка обработчика для модальных окон
+            const createScheduleModal = document.getElementById('createScheduleModal');
+            createScheduleModal.addEventListener('hidden.bs.modal', function () {
+                createScheduleForm.reset();
+                initWeeklyScheduleFields(weeklyScheduleContainer);
+            });
+        }
+        
+        function initWeeklyScheduleFields(container) {
+            const weekDays = [
+                { id: 'monday', name: 'Понедельник' },
+                { id: 'tuesday', name: 'Вторник' },
+                { id: 'wednesday', name: 'Среда' },
+                { id: 'thursday', name: 'Четверг' },
+                { id: 'friday', name: 'Пятница' },
+                { id: 'saturday', name: 'Суббота' },
+                { id: 'sunday', name: 'Воскресенье' }
+            ];
+            
+            container.innerHTML = '';
+            
+            weekDays.forEach(day => {
+                const dayId = day.id;
+                const dayName = day.name;
+                
+                const dayContainer = document.createElement('div');
+                dayContainer.className = 'card mb-3';
+                dayContainer.innerHTML = `
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="${dayId}_is_working_day" name="weekly_schedule.${dayId}.is_working_day" checked>
+                            <label for="${dayId}_is_working_day" class="form-check-label ms-2">${dayName}</label>
+                        </div>
+                    </div>
+                    <div class="card-body day-settings" id="${dayId}_settings">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="${dayId}_start" class="form-label">Начало работы</label>
+                                <input type="time" class="form-control" id="${dayId}_start" name="weekly_schedule.${dayId}.start" value="09:00">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="${dayId}_end" class="form-label">Окончание работы</label>
+                                <input type="time" class="form-control" id="${dayId}_end" name="weekly_schedule.${dayId}.end" value="18:00">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(dayContainer);
+                
+                // Добавляем обработчик для чекбокса
+                const checkbox = dayContainer.querySelector(`#${dayId}_is_working_day`);
+                const settings = dayContainer.querySelector(`#${dayId}_settings`);
+                
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        settings.style.display = 'block';
+                    } else {
+                        settings.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Функции для работы с API
+        async function fetchServices() {
+            try {
+                const response = await fetch(`/api/v1/services/?company_id=${companyId}`);
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке услуг');
+                }
+                
+                services = await response.json();
+                populateServiceSelects();
+            } catch (error) {
+                console.error('Ошибка при загрузке услуг:', error);
+                showNotification('Ошибка при загрузке услуг', 'error');
+            }
+        }
+        
+        function populateServiceSelects() {
+            // Очищаем селекты
+            serviceId.innerHTML = '<option value="">Выберите услугу</option>';
+            editServiceId.innerHTML = '<option value="">Выберите услугу</option>';
+            
+            // Заполняем селекты
+            services.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service.id;
+                option.textContent = service.name;
+                
+                const optionClone = option.cloneNode(true);
+                
+                serviceId.appendChild(option);
+                editServiceId.appendChild(optionClone);
+            });
+        }
+        
+        async function fetchSchedules() {
+            try {
+                schedulesLoading.style.display = 'block';
+                schedulesEmpty.classList.add('d-none');
+                
+                const response = await fetch(`${apiUrl}/schedules/?company_id=${companyId}`);
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке расписаний');
+                }
+                
+                const schedules = await response.json();
+                renderSchedulesList(schedules);
+            } catch (error) {
+                console.error('Ошибка при загрузке расписаний:', error);
+                showNotification('Ошибка при загрузке расписаний', 'error');
+                
+                schedulesLoading.style.display = 'none';
+                schedulesEmpty.classList.remove('d-none');
+            }
+        }
+        
+        function renderSchedulesList(schedules) {
+            schedulesLoading.style.display = 'none';
+            
+            if (schedules.length === 0) {
+                schedulesEmpty.classList.remove('d-none');
+                return;
+            }
+            
+            // Очищаем список
+            const scheduleItems = document.querySelectorAll('.schedule-item');
+            scheduleItems.forEach(item => item.remove());
+            
+            // Отображаем расписания
+            schedules.forEach(schedule => {
+                const scheduleItem = document.createElement('div');
+                scheduleItem.className = 'schedule-item';
+                scheduleItem.dataset.id = schedule.id;
+                
+                const serviceInfo = schedule.service_id && services.length > 0
+                    ? services.find(s => s.id === schedule.service_id)?.name || 'Услуга не найдена'
+                    : 'Для всей компании';
+                
+                scheduleItem.innerHTML = `
+                    <div class="schedule-item-header">
+                        <h5 class="schedule-item-title">${schedule.name}</h5>
+                        <div class="schedule-item-actions">
+                            <span class="badge ${schedule.is_active ? 'bg-success' : 'bg-secondary'}">
+                                ${schedule.is_active ? 'Активно' : 'Неактивно'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="schedule-item-info">
+                        <p class="mb-1">Тип: ${schedule.schedule_type === 'service' ? 'Для услуги' : 'Для компании'}</p>
+                        <p class="mb-0">${schedule.schedule_type === 'service' ? `Услуга: ${serviceInfo}` : ''}</p>
+                    </div>
+                `;
+                
+                scheduleItem.addEventListener('click', () => selectSchedule(schedule));
+                schedulesList.appendChild(scheduleItem);
+            });
+        }
+        
+        function selectSchedule(schedule) {
+            // Убираем активный класс со всех элементов
+            const scheduleItems = document.querySelectorAll('.schedule-item');
+            scheduleItems.forEach(item => item.classList.remove('active'));
+            
+            // Добавляем активный класс выбранному элементу
+            const selectedItem = document.querySelector(`.schedule-item[data-id="${schedule.id}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('active');
+            }
+            
+            // Сохраняем текущее расписание
+            currentSchedule = schedule;
+            
+            // Показываем панель управления
+            scheduleActionsCard.classList.remove('d-none');
+            
+            // Загружаем календарь
+            loadCalendar();
+        }
+        
+        async function loadCalendar() {
+            if (!currentSchedule) {
+                calendarLoading.style.display = 'none';
+                calendarEmpty.classList.remove('d-none');
+                return;
+            }
+            
+            calendarLoading.style.display = 'block';
+            calendarEmpty.classList.add('d-none');
+            
+            // Обновляем заголовок календаря
+            updateCalendarTitle();
+            
+            // Определяем диапазон дат для загрузки
+            const dateRange = getDateRangeForView();
+            
+            try {
+                // Получаем временные слоты из API
+                const response = await fetch(`${apiUrl}/slots/?schedule_id=${currentSchedule.id}&start_date=${dateRange.start}&end_date=${dateRange.end}`);
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке временных слотов');
+                }
+                
+                const timeSlots = await response.json();
+                
+                // Отображаем календарь в соответствии с текущим представлением
+                renderCalendar(timeSlots);
+            } catch (error) {
+                console.error('Ошибка при загрузке временных слотов:', error);
+                showNotification('Ошибка при загрузке временных слотов', 'error');
+                
+                calendarLoading.style.display = 'none';
+                const calendarContent = document.createElement('div');
+                calendarContent.className = 'text-center py-5';
+                calendarContent.innerHTML = '<p class="text-danger">Не удалось загрузить данные календаря</p>';
+                
+                // Очищаем контейнер и добавляем сообщение об ошибке
+                while (calendarContainer.firstChild) {
+                    calendarContainer.removeChild(calendarContainer.firstChild);
+                }
+                calendarContainer.appendChild(calendarContent);
+            }
+        }
+        
+        // Функции для работы с календарем
+        function updateCalendarTitle() {
+            const monthNames = [
+                'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+            ];
+            
+            const month = monthNames[currentDate.getMonth()];
+            const year = currentDate.getFullYear();
+            
+            if (currentView === 'month') {
+                calendarTitle.textContent = `${month} ${year}`;
+            } else if (currentView === 'week') {
+                const weekRange = getWeekRange(currentDate);
+                calendarTitle.textContent = `${formatDate(weekRange.start)} - ${formatDate(weekRange.end)}`;
+            } else if (currentView === 'day') {
+                calendarTitle.textContent = formatDate(currentDate);
+            }
+        }
+        
+        function getDateRangeForView() {
+            let start, end;
+            
+            if (currentView === 'month') {
+                start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            } else if (currentView === 'week') {
+                const weekRange = getWeekRange(currentDate);
+                start = weekRange.start;
+                end = weekRange.end;
+            } else {
+                start = new Date(currentDate);
+                end = new Date(currentDate);
+            }
+            
+            return {
+                start: formatDateISO(start),
+                end: formatDateISO(end)
+            };
+        }
+        
+        function getWeekRange(date) {
+            const start = new Date(date);
+            const day = start.getDay() || 7; // Воскресенье = 0, поэтому заменяем на 7
+            if (day !== 1) {
+                start.setDate(start.getDate() - (day - 1));
+            }
+            
+            const end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            
+            return { start, end };
+        }
+        
+        function renderCalendar(timeSlots) {
+            calendarLoading.style.display = 'none';
+            
+            // Создаем календарь в зависимости от текущего представления
+            if (currentView === 'month') {
+                renderMonthCalendar(timeSlots);
+            } else if (currentView === 'week') {
+                renderWeekCalendar(timeSlots);
+            } else {
+                renderDayCalendar(timeSlots);
+            }
+        }
+        
+        function renderMonthCalendar(timeSlots) {
+            // Создаем основу календаря
+            const calendarContent = document.createElement('div');
+            calendarContent.className = 'calendar-grid';
+            
+            // Добавляем заголовки дней недели
+            const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            weekdays.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarContent.appendChild(dayHeader);
+            });
+            
+            // Получаем данные о текущем месяце
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Первый день месяца
+            const firstDay = new Date(year, month, 1);
+            // Последний день месяца
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // День недели первого дня месяца (0 - воскресенье, 1 - понедельник, ...)
+            let firstDayOfWeek = firstDay.getDay() || 7; // Преобразуем воскресенье (0) в 7
+            firstDayOfWeek--; // Переводим в формат 0 - понедельник, 6 - воскресенье
+            
+            // Общее количество дней для отображения в календаре
+            const totalDays = firstDayOfWeek + lastDay.getDate();
+            const totalWeeks = Math.ceil(totalDays / 7);
+            
+            // Группируем временные слоты по датам
+            const slotsByDate = {};
+            timeSlots.forEach(slot => {
+                const date = slot.start_time.split(' ')[0]; // Получаем дату из строки "YYYY-MM-DD HH:MM"
+                if (!slotsByDate[date]) {
+                    slotsByDate[date] = [];
+                }
+                slotsByDate[date].push(slot);
+            });
+            
+            // Отображаем дни предыдущего месяца
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const day = prevMonthLastDay - firstDayOfWeek + i + 1;
+                const date = new Date(year, month - 1, day);
+                const dateStr = formatDateISO(date);
+                
+                const dayElement = createDayElement(day, dateStr, slotsByDate[dateStr] || [], true);
+                calendarContent.appendChild(dayElement);
+            }
+            
+            // Отображаем дни текущего месяца
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const date = new Date(year, month, i);
+                const dateStr = formatDateISO(date);
+                const isToday = isSameDate(date, new Date());
+                
+                const dayElement = createDayElement(i, dateStr, slotsByDate[dateStr] || [], false, isToday);
+                calendarContent.appendChild(dayElement);
+            }
+            
+            // Отображаем дни следующего месяца
+            const remainingDays = 7 * totalWeeks - (firstDayOfWeek + lastDay.getDate());
+            for (let i = 1; i <= remainingDays; i++) {
+                const date = new Date(year, month + 1, i);
+                const dateStr = formatDateISO(date);
+                
+                const dayElement = createDayElement(i, dateStr, slotsByDate[dateStr] || [], true);
+                calendarContent.appendChild(dayElement);
+            }
+            
+            // Очищаем контейнер и добавляем календарь
+            while (calendarContainer.firstChild) {
+                calendarContainer.removeChild(calendarContainer.firstChild);
+            }
+            calendarContainer.appendChild(calendarContent);
+        }
+        
+        function createDayElement(day, dateStr, slots, isOtherMonth = false, isToday = false) {
+            const dayElement = document.createElement('div');
+            dayElement.className = `calendar-day${isOtherMonth ? ' other-month' : ''}${isToday ? ' today' : ''}`;
+            dayElement.dataset.date = dateStr;
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'calendar-day-number';
+            dayNumber.textContent = day;
+            dayElement.appendChild(dayNumber);
+            
+            // Добавляем слоты
+            if (slots.length > 0) {
+                const slotsContainer = document.createElement('div');
+                slotsContainer.className = 'calendar-day-slots';
+                
+                // Ограничиваем количество отображаемых слотов
+                const maxSlotsToShow = 3;
+                const slotsToShow = slots.slice(0, maxSlotsToShow);
+                
+                slotsToShow.forEach(slot => {
+                    const slotElement = document.createElement('div');
+                    slotElement.className = `time-slot${slot.is_available ? ' available' : ' unavailable'}`;
+                    slotElement.dataset.id = slot.id;
+                    
+                    const startTime = slot.start_time.split(' ')[1].substring(0, 5); // Получаем время из строки "YYYY-MM-DD HH:MM"
+                    const endTime = slot.end_time.split(' ')[1].substring(0, 5);
+                    
+                    slotElement.innerHTML = `
+                        <div class="time-slot-time">${startTime} - ${endTime}</div>
+                        <div class="time-slot-info">${slot.available_spots} из ${slot.max_bookings} мест</div>
+                    `;
+                    
+                    slotElement.addEventListener('click', () => handleSlotClick(slot));
+                    slotsContainer.appendChild(slotElement);
+                });
+                
+                // Если есть больше слотов, добавляем ссылку "Еще X слотов"
+                if (slots.length > maxSlotsToShow) {
+                    const moreLink = document.createElement('div');
+                    moreLink.className = 'more-slots-link';
+                    moreLink.textContent = `Еще ${slots.length - maxSlotsToShow} слотов...`;
+                    moreLink.addEventListener('click', () => showDayView(dateStr));
+                    slotsContainer.appendChild(moreLink);
+                }
+                
+                dayElement.appendChild(slotsContainer);
+            }
+            
+            return dayElement;
+        }
+        
+        function handleSlotClick(slot) {
+            currentTimeSlot = slot;
+            
+            // Заполняем информацию о слоте
+            const slotInfo = document.getElementById('timeSlotInfo');
+            
+            const startTime = slot.start_time.split(' ')[1].substring(0, 5);
+            const endTime = slot.end_time.split(' ')[1].substring(0, 5);
+            const date = new Date(slot.start_time.split(' ')[0]);
+            
+            slotInfo.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Временной слот #${slot.id}</h5>
+                        <p class="card-text">Дата: ${formatDate(date)}</p>
+                        <p class="card-text">Время: ${startTime} - ${endTime}</p>
+                        <p class="card-text">Статус: ${slot.is_available ? '<span class="badge bg-success">Доступен</span>' : '<span class="badge bg-danger">Недоступен</span>'}</p>
+                        <p class="card-text">Бронирования: ${slot.current_bookings} из ${slot.max_bookings}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Заполняем форму редактирования
+            document.getElementById('editTimeSlotId').value = slot.id;
+            document.getElementById('editSlotMaxBookings').value = slot.max_bookings;
+            document.getElementById('editSlotIsAvailable').checked = slot.is_available;
+            
+            // Открываем модальное окно
+            const modal = new bootstrap.Modal(document.getElementById('timeSlotModal'));
+            modal.show();
+        }
+        
+        function showDayView(dateStr) {
+            currentDate = new Date(dateStr);
+            setCalendarView('day');
+        }
+        
+        // Пока заглушки для недельного и дневного представлений
+        function renderWeekCalendar(timeSlots) {
+            const calendarContent = document.createElement('div');
+            calendarContent.className = 'text-center py-5';
+            calendarContent.innerHTML = '<p>Недельное представление будет реализовано позже</p>';
+            
+            while (calendarContainer.firstChild) {
+                calendarContainer.removeChild(calendarContainer.firstChild);
+            }
+            calendarContainer.appendChild(calendarContent);
+        }
+        
+        function renderDayCalendar(timeSlots) {
+            const calendarContent = document.createElement('div');
+            calendarContent.className = 'text-center py-5';
+            calendarContent.innerHTML = '<p>Дневное представление будет реализовано позже</p>';
+            
+            while (calendarContainer.firstChild) {
+                calendarContainer.removeChild(calendarContainer.firstChild);
+            }
+            calendarContainer.appendChild(calendarContent);
+        }
+        
+        // Функции для навигации по календарю
+        function navigatePrevMonth() {
+            if (currentView === 'month') {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() - 7);
+            } else {
+                currentDate.setDate(currentDate.getDate() - 1);
+            }
+            
+            loadCalendar();
+        }
+        
+        function navigateNextMonth() {
+            if (currentView === 'month') {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() + 7);
+            } else {
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            loadCalendar();
+        }
+        
+        function navigateToday() {
+            currentDate = new Date();
+            loadCalendar();
+        }
+        
+        function setCalendarView(view) {
+            currentView = view;
+            
+            // Обновляем активные кнопки
+            monthViewBtn.classList.toggle('active', view === 'month');
+            weekViewBtn.classList.toggle('active', view === 'week');
+            dayViewBtn.classList.toggle('active', view === 'day');
+            
+            loadCalendar();
+        }
+        
+        // Вспомогательные функции для работы с датами
+        function formatDate(date) {
+            return date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+        
+        function formatDateISO(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function isSameDate(date1, date2) {
+            return date1.getDate() === date2.getDate() &&
+                   date1.getMonth() === date2.getMonth() &&
+                   date1.getFullYear() === date2.getFullYear();
+        }
+        
+        // Функции для работы с формами
+        function handleScheduleTypeChange() {
+            if (scheduleType.value === 'company') {
+                serviceSelectContainer.style.display = 'none';
+                serviceId.value = '';
+            } else {
+                serviceSelectContainer.style.display = 'block';
+            }
+        }
+        
+        function handleEditScheduleTypeChange() {
+            if (editScheduleType.value === 'company') {
+                editServiceSelectContainer.style.display = 'none';
+                editServiceId.value = '';
+            } else {
+                editServiceSelectContainer.style.display = 'block';
+            }
+        }
+        
+        async function createSchedule() {
+            // Собираем данные из формы
+            const formData = new FormData(createScheduleForm);
+            
+            // Преобразуем данные формы в объект
+            const scheduleData = {
+                company_id: companyId,
+                name: formData.get('name'),
+                schedule_type: formData.get('schedule_type'),
+                service_id: formData.get('service_id') ? Number(formData.get('service_id')) : null,
+                slot_duration: Number(formData.get('slot_duration')),
+                slot_interval: Number(formData.get('slot_interval')),
+                max_concurrent_bookings: Number(formData.get('max_concurrent_bookings')),
+                is_active: true,
+                weekly_schedule: {}
+            };
+            
+            // Собираем данные о расписании на неделю
+            const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            weekDays.forEach(day => {
+                const isWorkingDay = document.getElementById(`${day}_is_working_day`).checked;
+                
+                if (isWorkingDay) {
+                    const start = document.getElementById(`${day}_start`).value;
+                    const end = document.getElementById(`${day}_end`).value;
+                    
+                    scheduleData.weekly_schedule[day] = {
+                        start,
+                        end,
+                        is_working_day: true
+                    };
+                } else {
+                    scheduleData.weekly_schedule[day] = {
+                        is_working_day: false
+                    };
+                }
+            });
+            
+            try {
+                // Отправляем запрос на создание расписания
+                const response = await fetch(`${apiUrl}/schedules/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(scheduleData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при создании расписания');
+                }
+                
+                const newSchedule = await response.json();
+                
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createScheduleModal'));
+                modal.hide();
+                
+                // Обновляем список расписаний
+                fetchSchedules();
+                
+                showNotification('Расписание успешно создано', 'success');
+            } catch (error) {
+                console.error('Ошибка при создании расписания:', error);
+                showNotification('Ошибка при создании расписания', 'error');
+            }
+        }
+        
+        // Функция для генерации временных слотов
+        function openGenerateSlotsModal() {
+            if (!currentSchedule) {
+                showNotification('Сначала выберите расписание', 'warning');
+                return;
+            }
+            
+            // Устанавливаем ID расписания
+            document.getElementById('generateScheduleId').value = currentSchedule.id;
+            
+            // Устанавливаем текущую дату как начальную
+            const today = new Date();
+            const todayFormatted = formatDateISO(today);
+            document.getElementById('generateStartDate').value = todayFormatted;
+            
+            // Устанавливаем дату через 30 дней как конечную
+            const monthLater = new Date(today);
+            monthLater.setDate(monthLater.getDate() + 30);
+            const monthLaterFormatted = formatDateISO(monthLater);
+            document.getElementById('generateEndDate').value = monthLaterFormatted;
+            
+            // Открываем модальное окно
+            const modal = new bootstrap.Modal(document.getElementById('generateSlotsModal'));
+            modal.show();
+        }
+        
+        async function generateTimeSlots() {
+            const form = document.getElementById('generateSlotsForm');
+            const formData = new FormData(form);
+            
+            const requestData = {
+                schedule_id: Number(formData.get('schedule_id')),
+                start_date: formData.get('start_date'),
+                end_date: formData.get('end_date'),
+                override_existing: formData.get('override_existing') === 'on'
+            };
+            
+            try {
+                const response = await fetch(`${apiUrl}/slots/generate/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при генерации временных слотов');
+                }
+                
+                const result = await response.json();
+                
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('generateSlotsModal'));
+                modal.hide();
+                
+                // Показываем уведомление
+                showNotification(
+                    `Временные слоты успешно сгенерированы. Создано: ${result.slots_created}, пропущено: ${result.slots_skipped}`,
+                    'success'
+                );
+                
+                // Перезагружаем календарь
+                loadCalendar();
+            } catch (error) {
+                console.error('Ошибка при генерации временных слотов:', error);
+                showNotification('Ошибка при генерации временных слотов', 'error');
+            }
+        }
+        
+        // Функции для работы с редактированием расписания
+        function openEditScheduleModal() {
+            if (!currentSchedule) {
+                showNotification('Сначала выберите расписание', 'warning');
+                return;
+            }
+            
+            // Заполняем форму данными текущего расписания
+            document.getElementById('editScheduleId').value = currentSchedule.id;
+            document.getElementById('editScheduleName').value = currentSchedule.name;
+            document.getElementById('editScheduleType').value = currentSchedule.schedule_type;
+            
+            if (currentSchedule.schedule_type === 'service' && currentSchedule.service_id) {
+                document.getElementById('editServiceId').value = currentSchedule.service_id;
+                document.getElementById('editServiceSelectContainer').style.display = 'block';
+            } else {
+                document.getElementById('editServiceSelectContainer').style.display = 'none';
+            }
+            
+            document.getElementById('editSlotDuration').value = currentSchedule.slot_duration;
+            document.getElementById('editSlotInterval').value = currentSchedule.slot_interval;
+            document.getElementById('editMaxConcurrentBookings').value = currentSchedule.max_concurrent_bookings;
+            
+            // Заполняем поля для расписания на неделю
+            const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            weekDays.forEach(day => {
+                const daySchedule = currentSchedule.weekly_schedule[day];
+                if (daySchedule) {
+                    const isWorkingDay = daySchedule.is_working_day;
+                    const checkbox = document.getElementById(`edit${day}_is_working_day`);
+                    
+                    if (checkbox) {
+                        checkbox.checked = isWorkingDay;
+                        
+                        if (isWorkingDay) {
+                            const startInput = document.getElementById(`edit${day}_start`);
+                            const endInput = document.getElementById(`edit${day}_end`);
+                            
+                            if (startInput && daySchedule.start) {
+                                startInput.value = daySchedule.start;
+                            }
+                            
+                            if (endInput && daySchedule.end) {
+                                endInput.value = daySchedule.end;
+                            }
+                            
+                            document.getElementById(`edit${day}_settings`).style.display = 'block';
+                        } else {
+                            document.getElementById(`edit${day}_settings`).style.display = 'none';
+                        }
+                    }
+                }
+            });
+            
+            // Открываем модальное окно
+            const modal = new bootstrap.Modal(document.getElementById('editScheduleModal'));
+            modal.show();
+        }
+        
+        async function updateSchedule() {
+            if (!currentSchedule) {
+                showNotification('Расписание не выбрано', 'error');
+                return;
+            }
+            
+            // Собираем данные из формы
+            const form = document.getElementById('editScheduleForm');
+            const formData = new FormData(form);
+            
+            // Преобразуем данные формы в объект
+            const scheduleId = Number(formData.get('id'));
+            const scheduleData = {
+                name: formData.get('name'),
+                schedule_type: formData.get('schedule_type'),
+                service_id: formData.get('service_id') ? Number(formData.get('service_id')) : null,
+                slot_duration: Number(formData.get('slot_duration')),
+                slot_interval: Number(formData.get('slot_interval')),
+                max_concurrent_bookings: Number(formData.get('max_concurrent_bookings')),
+                weekly_schedule: {}
+            };
+            
+            // Собираем данные о расписании на неделю
+            const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            weekDays.forEach(day => {
+                const isWorkingDay = document.getElementById(`edit${day}_is_working_day`).checked;
+                
+                if (isWorkingDay) {
+                    const start = document.getElementById(`edit${day}_start`).value;
+                    const end = document.getElementById(`edit${day}_end`).value;
+                    
+                    scheduleData.weekly_schedule[day] = {
+                        start,
+                        end,
+                        is_working_day: true
+                    };
+                } else {
+                    scheduleData.weekly_schedule[day] = {
+                        is_working_day: false
+                    };
+                }
+            });
+            
+            try {
+                // Отправляем запрос на обновление расписания
+                const response = await fetch(`${apiUrl}/schedules/${scheduleId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(scheduleData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при обновлении расписания');
+                }
+                
+                const updatedSchedule = await response.json();
+                
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editScheduleModal'));
+                modal.hide();
+                
+                // Обновляем текущее расписание
+                currentSchedule = updatedSchedule;
+                
+                // Обновляем список расписаний
+                fetchSchedules();
+                
+                // Обновляем календарь
+                loadCalendar();
+                
+                showNotification('Расписание успешно обновлено', 'success');
+            } catch (error) {
+                console.error('Ошибка при обновлении расписания:', error);
+                showNotification('Ошибка при обновлении расписания', 'error');
+            }
+        }
+        
+        // Функции для работы с удалением расписания
+        function openDeleteScheduleModal() {
+            if (!currentSchedule) {
+                showNotification('Сначала выберите расписание', 'warning');
+                return;
+            }
+            
+            // Заполняем модальное окно данными
+            document.getElementById('deleteScheduleName').textContent = currentSchedule.name;
+            
+            // Открываем модальное окно
+            const modal = new bootstrap.Modal(document.getElementById('deleteScheduleModal'));
+            modal.show();
+        }
+        
+        async function deleteSchedule() {
+            if (!currentSchedule) {
+                showNotification('Расписание не выбрано', 'error');
+                return;
+            }
+            
+            try {
+                // Отправляем запрос на удаление расписания
+                const response = await fetch(`${apiUrl}/schedules/${currentSchedule.id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при удалении расписания');
+                }
+                
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteScheduleModal'));
+                modal.hide();
+                
+                // Сбрасываем текущее расписание
+                currentSchedule = null;
+                
+                // Скрываем панель управления
+                document.getElementById('scheduleActionsCard').classList.add('d-none');
+                
+                // Очищаем календарь
+                document.getElementById('calendarLoading').style.display = 'none';
+                document.getElementById('calendarEmpty').classList.remove('d-none');
+                
+                // Обновляем список расписаний
+                fetchSchedules();
+                
+                showNotification('Расписание успешно удалено', 'success');
+            } catch (error) {
+                console.error('Ошибка при удалении расписания:', error);
+                showNotification('Ошибка при удалении расписания', 'error');
+            }
+        }
+        
+        // Функции для работы с временными слотами
+        async function updateTimeSlot() {
+            if (!currentTimeSlot) {
+                showNotification('Временной слот не выбран', 'error');
+                return;
+            }
+            
+            // Собираем данные из формы
+            const form = document.getElementById('editTimeSlotForm');
+            const formData = new FormData(form);
+            
+            const slotId = Number(formData.get('id'));
+            const slotData = {
+                max_bookings: Number(formData.get('max_bookings')),
+                is_available: formData.get('is_available') === 'on'
+            };
+            
+            try {
+                // Отправляем запрос на обновление временного слота
+                const response = await fetch(`${apiUrl}/slots/${slotId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(slotData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при обновлении временного слота');
+                }
+                
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('timeSlotModal'));
+                modal.hide();
+                
+                // Перезагружаем календарь
+                loadCalendar();
+                
+                showNotification('Временной слот успешно обновлен', 'success');
+            } catch (error) {
+                console.error('Ошибка при обновлении временного слота:', error);
+                showNotification('Ошибка при обновлении временного слота', 'error');
+            }
+        }
+        
+        function openDeleteTimeSlotModal() {
+            if (!currentTimeSlot) {
+                showNotification('Временной слот не выбран', 'error');
+                return;
+            }
+            
+            // Заполняем информацию о слоте
+            const slotInfo = document.getElementById('deleteTimeSlotInfo');
+            
+            const startTime = currentTimeSlot.start_time.split(' ')[1].substring(0, 5);
+            const endTime = currentTimeSlot.end_time.split(' ')[1].substring(0, 5);
+            const date = new Date(currentTimeSlot.start_time.split(' ')[0]);
+            
+            slotInfo.innerHTML = `
+                <p><strong>Дата:</strong> ${formatDate(date)}</p>
+                <p><strong>Время:</strong> ${startTime} - ${endTime}</p>
+                <p><strong>Бронирования:</strong> ${currentTimeSlot.current_bookings} из ${currentTimeSlot.max_bookings}</p>
+            `;
+            
+            // Закрываем предыдущее модальное окно
+            const timeSlotModal = bootstrap.Modal.getInstance(document.getElementById('timeSlotModal'));
+            timeSlotModal.hide();
+            
+            // Открываем модальное окно подтверждения
+            const modal = new bootstrap.Modal(document.getElementById('deleteTimeSlotModal'));
+            modal.show();
+        }
+        
+        async function deleteTimeSlot() {
+            if (!currentTimeSlot) {
+                showNotification('Временной слот не выбран', 'error');
+                return;
+            }
+            
+            try {
+                // Отправляем запрос на удаление временного слота
+                const response = await fetch(`${apiUrl}/slots/${currentTimeSlot.id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка при удалении временного слота');
+                }
+                
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteTimeSlotModal'));
+                modal.hide();
+                
+                // Перезагружаем календарь
+                loadCalendar();
+                
+                showNotification('Временной слот успешно удален', 'success');
+            } catch (error) {
+                console.error('Ошибка при удалении временного слота:', error);
+                showNotification('Ошибка при удалении временного слота', 'error');
+            }
+        }
+        
+        // Функция для отображения уведомлений
+        function showNotification(message, type = 'info') {
+            // Простая реализация на основе Bootstrap Toast
+            const notificationContainer = document.getElementById('notificationContainer') || createNotificationContainer();
+            
+            const notification = document.createElement('div');
+            notification.className = `toast align-items-center text-white bg-${mapNotificationType(type)} border-0`;
+            notification.setAttribute('role', 'alert');
+            notification.setAttribute('aria-live', 'assertive');
+            notification.setAttribute('aria-atomic', 'true');
+            
+            notification.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            
+            const toast = new bootstrap.Toast(notification, {
+                delay: 5000
+            });
+            toast.show();
+            
+            // Удаляем уведомление после скрытия
+            notification.addEventListener('hidden.bs.toast', function() {
+                notification.remove();
+            });
+        }
+        
+        function createNotificationContainer() {
+            const container = document.createElement('div');
+            container.id = 'notificationContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '1050';
+            
+            document.body.appendChild(container);
+            return container;
+        }
+        
+        function mapNotificationType(type) {
+            const typeMap = {
+                'success': 'success',
+                'error': 'danger',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            
+            return typeMap[type] || 'info';
+        }
+    });
+</script>
+{% endblock %} 

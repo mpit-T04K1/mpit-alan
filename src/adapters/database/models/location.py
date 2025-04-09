@@ -1,53 +1,50 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    Float,
-    JSON,
-)
-from sqlalchemy.orm import relationship
-from datetime import datetime
+# Этот файл теперь переэкспортирует модели из src/models для обратной совместимости
+# В новом коде рекомендуется импортировать напрямую из src/models/
 
-from .base import Base
+from src.models.location import Location
+
+# Класс Location теперь импортируется напрямую из src/models/location.py
+# и переэкспортируется здесь для обратной совместимости
+
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Text
+from sqlalchemy.orm import relationship
+
+from src.db_adapter import Base
 
 
 class Location(Base):
-    """Модель филиала/локации компании"""
-
+    """Модель локации/адреса"""
     __tablename__ = "locations"
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
-    name = Column(String(255), nullable=False)
-    address = Column(String(255), nullable=False)
-    city = Column(String(100), nullable=False)
-    postal_code = Column(String(20), nullable=True)
-
-    # Обозначение основной локации
-    is_main = Column(Boolean, default=False)
-
-    # Координаты для геолокации
+    address = Column(String, nullable=False)
+    city = Column(String, nullable=False)
+    region = Column(String, nullable=True)
+    postal_code = Column(String, nullable=True)
+    country = Column(String, nullable=False, default="Россия")
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-
-    # Контактная информация
-    contact_phone = Column(String(20), nullable=True)
-    contact_email = Column(String(100), nullable=True)
-
-    # Рабочие часы могут отличаться от общих для компании
-    working_hours = Column(JSON, nullable=True)
-
-    # Статус и время создания/обновления
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Связи с другими таблицами
+    additional_info = Column(Text, nullable=True)
+    
+    # Отношения
     company = relationship("Company", back_populates="locations")
-
+    
     def __repr__(self):
-        return f"<Location {self.name} for company ID {self.company_id}>"
+        return f"<Location {self.address}, {self.city}>"
+    
+    def to_dict(self):
+        """Преобразовать в словарь"""
+        return {
+            "id": self.id,
+            "company_id": self.company_id,
+            "address": self.address,
+            "city": self.city,
+            "region": self.region,
+            "postal_code": self.postal_code,
+            "country": self.country,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "additional_info": self.additional_info,
+        } 

@@ -1,0 +1,28 @@
+{
+  "business_id": "1b738c4c-79c5-41b8-ae44-c8ac4922d281",
+  "panels": {
+    "business-info": true,
+    "menu": true,
+    "map": true,
+    "contacts": true,
+    "gallery": false
+  },
+  "order": null,
+  "menu": {
+    "categories": [
+      {
+        "id": "id_test123",
+        "name": "Тестовая категория",
+        "items": [
+          {
+            "id": "id_item123",
+            "name": "Тестовый товар",
+            "price": 1500.0,
+            "description": "Тестовое описание товара",
+            "image": null
+          }
+        ]
+      }
+    ]
+  }
+}

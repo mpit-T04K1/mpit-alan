@@ -1,0 +1,79 @@
+{% extends "modular_base.html" %}
+
+{% block title %}{{ title }} - QWERTYTOWN{% endblock %}
+
+{% block main_panel %}
+<div class="section active" style="padding: 30px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="success-icon mb-4">
+                    <i class="bi bi-check-circle-fill" style="font-size: 5rem; color: #47c1e8;"></i>
+                </div>
+                <h2 class="text-light mb-4">Регистрация успешна!</h2>
+                <div class="card" style="background-color: #1a1a1a; border: 1px solid rgba(71, 193, 232, 0.3); border-radius: 15px; box-shadow: 0 0 20px rgba(71, 193, 232, 0.2);">
+                    <div class="card-body p-4">
+                        <h4 class="text-light mb-3">Бизнес "{{ business_name }}" успешно зарегистрирован</h4>
+                        <p class="text-light-50 opacity-75 mb-4">
+                            Спасибо за регистрацию! Ваш бизнес теперь добавлен в нашу систему.
+                            В ближайшее время с вами свяжется наш менеджер для подтверждения данных.
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="/" class="btn btn-neon" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 500;">
+                                Вернуться на главную
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar_panel %}
+<div class="logo-container text-center mb-4" style="background-color: #1a1a1a;">
+    <div class="brand-logo">QWERTYTOWN</div>
+    <h4 class="text-light">Регистрация успешна</h4>
+</div>
+
+<div class="navigation" style="background-color: #1a1a1a;">
+    <div class="nav-item active" data-target="welcome">
+        <i class="bi bi-house text-light"></i>
+        <span class="text-light">Главная</span>
+    </div>
+    <div class="nav-item" data-target="menu">
+        <i class="bi bi-journal-text text-light"></i>
+        <span class="text-light">Меню</span>
+    </div>
+    <div class="nav-item" data-target="location">
+        <i class="bi bi-geo-alt text-light"></i>
+        <span class="text-light">Где мы</span>
+    </div>
+    <div class="nav-item" data-target="contacts">
+        <i class="bi bi-telephone text-light"></i>
+        <span class="text-light">Контакты</span>
+    </div>
+    <div class="nav-item" data-target="gallery">
+        <i class="bi bi-images text-light"></i>
+        <span class="text-light">Галерея</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block info_panel %}
+<div class="info-section active text-center" style="background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">Информация</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <div class="row w-100">
+            <div class="col-md-12 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Что дальше?</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    После подтверждения данных вы получите доступ к панели управления бизнесом,
+                    где сможете настраивать профиль, добавлять меню, акции и специальные предложения.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

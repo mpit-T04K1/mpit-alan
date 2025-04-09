@@ -1,0 +1,55 @@
+{% extends "modular_base.html" %}
+
+{% block title %}Тестовая страница - QWERTYTOWN{% endblock %}
+
+{% block main_panel %}
+<div class="section active" id="main-section">
+    <div class="content-card">
+        <h2 class="panel-title text-center text-light">Тестовая страница</h2>
+        <div class="content">
+            {% if business %}
+                <div class="text-center mb-4">
+                    <img src="{{ business.logo }}" alt="{{ business.name }}" class="img-fluid rounded" style="max-height: 200px;">
+                </div>
+                <h3 class="text-light text-center">{{ business.name }}</h3>
+                <p class="text-light text-center">{{ business.description }}</p>
+                
+                {% if business.highlights %}
+                    <div class="highlights mt-4">
+                        <h4 class="text-light text-center">Особенности:</h4>
+                        <ul class="list-unstyled">
+                            {% for highlight in business.highlights %}
+                                <li class="text-light text-center">{{ highlight }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p class="text-light text-center">Это тестовая страница. Данные о бизнесе отсутствуют.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar_panel %}
+<div class="nav-item active" data-target="main">
+    <i class="bi bi-house-door"></i>
+    <span>Главная</span>
+</div>
+{% endblock %}
+
+{% block info_panel %}
+<div class="info-section active" id="main-info">
+    <div class="content-card">
+        <h3 class="panel-title text-center text-light">Информация</h3>
+        <div class="content">
+            {% if business %}
+                <p class="text-light text-center">Это тестовая страница для бизнеса "{{ business.name }}"</p>
+            {% else %}
+                <p class="text-light text-center">Это тестовая страница без данных о бизнесе</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

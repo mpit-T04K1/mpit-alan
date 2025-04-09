@@ -1,11 +1,10 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class LocationBase(BaseModel):
     """Базовая схема локации"""
-
     address: str
     city: str
     region: Optional[str] = None
@@ -18,13 +17,11 @@ class LocationBase(BaseModel):
 
 class LocationCreate(LocationBase):
     """Схема создания локации"""
-
     pass
 
 
 class LocationUpdate(BaseModel):
     """Схема обновления локации"""
-
     address: Optional[str] = None
     city: Optional[str] = None
     region: Optional[str] = None
@@ -37,14 +34,17 @@ class LocationUpdate(BaseModel):
 
 class LocationInDB(LocationBase):
     """Схема локации из БД"""
-
     id: int
     company_id: int
+    
+    class Config:
+        orm_mode = True
 
 
 class LocationResponse(LocationBase):
     """Схема ответа с данными локации"""
-
     id: int
     company_id: int
-
+    
+    class Config:
+        orm_mode = True 

@@ -1,24 +1,21 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.adapters.database.models.moderation import ModerationRecord, ModerationStatus
-from src.schemas.moderation import (
-    ModerationRecordCreate,
-    ModerationUpdate,
-    AutoCheckResult,
-)
+from src.models.moderation import ModerationRecord, ModerationStatus
+from src.schemas.moderation import ModerationRecordCreate, ModerationUpdate, AutoCheckResult
 
 
 class ModerationRepository:
     """
     Репозиторий для работы с модерацией
     """
-
+    
     @staticmethod
     async def create(
-        db: AsyncSession, data: ModerationRecordCreate
+        db: AsyncSession, 
+        data: ModerationRecordCreate
     ) -> ModerationRecord:
         """
         Создать новую запись модерации
@@ -26,28 +23,32 @@ class ModerationRepository:
         db_record = ModerationRecord(
             company_id=data.company_id,
             auto_check_passed=data.auto_check_passed,
-            status=ModerationStatus.PENDING.value,
+            status=ModerationStatus.PENDING.value
         )
-
+        
         db.add(db_record)
         await db.commit()
         await db.refresh(db_record)
-
+        
         return db_record
-
+    
     @staticmethod
-    async def get_by_id(db: AsyncSession, record_id: int) -> Optional[ModerationRecord]:
+    async def get_by_id(
+        db: AsyncSession, 
+        record_id: int
+    ) -> Optional[ModerationRecord]:
         """
         Получить запись модерации по ID
         """
         query = select(ModerationRecord).where(ModerationRecord.id == record_id)
         result = await db.execute(query)
-
+        
         return result.scalars().first()
-
+    
     @staticmethod
     async def get_by_company_id(
-        db: AsyncSession, company_id: int
+        db: AsyncSession, 
+        company_id: int
     ) -> List[ModerationRecord]:
         """
         Получить все записи модерации для компании
@@ -58,12 +59,13 @@ class ModerationRepository:
             .order_by(ModerationRecord.created_at.desc())
         )
         result = await db.execute(query)
-
+        
         return list(result.scalars().all())
-
+    
     @staticmethod
     async def get_latest_by_company_id(
-        db: AsyncSession, company_id: int
+        db: AsyncSession, 
+        company_id: int
     ) -> Optional[ModerationRecord]:
         """
         Получить последнюю запись модерации для компании
@@ -75,12 +77,15 @@ class ModerationRepository:
             .limit(1)
         )
         result = await db.execute(query)
-
+        
         return result.scalars().first()
-
+    
     @staticmethod
     async def update(
-        db: AsyncSession, record_id: int, moderator_id: int, data: ModerationUpdate
+        db: AsyncSession, 
+        record_id: int, 
+        moderator_id: int,
+        data: ModerationUpdate
     ) -> Optional[ModerationRecord]:
         """
         Обновить запись модерации
@@ -91,19 +96,21 @@ class ModerationRepository:
             .values(
                 status=data.status,
                 moderation_notes=data.moderation_notes,
-                moderator_id=moderator_id,
+                moderator_id=moderator_id
             )
             .returning(ModerationRecord)
         )
-
+        
         result = await db.execute(query)
         await db.commit()
-
+        
         return result.scalars().first()
-
+    
     @staticmethod
     async def get_pending_records(
-        db: AsyncSession, limit: int = 20, offset: int = 0
+        db: AsyncSession,
+        limit: int = 20,
+        offset: int = 0
     ) -> List[ModerationRecord]:
         """
         Получить записи модерации в статусе "на рассмотрении"
@@ -115,13 +122,15 @@ class ModerationRepository:
             .offset(offset)
             .limit(limit)
         )
-
+        
         result = await db.execute(query)
-
+        
         return list(result.scalars().all())
-
+    
     @staticmethod
-    async def count_pending_records(db: AsyncSession) -> int:
+    async def count_pending_records(
+        db: AsyncSession
+    ) -> int:
         """
         Получить количество записей модерации в статусе "на рассмотрении"
         """
@@ -130,16 +139,18 @@ class ModerationRepository:
             .select_from(ModerationRecord)
             .where(ModerationRecord.status == ModerationStatus.PENDING.value)
         )
-
+        
         result = await db.execute(query)
-
+        
         return result.scalar_one()
-
+    
     @staticmethod
-    async def auto_check_company(company_id: int) -> AutoCheckResult:
+    async def auto_check_company(
+        company_id: int
+    ) -> AutoCheckResult:
         """
         Выполнить автоматическую проверку компании
-
+        
         В реальном проекте здесь может быть более сложная логика,
         например:
         - Проверка на наличие запрещенных слов
@@ -152,14 +163,14 @@ class ModerationRepository:
             "has_required_fields": True,
             "website_valid": True,
             "banned_words_check": True,
-            "duplicate_check": True,
+            "duplicate_check": True
         }
-
+        
         passed = all(checks.values())
-        notes = (
-            "Автоматическая проверка пройдена успешно."
-            if passed
-            else "Автоматическая проверка не пройдена."
-        )
-
-        return AutoCheckResult(passed=passed, checks=checks, notes=notes)
+        notes = "Автоматическая проверка пройдена успешно." if passed else "Автоматическая проверка не пройдена."
+        
+        return AutoCheckResult(
+            passed=passed,
+            checks=checks,
+            notes=notes
+        ) 

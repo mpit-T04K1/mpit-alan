@@ -1,0 +1,1299 @@
+/* Подключение шрифта FuturaPT */
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-book.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-book-oblique.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-medium-oblique.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-demi.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-bold-oblique.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'FuturaPT';
+    src: url('../fonts/Futura Pt Font Family/futura-pt-heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    /* Основная цветовая схема */
+    --primary: #00a0ff;
+    --primary-dark: #0070b3;
+    --primary-light: #000000;
+    --secondary: #5a5a5a;
+    --dark: #030303;  /* Делаем темнее */
+    --darker: #000000;  /* Абсолютно черный */
+    --light: #000000;
+    --lighter: #000000;
+    
+    /* Цвета фона */
+    --body-bg: #050505;  /* Делаем темнее */
+    --card-bg: #0a0a0a;  /* Делаем темнее */
+    --modal-bg: #0a0a0a;  /* Делаем темнее */
+    
+    /* Цвета текста */
+    --text-primary: #f0f0f0;
+    --text-secondary: #b8b8b8;
+    --text-muted: #888888;
+    --text-light: #000000;
+    --text-dark: #212121;
+    
+    /* Тени */
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --box-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    
+    /* Стили рамок */
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+    --border-radius-lg: 12px;
+    --border-width: 1px;
+    --border-color: #222222;  /* Делаем темнее */
+    
+    /* Отступы */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    /* VisionOS стекло - для компонентов с эффектом стекла */
+    --visionos-glass: rgba(20, 20, 20, 0.7);  /* Делаем темнее */
+    --visionos-glass-border: rgba(60, 60, 60, 0.3);
+    --visionos-glass-dark: rgba(12, 12, 12, 0.75);  /* Делаем темнее */
+    --visionos-glass-dark-border: rgba(0, 0, 0, 0.4);
+    
+    /* Анимации */
+    --transition-slow: 0.5s ease;
+    --transition-normal: 0.3s ease;
+    --transition-fast: 0.15s ease;
+    
+    /* Градиенты */
+    --gradient-primary: linear-gradient(135deg, #47c1e8, #e42bd4);
+    --gradient-secondary: linear-gradient(135deg, #5e5ce6, #e42bd4);
+    
+    /* Фоны и контейнеры */
+    --visionos-bg-primary: #080808;  /* Более темный основной фон */
+    --visionos-bg-secondary: #111111;  /* Более темный вторичный фон */
+    --visionos-shadow: rgba(0, 0, 0, 0.5);  /* Более заметная тень */
+    --visionos-glow: rgba(50, 50, 50, 0.2);  /* Приглушенное свечение для темного режима */
+    
+    /* Типографика */
+    --heading-line-height: 1.2;
+    --body-line-height: 1.5;
+    
+    /* Цвета панелей */
+    --bg-panel: #080808;  /* Более темный фон панели */
+    --shadow-blue: 0 0 15px rgba(71, 193, 232, 0.4);  /* Усиленная синяя тень */
+    --shadow-pink: 0 0 15px rgba(228, 43, 212, 0.4);  /* Усиленная розовая тень */
+    --shadow-purple: 0 0 15px rgba(94, 92, 230, 0.4);  /* Усиленная фиолетовая тень */
+}
+
+/* Глобальные стили для всего приложения */
+body {
+    font-family: var(--font-family-primary);
+    background-color: var(--body-bg);
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+    line-height: var(--body-line-height);
+}
+
+/* Типографика */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-primary);
+    font-weight: 500;
+    line-height: var(--heading-line-height);
+    color: var(--text-light);
+}
+
+p, span, a, li, ul, ol, div {
+    font-family: var(--font-family-primary);
+}
+
+a {
+    color: var(--primary);
+}
+
+a:hover {
+    color: var(--accent);
+}
+
+button, input, textarea, select {
+    font-family: var(--font-family-primary);
+    background-color: var(--visionos-glass-dark);
+    color: var(--text-light);
+    border: 1px solid var(--visionos-glass-dark-border);
+}
+
+.btn {
+    font-family: var(--font-family-primary);
+    font-weight: 500;
+}
+
+/* Стилизация VisionOS */
+.visionos-container {
+    background-color: var(--visionos-glass);
+    border-radius: 20px;
+    border: 1px solid var(--visionos-glass-border);
+    backdrop-filter: blur(20px);
+    padding: 20px;
+    min-height: 100vh;
+    position: relative;
+}
+
+.visionos-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--visionos-glass);
+    border-radius: 20px;
+    z-index: -1;
+}
+
+.visionos-card {
+    background-color: var(--visionos-glass-dark);
+    border-radius: 15px;
+    border: 1px solid var(--visionos-glass-dark-border);
+    backdrop-filter: blur(12px);
+    padding: 20px;
+    transition: all 0.3s ease;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    color: var(--text-light);
+}
+
+.visionos-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, var(--visionos-glow), transparent);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, #3a7bd5, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Адаптивность */
+@media (max-width: 767px) {
+    .visionos-card {
+        margin-bottom: 15px;
+    }
+}
+
+/* Стилизация скроллбара для вебкит-браузеров */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(20, 20, 20, 0.6);  /* Делаем темнее */
+    border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(60, 60, 60, 0.8);  /* Делаем темнее */
+    border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(80, 80, 80, 0.9);  /* Делаем темнее */
+}
+
+/* Стили для карточек на главной странице */
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Стили для кнопок */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background-color: #2a6ed5;
+    border-color: #2a6ed5;
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Стили шапки */
+header {
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+header .display-5 {
+    font-weight: 700;
+}
+
+header .lead {
+    opacity: 0.9;
+}
+
+/* Стили футера */
+footer {
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Адаптивная верстка */
+@media (max-width: 768px) {
+    header .display-5 {
+        font-size: 1.8rem;
+    }
+    
+    header .lead {
+        font-size: 1rem;
+    }
+    
+    .col-md-4 {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Стили для форм */
+.form-control {
+    background-color: var(--visionos-glass-dark);
+    border: 1px solid var(--visionos-glass-dark-border);
+    color: var(--text-light);
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.form-control:focus {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--primary);
+    color: var(--text-light);
+    box-shadow: 0 0 0 0.2rem rgba(71, 193, 232, 0.25);
+}
+
+.form-label {
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.form-text {
+    color: var(--text-muted);
+}
+
+/* Стили для модальных окон */
+.modal-content {
+    background-color: var(--modal-bg);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.modal-footer {
+    border-top: var(--border-width) solid var(--border-color);
+}
+
+.close {
+    color: var(--text-primary);
+    opacity: 0.7;
+}
+
+.close:hover {
+    color: var(--text-light);
+    opacity: 1;
+}
+
+/* Стили для выпадающих меню */
+.dropdown-menu {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+.dropdown-item {
+    color: var(--text-light);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+/* Установка правильных z-index для основных контейнеров */
+.header-container, header {
+    z-index: 10;
+    position: relative;
+    overflow: visible !important;
+}
+
+.qwertytown-container {
+    z-index: 1;
+}
+
+/* Стили для таблиц */
+.table {
+    color: var(--text-light);
+}
+
+.table thead th {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+}
+
+.table tbody td {
+    border-color: var(--visionos-glass-dark-border);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Стили для предупреждений и сообщений */
+.alert {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    color: var(--text-light);
+}
+
+.alert-success {
+    background-color: rgba(52, 199, 89, 0.2);
+    border-color: rgba(52, 199, 89, 0.3);
+}
+
+.alert-warning {
+    background-color: rgba(255, 204, 0, 0.2);
+    border-color: rgba(255, 204, 0, 0.3);
+}
+
+.alert-danger {
+    background-color: rgba(255, 59, 48, 0.2);
+    border-color: rgba(255, 59, 48, 0.3);
+}
+
+/* Стили для бейджей */
+.badge {
+    font-weight: 500;
+}
+
+.badge-primary {
+    background-color: var(--primary);
+}
+
+.badge-secondary {
+    background-color: var(--secondary);
+}
+
+.badge-success {
+    background-color: var(--success);
+}
+
+.badge-warning {
+    background-color: var(--warning);
+    color: var(--dark);
+}
+
+.badge-danger {
+    background-color: var(--danger);
+}
+
+/* Добавление стилей для индикатора загрузки */
+.loading-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Стили для контейнера уведомлений */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 350px;
+}
+
+/* Стили для уведомлений */
+.notification {
+    margin-bottom: 10px;
+    position: relative;
+    opacity: 0.95;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Анимация появления и исчезновения уведомлений */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 0.95;
+        transform: translateY(0);
+    }
+}
+
+.notification.fade-out {
+    animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 0.95;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Добавляем класс для темных панелей */
+.dark-panel {
+    background-color: var(--visionos-glass-dark);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--visionos-glass-dark-border);
+    margin-bottom: 20px;
+}
+
+.dark-panel .panel-title {
+    color: var(--text-light);
+}
+
+.dark-panel p, .dark-panel span, .dark-panel a {
+    color: var(--text-light);
+}
+
+/* Стили для переключателя проектов */
+.project-switcher {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #1a1a1a;
+    padding: 8px 15px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    z-index: 9999;
+    border-top: 1px solid #333;
+}
+
+.project-switch-btn {
+    padding: 6px 12px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.project-switch-btn:hover {
+    background-color: #444;
+    color: #fff;
+}
+
+.project-switch-btn.current {
+    background-color: #0d6efd;
+}
+
+.project-switch-btn.current:hover {
+    background-color: #0b5ed7;
+}
+
+.project-switch-btn.external {
+    background-color: #198754;
+}
+
+.project-switch-btn.external:hover {
+    background-color: #157347;
+}
+
+.scale-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--body-bg);
+}
+
+.scale-container {
+    transform: scale(0.9);
+    transform-origin: center center;
+    width: 100%;
+    height: 100vh;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* Основной контейнер модульного интерфейса */
+.modular-container {
+    display: grid;
+    grid-template-rows: 1fr 180px;
+    grid-template-columns: 1fr 350px;
+    height: 100vh;
+    gap: 40px;
+    padding: 10px;
+    background-color: var(--body-bg);
+}
+
+/* Основная панель (левая) */
+.main-panel {
+    grid-row: 1;
+    grid-column: 1;
+    background-color: var(--bg-panel);
+    border-radius: 15px;
+    box-shadow: var(--shadow-blue);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(71, 193, 232, 0.2);
+}
+
+.main-panel:hover {
+    box-shadow: 0 0 25px rgba(71, 193, 232, 0.4);
+}
+
+.main-panel-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(71, 193, 232, 0.5) rgba(33, 33, 33, 0.7);
+}
+
+/* Стилизация скроллбара для Webkit браузеров */
+.main-panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-panel-content::-webkit-scrollbar-track {
+    background: rgba(33, 33, 33, 0.7);
+}
+
+.main-panel-content::-webkit-scrollbar-thumb {
+    background-color: rgba(71, 193, 232, 0.5);
+    border-radius: 4px;
+}
+
+/* Боковая панель (правая) */
+.sidebar-panel {
+    grid-row: 1;
+    grid-column: 2;
+    background-color: var(--bg-panel);
+    border-radius: 15px;
+    box-shadow: var(--shadow-pink);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(228, 43, 212, 0.2);
+}
+
+.sidebar-panel:hover {
+    box-shadow: 0 0 25px rgba(228, 43, 212, 0.4);
+}
+
+.sidebar-panel-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 25px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(228, 43, 212, 0.5) rgba(33, 33, 33, 0.7);
+}
+
+.sidebar-panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar-panel-content::-webkit-scrollbar-track {
+    background: rgba(33, 33, 33, 0.7);
+}
+
+.sidebar-panel-content::-webkit-scrollbar-thumb {
+    background-color: rgba(228, 43, 212, 0.5);
+    border-radius: 4px;
+}
+
+/* Информационная панель (нижняя) */
+.info-panel {
+    grid-row: 2;
+    grid-column: 1 / span 2;
+    background-color: var(--bg-panel);
+    border-radius: 15px;
+    box-shadow: var(--shadow-purple);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(94, 92, 230, 0.2);
+}
+
+.info-panel:hover {
+    box-shadow: 0 0 25px rgba(94, 92, 230, 0.4);
+}
+
+.info-panel-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px 25px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(94, 92, 230, 0.5) rgba(33, 33, 33, 0.7);
+}
+
+.info-panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.info-panel-content::-webkit-scrollbar-track {
+    background: rgba(33, 33, 33, 0.7);
+}
+
+.info-panel-content::-webkit-scrollbar-thumb {
+    background-color: rgba(94, 92, 230, 0.5);
+    border-radius: 4px;
+}
+
+/* Стили для меню */
+.menu-category {
+    margin-bottom: 15px;
+}
+
+.menu-items {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.menu-item {
+    padding: 8px 15px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item.active {
+    background-color: rgba(71, 193, 232, 0.2);
+}
+
+/* Стили для навигации */
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    background-color: rgba(71, 193, 232, 0.2);
+}
+
+.nav-item i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Стили для логотипа */
+.logo-container {
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.brand-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-light);
+    margin-bottom: 5px;
+}
+
+/* Стили для подменю */
+.submenu {
+    margin-left: 15px;
+    margin-bottom: 15px;
+    display: none; /* Скрыто по умолчанию */
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.nav-item.has-submenu::after {
+    content: '\F282';
+    font-family: 'bootstrap-icons';
+    transition: transform 0.3s ease;
+}
+
+.nav-item.has-submenu.expanded::after {
+    transform: rotate(90deg);
+}
+
+/* Стили для контентных карточек */
+.content-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.content-card:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+}
+
+/* Стили для секций */
+.section {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.section:not(:first-child) {
+    display: none;
+}
+
+/* Стили для информационных секций */
+.info-section {
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 10px rgba(71, 193, 232, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(228, 43, 212, 0.4); }
+    100% { box-shadow: 0 0 10px rgba(71, 193, 232, 0.3); }
+}
+
+/* Логотип */
+.brand-logo {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    display: inline-block;
+}
+
+/* Неоновая кнопка */
+.btn-neon {
+    background: rgba(30, 30, 30, 0.9);
+    color: var(--text-light);
+    border: 1px solid var(--accent-blue);
+    border-radius: 30px;
+    padding: 8px 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.btn-neon:hover {
+    box-shadow: 0 0 15px var(--accent-blue);
+}
+
+.btn-neon:active {
+    transform: scale(0.98);
+}
+
+.btn-neon.btn-sm {
+    padding: 5px 15px;
+    font-size: 0.875rem;
+}
+
+/* Цветовые утилиты */
+.text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Адаптивный дизайн */
+@media (max-width: 991px) {
+    .modular-container {
+        grid-template-rows: auto 1fr 180px;
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .main-panel {
+        grid-row: 2;
+        grid-column: 1;
+        height: 60vh;
+    }
+    
+    .sidebar-panel {
+        grid-row: 1;
+        grid-column: 1;
+        height: auto;
+        min-height: 300px;
+    }
+    
+    .info-panel {
+        grid-row: 3;
+        grid-column: 1;
+        height: auto;
+    }
+    
+    .main-panel-content, 
+    .sidebar-panel-content, 
+    .info-panel-content {
+        position: relative;
+        height: auto;
+        min-height: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .modular-container {
+        padding: 5px;
+        gap: 5px;
+    }
+    
+    .main-panel-content,
+    .sidebar-panel-content,
+    .info-panel-content {
+        padding: 15px;
+    }
+}
+
+/* Темный заголовок для таблиц и карточек */
+.dark-header {
+    background-color: var(--visionos-glass-dark);
+    color: var(--text-light);
+    padding: 10px 15px;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid var(--visionos-glass-dark-border);
+}
+
+/* Темные кнопки */
+.btn-dark {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    color: var(--text-light);
+}
+
+.btn-dark:hover {
+    background-color: rgba(30, 30, 30, 0.9);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(71, 193, 232, 0.3);
+}
+
+/* Выпадающие меню */
+.dropdown-menu {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+.dropdown-item {
+    color: var(--text-light);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+/* Вкладки */
+.nav-tabs {
+    border-bottom-color: var(--visionos-glass-dark-border);
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-light);
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--visionos-glass-dark-border);
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    color: var(--primary);
+}
+
+/* Стилизация для светящихся элементов */
+.glow-text {
+    text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 30px var(--primary);
+}
+
+.glow-border {
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+}
+
+/* Темная панель с подсветкой */
+.dark-panel {
+    background-color: var(--visionos-glass-dark);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--visionos-glass-dark-border);
+    margin-bottom: 20px;
+}
+
+/* Стилизация для чекбоксов и радио кнопок */
+.form-check-input {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Стилизация select */
+.form-select {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    color: var(--text-light);
+}
+
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(71, 193, 232, 0.25);
+}
+
+/* Карточки статистики */
+.stats-card {
+    background-color: var(--visionos-glass-dark);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 1px solid var(--visionos-glass-dark-border);
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.stats-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1.5rem;
+    color: var(--text-light);
+}
+
+.stats-card-content {
+    flex: 1;
+}
+
+.stats-card-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--text-light);
+}
+
+.stats-card-title {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Стилизация для текстовых областей */
+textarea.form-control {
+    min-height: 100px;
+}
+
+/* Индикатор загрузки */
+.loading-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: var(--text-muted);
+}
+
+/* Темная тема для Bootstrap компонентов */
+.card {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    color: var(--text-light);
+}
+
+.card-header, .card-footer {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: var(--visionos-glass-dark-border);
+}
+
+.list-group-item {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    color: var(--text-light);
+}
+
+.pagination .page-link {
+    background-color: var(--visionos-glass-dark);
+    border-color: var(--visionos-glass-dark-border);
+    color: var(--text-light);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Стили для кодовых блоков */
+pre, code {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: var(--primary);
+    border-radius: 5px;
+    padding: 0.2em 0.4em;
+}
+
+pre {
+    padding: 1em;
+}
+
+/* Фоновые стили для темной темы */
+.bg-dark-glass {
+    background-color: var(--visionos-glass-dark);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.border-glow {
+    border: 1px solid rgba(71, 193, 232, 0.3);
+    box-shadow: 0 0 10px rgba(71, 193, 232, 0.2);
+}
+
+/* Стили из исходного проекта */
+.btn-neon {
+    display: inline-block;
+    padding: 10px 20px;
+    color: var(--text-light);
+    background: var(--primary);
+    border: none;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: 0 0 10px rgba(0, 160, 255, 0.5);
+}
+
+.btn-neon:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 0 15px rgba(0, 160, 255, 0.7);
+    transform: translateY(-2px);
+    color: var(--text-light);
+}
+
+.gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Дополнительные классы для навигации */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 5px;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.nav-item:hover {
+    background-color: var(--visionos-glass-dark);
+    color: var(--text-light);
+}
+
+.nav-item.active {
+    background-color: var(--visionos-glass-dark);
+    border-left: 3px solid var(--primary);
+    color: var(--text-light);
+}
+
+.nav-item i {
+    font-size: 1.2rem;
+}
+
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+/* Классы для бренда */
+.brand-logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}

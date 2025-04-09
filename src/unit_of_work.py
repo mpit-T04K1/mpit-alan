@@ -9,7 +9,7 @@ from src.adapters.filestorage.repository import (
     FileStorageProtocol,
     FileStorageRepository,
 )
-from adapters.filestorage.s3_session import s3_session_factory
+from src.adapters.filestorage.session import s3_session_factory
 from src.adapters.telegram import TelegramGateway, TelegramGatewayProtocol
 from src.utils.unit_of_work import UnitOfWorkProtocol
 
@@ -41,4 +41,4 @@ class UnitOfWork(UnitOfWorkProtocol):
         await self.db_session.commit()
 
     async def rollback(self):
-        await self.db_session.rollback()
+        await self.db_session.rollback() 

@@ -1,16 +1,13 @@
-from .analytics import Analytics as Analytics
-from .booking import Booking as Booking
-from .company import Company as Company
-from .location import Location as Location
-from .media import Media as Media
-from .moderation import ModerationRecord as ModerationRecord
-from .notification import Notification as Notification
-from .schedule import Schedule as Schedule
-from .service import Service as Service
-from .user import User as User
-from .working_hours import WorkingHours as WorkingHours
+# Импорт моделей из src/models для избежания дублирования
+from src.models.user import User, UserRole
+from src.models.company import Company
+from src.models.booking import Booking
+from src.models.location import Location
+from src.models.working_hours import WorkingHours
+from src.models.service import Service
+from src.models.media import Media, MediaType
+from src.models.analytics import Analytics
+from src.models.moderation import ModerationStatus, ModerationAction, ModerationRecord
 
-
-from .moderation import ModerationStatus as ModerationStatus
-from .moderation import ModerationAction as ModerationAction
-from .user import UserRole as UserRole
+# Этот импорт нужен для обратной совместимости
+# В новом коде следует использовать импорты напрямую из src/models/ 

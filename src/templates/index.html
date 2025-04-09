@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Management API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .hero-section {
+            text-align: center;
+            padding: 40px 0;
+        }
+        .feature-box {
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            height: 100%;
+            transition: all 0.3s;
+        }
+        .feature-box:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="display-4 mb-3">Сервис бронирования услуг компаний</h1>
+            <p class="lead mb-4">Удобная платформа для управления бизнесом и бронирования услуг</p>
+            <div class="d-grid gap-2 d-md-block">
+                <a href="/login" class="btn btn-success me-md-2">Вход</a>
+                <a href="/register" class="btn btn-primary">Регистрация</a>
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Основные возможности</h2>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon">📅</div>
+                    <h3>Управление расписанием</h3>
+                    <p>Удобное планирование и организация рабочего времени для ваших сотрудников.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon">📊</div>
+                    <h3>Бизнес-аналитика</h3>
+                    <p>Отслеживайте динамику бронирований и получайте ценные данные о вашем бизнесе.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Уведомления</h3>
+                    <p>Автоматические уведомления о новых бронированиях и изменениях в расписании.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <h2 class="mb-4">Начните использовать сервис уже сегодня</h2>
+            <div class="d-grid gap-2 d-md-block">
+                <a href="/register" class="btn btn-lg btn-primary me-md-2">Зарегистрироваться</a>
+                <a href="/docs" class="btn btn-lg btn-outline-secondary">API Документация</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

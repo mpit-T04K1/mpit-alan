@@ -1,0 +1,617 @@
+{% extends "business/base.html" %}
+
+{% block title %}Панель модерации{% endblock %}
+
+{% block content %}
+<div class="situation-center">
+    <!-- Левая панель - Список заявок на модерацию -->
+    <div class="situation-panel situation-panel-left">
+        <div class="situation-panel-header">
+            <h3>Заявки на модерацию</h3>
+        </div>
+        
+        <div class="filters mb-3">
+            <select class="form-select" id="moderation-status-filter">
+                <option value="all">Все статусы</option>
+                <option value="pending" selected>Ожидающие</option>
+                <option value="approved">Одобренные</option>
+                <option value="rejected">Отклоненные</option>
+            </select>
+        </div>
+        
+        <ul class="situation-item-list" id="moderation-requests-list">
+            {% for record in moderation_records %}
+            <li class="situation-item {% if loop.first %}active{% endif %}" 
+                data-company-id="{{ record.company_id }}" 
+                data-record-id="{{ record.id }}" 
+                data-status="{{ record.status }}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="company-name">{{ record.company_name }}</span>
+                        <small class="d-block text-muted">{{ record.created_at|datetimeformat }}</small>
+                    </div>
+                    <span class="badge {% if record.status == 'pending' %}bg-warning{% elif record.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ record.status|capitalize }}
+                    </span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Основная панель - Детали компании и форма модерации -->
+    <div class="situation-panel situation-panel-main">
+        <div class="situation-panel-header">
+            <h3>Данные компании</h3>
+        </div>
+        
+        <div id="company-details-loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-2">Загрузка данных компании...</p>
+        </div>
+        
+        <div id="company-details-container" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-md-4 text-center">
+                    <img id="company-logo" src="" alt="Логотип компании" class="img-fluid rounded company-logo mb-2" style="max-width: 120px;">
+                </div>
+                <div class="col-md-8">
+                    <h4 id="company-name" class="mb-1"></h4>
+                    <p id="company-type" class="text-muted"></p>
+                    <div id="company-description" class="mt-2"></div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5>Контактная информация</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><i class="fas fa-phone me-2"></i> <span id="company-phone"></span></p>
+                            <p><i class="fas fa-envelope me-2"></i> <span id="company-email"></span></p>
+                            <p><i class="fas fa-globe me-2"></i> <a id="company-website" href="#" target="_blank"></a></p>
+                            <p><i class="fas fa-map-marker-alt me-2"></i> <span id="company-address"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5>Информация для модерации</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Дата создания:</strong> <span id="company-created"></span></p>
+                            <p><strong>Статус модерации:</strong> <span id="moderation-status"></span></p>
+                            <p><strong>Результат автопроверки:</strong> <span id="auto-check-result"></span></p>
+                            <div id="moderation-history" class="mt-3">
+                                <h6>История модерации:</h6>
+                                <ul class="list-group list-group-flush" id="moderation-history-list">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Решение модератора</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="moderation-form">
+                                <input type="hidden" id="company-id-input" name="company_id">
+                                <input type="hidden" id="moderation-record-id-input" name="record_id">
+                                
+                                <div class="mb-3">
+                                    <label for="moderation-comment" class="form-label">Комментарий модератора</label>
+                                    <textarea class="form-control" id="moderation-comment" name="comment" rows="3"></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notify-company" name="notify_company" checked>
+                                        <label class="form-check-label" for="notify-company">
+                                            Уведомить компанию о решении
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" id="reject-button" class="btn btn-danger">
+                                        <i class="fas fa-times"></i> Отклонить
+                                    </button>
+                                    
+                                    <button type="button" id="approve-button" class="btn btn-success">
+                                        <i class="fas fa-check"></i> Одобрить
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Правая панель - Автоматическая проверка и логи -->
+    <div class="situation-panel situation-panel-right">
+        <div class="situation-panel-header">
+            <h3>Результаты проверки</h3>
+        </div>
+        
+        <div class="situation-card">
+            <div class="situation-card-header">
+                <h5>Автоматическая проверка</h5>
+            </div>
+            <div class="situation-card-body">
+                <div id="auto-check-loading" class="text-center py-3">
+                    <div class="spinner-border text-primary spinner-border-sm" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <p class="mt-2">Загрузка результатов...</p>
+                </div>
+                
+                <div id="auto-check-results" style="display: none;">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Проверка данных ФНС</span>
+                            <span id="fns-check-status" class="badge"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Проверка контактов</span>
+                            <span id="contacts-check-status" class="badge"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Проверка адреса</span>
+                            <span id="address-check-status" class="badge"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Проверка содержимого</span>
+                            <span id="content-check-status" class="badge"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Проверка изображений</span>
+                            <span id="images-check-status" class="badge"></span>
+                        </li>
+                    </ul>
+                    
+                    <div class="text-center mt-3">
+                        <button id="rerun-check-button" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-sync-alt"></i> Запустить проверку повторно
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="situation-card">
+            <div class="situation-card-header">
+                <h5>Лог изменений</h5>
+            </div>
+            <div class="situation-card-body">
+                <div id="activity-log-container">
+                    <ul class="list-group list-group-flush" id="activity-log-list">
+                        <!-- Логи будут загружены через JavaScript -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="situation-card">
+            <div class="situation-card-header">
+                <h5>Помощь модератору</h5>
+            </div>
+            <div class="situation-card-body">
+                <div class="accordion" id="moderatorHelpAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                Что проверять в компании?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#moderatorHelpAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li>Корректность и полнота контактных данных</li>
+                                    <li>Соответствие названия и описания</li>
+                                    <li>Отсутствие запрещенного контента</li>
+                                    <li>Актуальность предоставляемых услуг</li>
+                                    <li>Качество и релевантность изображений</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Критерии отклонения
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#moderatorHelpAccordion">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li>Недостоверная информация</li>
+                                    <li>Запрещенные товары или услуги</li>
+                                    <li>Неприемлемый контент</li>
+                                    <li>Нарушение авторских прав</li>
+                                    <li>Нарушение правил сервиса</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получение списка заявок на модерацию
+        const moderationItems = document.querySelectorAll('.situation-item');
+        const statusFilter = document.getElementById('moderation-status-filter');
+        
+        // Загрузка деталей компании
+        function loadCompanyDetails(companyId, recordId) {
+            // Показываем индикатор загрузки
+            document.getElementById('company-details-loading').style.display = 'block';
+            document.getElementById('company-details-container').style.display = 'none';
+            
+            // Загружаем данные с сервера
+            fetch(`/api/companies/${companyId}`)
+                .then(response => response.json())
+                .then(company => {
+                    // Заполняем форму данными компании
+                    document.getElementById('company-name').textContent = company.name;
+                    document.getElementById('company-type').textContent = company.business_type;
+                    document.getElementById('company-description').textContent = company.description || 'Описание отсутствует';
+                    document.getElementById('company-logo').src = company.logo_url || '/static/img/default-company-logo.png';
+                    document.getElementById('company-phone').textContent = company.contact_phone || 'Не указан';
+                    document.getElementById('company-email').textContent = company.contact_email || 'Не указан';
+                    
+                    const websiteEl = document.getElementById('company-website');
+                    if (company.website) {
+                        websiteEl.href = company.website;
+                        websiteEl.textContent = company.website;
+                    } else {
+                        websiteEl.textContent = 'Не указан';
+                        websiteEl.removeAttribute('href');
+                    }
+                    
+                    document.getElementById('company-address').textContent = company.address || 'Не указан';
+                    document.getElementById('company-created').textContent = new Date(company.created_at).toLocaleString();
+                    
+                    // Статус модерации
+                    const statusEl = document.getElementById('moderation-status');
+                    statusEl.textContent = company.moderation_status;
+                    statusEl.className = '';
+                    if (company.moderation_status === 'pending') {
+                        statusEl.classList.add('badge', 'bg-warning');
+                    } else if (company.moderation_status === 'approved') {
+                        statusEl.classList.add('badge', 'bg-success');
+                    } else {
+                        statusEl.classList.add('badge', 'bg-danger');
+                    }
+                    
+                    // Скрываем загрузку, показываем детали
+                    document.getElementById('company-details-loading').style.display = 'none';
+                    document.getElementById('company-details-container').style.display = 'block';
+                    
+                    // Загружаем результаты автопроверки
+                    loadAutoCheckResults(companyId);
+                    
+                    // Загружаем историю модерации
+                    loadModerationHistory(companyId);
+                    
+                    // Загружаем логи активности
+                    loadActivityLogs(companyId);
+                    
+                    // Устанавливаем ID компании в форме модерации
+                    document.getElementById('company-id-input').value = companyId;
+                    document.getElementById('moderation-record-id-input').value = recordId;
+                })
+                .catch(error => {
+                    console.error('Error loading company details:', error);
+                    document.getElementById('company-details-loading').innerHTML = `
+                        <div class="alert alert-danger">
+                            Ошибка загрузки данных компании. Попробуйте позже.
+                        </div>
+                    `;
+                });
+        }
+        
+        // Загрузка результатов автоматической проверки
+        function loadAutoCheckResults(companyId) {
+            // Показываем индикатор загрузки
+            document.getElementById('auto-check-loading').style.display = 'block';
+            document.getElementById('auto-check-results').style.display = 'none';
+            
+            // Загружаем данные с сервера
+            fetch(`/api/moderation/auto-check/${companyId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Общий результат автопроверки
+                    const autoCheckEl = document.getElementById('auto-check-result');
+                    autoCheckEl.textContent = data.passed ? 'Пройдена' : 'Не пройдена';
+                    autoCheckEl.className = data.passed ? 'badge bg-success' : 'badge bg-danger';
+                    
+                    // Результаты отдельных проверок
+                    const statusMap = {
+                        'passed': { class: 'bg-success', text: 'Пройдена' },
+                        'warning': { class: 'bg-warning', text: 'Внимание' },
+                        'failed': { class: 'bg-danger', text: 'Не пройдена' }
+                    };
+                    
+                    ['fns', 'contacts', 'address', 'content', 'images'].forEach(check => {
+                        const status = data[`${check}_status`] || 'warning';
+                        const statusEl = document.getElementById(`${check}-check-status`);
+                        statusEl.textContent = statusMap[status].text;
+                        statusEl.className = `badge ${statusMap[status].class}`;
+                    });
+                    
+                    // Скрываем загрузку, показываем результаты
+                    document.getElementById('auto-check-loading').style.display = 'none';
+                    document.getElementById('auto-check-results').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error loading auto-check results:', error);
+                    document.getElementById('auto-check-loading').innerHTML = `
+                        <div class="alert alert-danger">
+                            Ошибка загрузки результатов автопроверки.
+                        </div>
+                    `;
+                });
+        }
+        
+        // Загрузка истории модерации
+        function loadModerationHistory(companyId) {
+            const historyList = document.getElementById('moderation-history-list');
+            historyList.innerHTML = '<div class="text-center py-2">Загрузка истории...</div>';
+            
+            fetch(`/api/moderation/history/${companyId}`)
+                .then(response => response.json())
+                .then(records => {
+                    if (records.length === 0) {
+                        historyList.innerHTML = '<li class="list-group-item">История модерации отсутствует</li>';
+                        return;
+                    }
+                    
+                    historyList.innerHTML = '';
+                    records.forEach(record => {
+                        const date = new Date(record.created_at).toLocaleString();
+                        const moderator = record.moderator_name || 'Система';
+                        const status = record.status;
+                        const statusClass = status === 'approved' ? 'text-success' : 
+                                          status === 'rejected' ? 'text-danger' : 'text-warning';
+                        
+                        const html = `
+                            <li class="list-group-item">
+                                <div><strong class="${statusClass}">${status.toUpperCase()}</strong> - ${date}</div>
+                                <div>Модератор: ${moderator}</div>
+                                <div>${record.comment || 'Без комментария'}</div>
+                            </li>
+                        `;
+                        historyList.innerHTML += html;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading moderation history:', error);
+                    historyList.innerHTML = `
+                        <li class="list-group-item text-danger">
+                            Ошибка загрузки истории модерации
+                        </li>
+                    `;
+                });
+        }
+        
+        // Загрузка логов активности
+        function loadActivityLogs(companyId) {
+            const logList = document.getElementById('activity-log-list');
+            logList.innerHTML = '<div class="text-center py-2">Загрузка логов...</div>';
+            
+            fetch(`/api/companies/${companyId}/logs`)
+                .then(response => response.json())
+                .then(logs => {
+                    if (logs.length === 0) {
+                        logList.innerHTML = '<li class="list-group-item">Логи отсутствуют</li>';
+                        return;
+                    }
+                    
+                    logList.innerHTML = '';
+                    logs.forEach(log => {
+                        const date = new Date(log.timestamp).toLocaleString();
+                        
+                        const html = `
+                            <li class="list-group-item">
+                                <div><small class="text-muted">${date}</small></div>
+                                <div>${log.message}</div>
+                            </li>
+                        `;
+                        logList.innerHTML += html;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading activity logs:', error);
+                    logList.innerHTML = `
+                        <li class="list-group-item text-danger">
+                            Ошибка загрузки логов активности
+                        </li>
+                    `;
+                });
+        }
+        
+        // Обработка клика по заявке
+        moderationItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Убираем активный класс со всех элементов
+                moderationItems.forEach(el => el.classList.remove('active'));
+                
+                // Добавляем активный класс выбранному элементу
+                this.classList.add('active');
+                
+                // Загружаем детали компании
+                const companyId = this.getAttribute('data-company-id');
+                const recordId = this.getAttribute('data-record-id');
+                loadCompanyDetails(companyId, recordId);
+            });
+        });
+        
+        // Фильтрация заявок по статусу
+        statusFilter.addEventListener('change', function() {
+            const status = this.value;
+            
+            moderationItems.forEach(item => {
+                if (status === 'all' || item.getAttribute('data-status') === status) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Выбираем первый видимый элемент
+            const firstVisible = document.querySelector('.situation-item[style="display: block"]');
+            if (firstVisible) {
+                firstVisible.click();
+            }
+        });
+        
+        // Обработка одобрения компании
+        document.getElementById('approve-button').addEventListener('click', function() {
+            moderateCompany('approved');
+        });
+        
+        // Обработка отклонения компании
+        document.getElementById('reject-button').addEventListener('click', function() {
+            moderateCompany('rejected');
+        });
+        
+        // Функция модерации компании
+        function moderateCompany(status) {
+            const companyId = document.getElementById('company-id-input').value;
+            const recordId = document.getElementById('moderation-record-id-input').value;
+            const comment = document.getElementById('moderation-comment').value;
+            const notifyCompany = document.getElementById('notify-company').checked;
+            
+            if (status === 'rejected' && !comment) {
+                alert('Пожалуйста, укажите причину отклонения');
+                return;
+            }
+            
+            // Отправляем запрос на сервер
+            fetch(`/api/moderation/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    company_id: companyId,
+                    record_id: recordId,
+                    status: status,
+                    comment: comment,
+                    notify_company: notifyCompany
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка обновления статуса модерации');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Обновляем статус элемента в списке
+                const item = document.querySelector(`.situation-item[data-record-id="${recordId}"]`);
+                if (item) {
+                    item.setAttribute('data-status', status);
+                    const statusBadge = item.querySelector('.badge');
+                    statusBadge.className = `badge ${status === 'approved' ? 'bg-success' : 'bg-danger'}`;
+                    statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                }
+                
+                // Показываем уведомление
+                const message = status === 'approved' ? 'Компания успешно одобрена' : 'Компания отклонена';
+                showNotification(message, status === 'approved' ? 'success' : 'danger');
+                
+                // Перезагружаем детали компании
+                loadCompanyDetails(companyId, recordId);
+                
+                // Очищаем форму модерации
+                document.getElementById('moderation-comment').value = '';
+            })
+            .catch(error => {
+                console.error('Error moderating company:', error);
+                showNotification('Ошибка: ' + error.message, 'danger');
+            });
+        }
+        
+        // Функция повторного запуска автопроверки
+        document.getElementById('rerun-check-button').addEventListener('click', function() {
+            const companyId = document.getElementById('company-id-input').value;
+            
+            // Показываем индикатор загрузки
+            document.getElementById('auto-check-loading').style.display = 'block';
+            document.getElementById('auto-check-results').style.display = 'none';
+            
+            // Отправляем запрос на сервер
+            fetch(`/api/moderation/auto-check/${companyId}/run`, {
+                method: 'POST'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка запуска автопроверки');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showNotification('Автопроверка успешно запущена', 'success');
+                
+                // Загружаем результаты
+                setTimeout(() => {
+                    loadAutoCheckResults(companyId);
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Error running auto-check:', error);
+                showNotification('Ошибка: ' + error.message, 'danger');
+                document.getElementById('auto-check-loading').style.display = 'none';
+                document.getElementById('auto-check-results').style.display = 'block';
+            });
+        });
+        
+        // Если есть элементы в списке, выбираем первый
+        if (moderationItems.length > 0) {
+            moderationItems[0].click();
+        }
+    });
+    
+    // Функция для отображения уведомлений
+    function showNotification(message, type = 'success') {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertContainer.style.top = '20px';
+        alertContainer.style.right = '20px';
+        alertContainer.style.zIndex = '9999';
+        alertContainer.role = 'alert';
+        
+        alertContainer.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.body.appendChild(alertContainer);
+        
+        // Автоматически закрываем через 5 секунд
+        setTimeout(() => {
+            const bootstrapAlert = new bootstrap.Alert(alertContainer);
+            bootstrapAlert.close();
+        }, 5000);
+    }
+</script>
+{% endblock %} 

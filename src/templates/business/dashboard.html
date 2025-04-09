@@ -1,0 +1,887 @@
+{% extends "business/base.html" %}
+
+{% block title %}Ситуационный центр | Система бронирования{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/situation_center.css') }}">
+<!-- Подключаем стандартный Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Запрещаем прокрутку документа */
+    body {
+        overflow: hidden;
+    }
+
+    /* Стили для модальных окон входа и регистрации */
+    .auth-modal .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .auth-modal .nav-tabs {
+        border-bottom: none;
+        margin-bottom: 20px;
+    }
+    
+    .auth-modal .nav-link {
+        border: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        padding: 10px 15px;
+        color: #6c757d;
+    }
+    
+    .auth-modal .nav-link.active {
+        color: #007bff;
+        border-bottom-color: #007bff;
+        background-color: transparent;
+    }
+    
+    .auth-modal .form-control {
+        border-radius: 4px;
+        padding: 12px;
+        height: auto;
+    }
+    
+    .auth-modal .btn-primary {
+        padding: 12px;
+        border-radius: 4px;
+    }
+    
+    .auth-modal .modal-footer {
+        border-top: none;
+        padding-top: 0;
+    }
+    
+    .auth-status {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 4px;
+        display: none;
+    }
+    
+    .auth-status.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .auth-status.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>
+
+
+
+<!-- Контейнер для ситуационного центра -->
+<div id="situation-center" class="situation-center-layout">
+    <!-- Правая панель (навигация и управление) -->
+    <div id="panel-right" class="panel-right">
+        <div class="panel-header">
+            <h4>Управление</h4>
+            <div class="panel-controls">
+                <button class="refresh-data" title="Обновить данные">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+        <div id="right-panel-content" class="panel-content">
+            <!-- Профиль пользователя - показываем разные данные в зависимости от авторизации -->
+            <div class="user-profile-card" id="user-profile-block">
+                <!-- Если пользователь авторизован -->
+                {% if current_user %}
+                <div class="user-avatar">
+                    <img src="{{ url_for('static', path='img/default-avatar.png') }}" alt="Профиль">
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ current_user.first_name or 'Пользователь' }}</div>
+                    <div class="user-email">{{ current_user.email }}</div>
+                    <div class="user-role">
+                        <span class="badge bg-danger">{{ current_user.role|title }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Если пользователь не авторизован -->
+                <div class="text-center w-100">
+                    <p class="mb-2">Для доступа к полному функционалу, пожалуйста, войдите в систему</p>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#authModal">
+                        <i class="fas fa-sign-in-alt me-1"></i> Войти
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Навигационное меню -->
+            <div class="navigation-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Основное</div>
+                    <div class="nav-item active" data-section="dashboard" data-title="Обзор">
+                        <i class="fas fa-home"></i>
+                        <span>Обзор</span>
+                    </div>
+                    <div class="nav-item" data-section="companies" data-title="Компании">
+                        <i class="fas fa-building"></i>
+                        <span>Компании</span>
+                    </div>
+                    <div class="nav-item" data-section="services" data-title="Услуги">
+                        <i class="fas fa-concierge-bell"></i>
+                        <span>Услуги</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Бронирования</div>
+                    <div class="nav-item" data-section="bookings" data-title="Все бронирования">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Все бронирования</span>
+                    </div>
+                    <div class="nav-item" data-section="new-bookings" data-title="Новые бронирования">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Новые</span>
+                        <span class="badge bg-danger count-badge" id="new-bookings-count">2</span>
+                    </div>
+                    <div class="nav-item" data-section="schedule" data-title="Расписание">
+                        <i class="fas fa-clock"></i>
+                        <span>Расписание</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Аналитика</div>
+                    <div class="nav-item" data-section="analytics" data-title="Аналитика">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Аналитика</span>
+                    </div>
+                    <div class="nav-item" data-section="reports" data-title="Отчеты">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Отчеты</span>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Администрирование</div>
+                    <div class="nav-item" data-section="moderation" data-title="Модерация">
+                        <i class="fas fa-check-square"></i>
+                        <span>Модерация</span>
+                        <span class="badge bg-warning count-badge" id="moderation-count">0</span>
+                    </div>
+                    <div class="nav-item" data-section="telegram" data-title="Настройки Telegram">
+                        <i class="fab fa-telegram-plane"></i>
+                        <span>Telegram</span>
+                    </div>
+                    <div class="nav-item" data-section="profile" data-title="Профиль">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Профиль</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Основная панель (контент) -->
+    <div id="panel-main" class="panel-main">
+        <div class="panel-header">
+            <h4 id="main-panel-title">Обзор</h4>
+            <div class="panel-controls">
+                <span class="current-section-indicator" id="current-section-indicator">Обзор</span>
+            </div>
+        </div>
+        <div id="main-panel-content" class="panel-content">
+            <!-- Содержимое будет загружено динамически -->
+            <div id="loading-placeholder" class="loading-placeholder">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p>Загрузка данных...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Нижняя панель (контекстная информация) -->
+    <div id="panel-bottom" class="panel-bottom">
+        <div class="panel-header">
+            <h4 id="bottom-panel-title">Статистика и аналитика</h4>
+            <div class="panel-controls">
+                <button class="refresh-bottom-panel" title="Обновить статистику">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+        <div id="bottom-panel-content" class="panel-content">
+            <!-- Статистика будет добавлена динамически -->
+            <div class="bottom-panel-container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">Динамика бронирований</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" style="height: 150px;">
+                                    <canvas id="bookings-trend-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">Распределение услуг</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" style="height: 150px;">
+                                    <canvas id="services-distribution-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно авторизации и регистрации -->
+<div class="modal fade auth-modal" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <ul class="nav nav-tabs w-100" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">Вход</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-tab-pane" type="button" role="tab" aria-controls="register-tab-pane" aria-selected="false">Регистрация</button>
+                    </li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content" id="authTabsContent">
+                    <!-- Таб входа -->
+                    <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="login-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="login-email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="login-password" class="form-label">Пароль</label>
+                                <input type="password" class="form-control" id="login-password" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Войти</button>
+                            </div>
+                            <div class="auth-status" id="login-status"></div>
+                        </form>
+                    </div>
+                    
+                    <!-- Таб регистрации -->
+                    <div class="tab-pane fade" id="register-tab-pane" role="tabpanel" aria-labelledby="register-tab" tabindex="0">
+                        <form id="registerForm">
+                            <div class="mb-3">
+                                <label for="register-email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="register-email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-password" class="form-label">Пароль *</label>
+                                <input type="password" class="form-control" id="register-password" minlength="8" required>
+                                <div class="form-text">Минимум 8 символов</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-password-confirm" class="form-label">Подтверждение пароля *</label>
+                                <input type="password" class="form-control" id="register-password-confirm" minlength="8" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-first-name" class="form-label">Имя</label>
+                                <input type="text" class="form-control" id="register-first-name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-last-name" class="form-label">Фамилия</label>
+                                <input type="text" class="form-control" id="register-last-name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-phone" class="form-label">Телефон</label>
+                                <input type="text" class="form-control" id="register-phone">
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                            </div>
+                            <div class="auth-status" id="register-status"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Данные компаний (если есть) -->
+{% if companies %}
+<script id="company-data-json" type="application/json">
+    {{ companies|tojson }}
+</script>
+{% endif %}
+
+<!-- Шаблоны для различных разделов -->
+<!-- Шаблон панели управления -->
+<script type="text/template" id="dashboard-template">
+    <div class="dashboard-container">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-primary">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="total-companies">0</div>
+                        <div class="stats-card-title">Компаний</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="active-companies">0</div>
+                        <div class="stats-card-title">Активных</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-warning">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="pending-companies">0</div>
+                        <div class="stats-card-title">На модерации</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Активность бронирований</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 250px;">
+                    <canvas id="activity-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Последние бронирования</h5>
+                    </div>
+                    <div class="card-body" id="recent-bookings">
+                        <div class="loading-placeholder">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div>
+                            <p>Загрузка бронирований...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Последние события</h5>
+                    </div>
+                    <div class="card-body" id="latest-activity">
+                        <div class="loading-placeholder">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div>
+                            <p>Загрузка событий...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон списка компаний -->
+<script type="text/template" id="companies-template">
+    <div class="companies-container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center">
+                <div class="filter-controls me-3">
+                    <select class="form-select form-select-sm" id="companies-filter">
+                        <option value="all">Все компании</option>
+                        <option value="approved">Активные</option>
+                        <option value="pending">На модерации</option>
+                        <option value="rejected">Отклоненные</option>
+                    </select>
+                </div>
+                <div class="search-controls">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Поиск компаний..." id="companies-search">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-primary create-company-btn">
+                    <i class="fas fa-plus"></i> Создать компанию
+                </button>
+            </div>
+        </div>
+        
+        <div id="companies-list" class="companies-grid">
+            <div class="loading-placeholder">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p>Загрузка списка компаний...</p>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон формы компании -->
+<script type="text/template" id="company-form-template">
+    <div class="company-form-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 id="company-form-title">Создание компании</h4>
+            <button class="btn btn-outline-secondary back-to-companies">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </button>
+        </div>
+        
+        <form id="company-form" class="needs-validation">
+            <input type="hidden" id="company-id">
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Основная информация</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="company-name" class="form-label">Название компании*</label>
+                        <input type="text" class="form-control" id="company-name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="company-description" class="form-label">Описание компании*</label>
+                        <textarea class="form-control" id="company-description" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="company-category" class="form-label">Категория*</label>
+                        <select class="form-select" id="company-category" required>
+                            <option value="" disabled selected>Выберите категорию</option>
+                            <option value="1">Рестораны</option>
+                            <option value="2">Салоны красоты</option>
+                            <option value="3">Медицинские услуги</option>
+                            <option value="4">Спортивные центры</option>
+                            <option value="5">Автосервисы</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Контактная информация</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="company-phone" class="form-label">Телефон*</label>
+                            <input type="tel" class="form-control" id="company-phone" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="company-email" class="form-label">Email*</label>
+                            <input type="email" class="form-control" id="company-email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="company-website" class="form-label">Веб-сайт</label>
+                        <input type="url" class="form-control" id="company-website">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Адрес</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="company-address" class="form-label">Адрес*</label>
+                        <input type="text" class="form-control" id="company-address" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="company-city" class="form-label">Город*</label>
+                            <input type="text" class="form-control" id="company-city" required>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="company-region" class="form-label">Регион</label>
+                            <input type="text" class="form-control" id="company-region">
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="company-postal-code" class="form-label">Почтовый индекс</label>
+                            <input type="text" class="form-control" id="company-postal-code">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-secondary me-2 back-to-companies">Отмена</button>
+                <button type="submit" class="btn btn-primary" id="save-company-btn">Создать компанию</button>
+            </div>
+        </form>
+    </div>
+</script>
+
+<!-- Шаблон деталей компании -->
+<script type="text/template" id="company-details-template">
+    <div class="company-details-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 id="company-name-display">Название компании</h4>
+                <div id="company-status-badge"></div>
+            </div>
+            <button class="btn btn-outline-secondary back-to-companies">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </button>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Информация о компании</h5>
+            </div>
+            <div class="card-body">
+                <p id="company-description-display" class="mb-4"></p>
+                
+                <h6>Контактная информация:</h6>
+                <div class="company-meta mb-4">
+                    <div class="meta-row">
+                        <div class="meta-label">Телефон:</div>
+                        <div class="meta-value" id="company-phone-display"></div>
+                    </div>
+                    <div class="meta-row">
+                        <div class="meta-label">Email:</div>
+                        <div class="meta-value" id="company-email-display"></div>
+                    </div>
+                    <div class="meta-row" id="company-website-row">
+                        <div class="meta-label">Веб-сайт:</div>
+                        <div class="meta-value" id="company-website-display"></div>
+                    </div>
+                    <div class="meta-row" id="company-address-row">
+                        <div class="meta-label">Адрес:</div>
+                        <div class="meta-value" id="company-address-display"></div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-outline-primary edit-company-btn" data-id="">
+                        <i class="fas fa-edit"></i> Редактировать
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Услуги компании</h5>
+                <button class="btn btn-sm btn-outline-primary add-service-btn">
+                    <i class="fas fa-plus"></i> Добавить услугу
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="company-services">
+                    <div class="loading-placeholder">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                        <p>Загрузка списка услуг...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон для нижней панели: Статистика и аналитика -->
+<script type="text/template" id="bottom-panel-stats-template">
+    <div class="bottom-panel-container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Динамика бронирований</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 150px;">
+                            <canvas id="bookings-trend-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Распределение услуг</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 150px;">
+                            <canvas id="services-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон для нижней панели при просмотре компании -->
+<script type="text/template" id="bottom-panel-company-template">
+    <div class="bottom-panel-container">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Аналитика компании</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="chart-container" style="height: 150px;">
+                            <canvas id="company-services-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="stats-list">
+                            <div class="stats-item">
+                                <div class="stats-title">Всего бронирований:</div>
+                                <div class="stats-value" id="company-total-bookings">0</div>
+                            </div>
+                            <div class="stats-item">
+                                <div class="stats-title">Среднее время бронирования:</div>
+                                <div class="stats-value" id="company-avg-booking-time">0 мин</div>
+                            </div>
+                            <div class="stats-item">
+                                <div class="stats-title">Загруженность:</div>
+                                <div class="stats-value" id="company-occupancy-rate">0%</div>
+                            </div>
+                            <div class="stats-item">
+                                <div class="stats-title">Активных услуг:</div>
+                                <div class="stats-value" id="company-active-services">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон для нижней панели: Календарь ближайших бронирований -->
+<script type="text/template" id="bottom-panel-calendar-template">
+    <div class="bottom-panel-container">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Ближайшие бронирования</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="calendar-view" id="mini-calendar">
+                    <div class="calendar-loading text-center p-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Загрузка календаря...</span>
+                        </div>
+                        <p class="mt-2">Загрузка календаря...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Проверка доступности Chart.js -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js не загружен');
+            // Добавляем сообщение об ошибке
+            const eventsContainer = document.getElementById('events-list');
+            if (eventsContainer) {
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                eventItem.innerHTML = `
+                    <div class="event-icon danger">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="event-content">
+                        <div class="event-message">Библиотека Chart.js не загружена. Графики недоступны.</div>
+                        <div class="event-time">${new Date().toLocaleTimeString('ru-RU')}</div>
+                    </div>
+                `;
+                eventsContainer.prepend(eventItem);
+            }
+        }
+    });
+</script>
+
+<!-- JavaScript для обработки авторизации и регистрации -->
+<script>
+    // Функция для отображения статуса операции
+    function showStatus(elementId, message, type) {
+        const statusElement = document.getElementById(elementId);
+        statusElement.textContent = message;
+        statusElement.classList.remove('success', 'error');
+        statusElement.classList.add(type);
+        statusElement.style.display = 'block';
+        
+        // Автоматически скрываем сообщение через 5 секунд
+        setTimeout(() => {
+            statusElement.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Обработчик формы входа
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        // Формируем данные для отправки в формате FormData
+        const formData = new FormData();
+        formData.append('username', email);
+        formData.append('password', password);
+        
+        // Отправляем запрос на сервер
+        fetch('/api/auth/token', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.access_token) {
+                showStatus('login-status', 'Вход выполнен успешно!', 'success');
+                
+                // Обновляем профиль пользователя без перезагрузки страницы
+                document.getElementById('user-profile-block').innerHTML = `
+                    <div class="user-avatar">
+                        <img src="${window.location.origin}/static/img/default-avatar.png" alt="Профиль">
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">${data.user_email.split('@')[0]}</div>
+                        <div class="user-email">${data.user_email}</div>
+                        <div class="user-role">
+                            <span class="badge bg-danger">${data.user_role || 'Пользователь'}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Закрываем модальное окно через 1 секунду
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+                    modal.hide();
+                    
+                    // Перезагружаем данные
+                    if (typeof refreshData === 'function') {
+                        refreshData();
+                    }
+                }, 1000);
+            } else {
+                showStatus('login-status', data.detail || 'Ошибка входа', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showStatus('login-status', 'Ошибка соединения с сервером', 'error');
+        });
+    });
+    
+    // Обработчик формы регистрации
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const passwordConfirm = document.getElementById('register-password-confirm').value;
+        const firstName = document.getElementById('register-first-name').value;
+        const lastName = document.getElementById('register-last-name').value;
+        const phone = document.getElementById('register-phone').value;
+        
+        // Проверяем совпадение паролей
+        if (password !== passwordConfirm) {
+            showStatus('register-status', 'Пароли не совпадают', 'error');
+            return;
+        }
+        
+        // Формируем данные для отправки
+        const userData = {
+            email: email,
+            password: password,
+            password_confirm: passwordConfirm,
+            role: "client"
+        };
+        
+        // Добавляем опциональные поля, если они заполнены
+        if (firstName) userData.first_name = firstName;
+        if (lastName) userData.last_name = lastName;
+        if (phone) userData.phone = phone;
+        
+        // Отправляем запрос на сервер
+        fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                showStatus('register-status', 'Регистрация успешно завершена!', 'success');
+                
+                // Очищаем форму
+                document.getElementById('registerForm').reset();
+                
+                // Переключаемся на вкладку входа через 2 секунды
+                setTimeout(() => {
+                    const loginTab = document.getElementById('login-tab');
+                    bootstrap.Tab.getInstance(loginTab).show();
+                    
+                    // Предзаполняем поле email на форме входа
+                    document.getElementById('login-email').value = email;
+                }, 2000);
+            } else {
+                showStatus('register-status', data.detail || 'Ошибка регистрации', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            showStatus('register-status', 'Ошибка соединения с сервером', 'error');
+        });
+    });
+</script>
+
+<script src="{{ url_for('static', path='js/situation_center.js') }}"></script>
+{% endblock %} 

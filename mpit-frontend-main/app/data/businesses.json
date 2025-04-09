@@ -1,0 +1,658 @@
+{
+  "cafe-neon": {
+    "id": "cafe-neon",
+    "name": "Неоновый закат",
+    "type": "cafe",
+    "logo": "/static/uploads/logos/cafe-neon.png",
+    "description": "Современное кафе с неоновым дизайном и уютной атмосферой. Идеальное место для встреч с друзьями, деловых обедов и романтических ужинов.",
+    "highlights": [
+      "Современный неоновый дизайн",
+      "Живая музыка по выходным",
+      "Широкий выбор авторских коктейлей",
+      "Сезонное меню от шеф-повара"
+    ],
+    "address": "ул. Примерная, 123, Калининград",
+    "working_hours": {
+      "Понедельник": "10:00 - 22:00",
+      "Вторник": "10:00 - 22:00",
+      "Среда": "10:00 - 22:00",
+      "Четверг": "10:00 - 23:00",
+      "Пятница": "10:00 - 00:00",
+      "Суббота": "11:00 - 00:00",
+      "Воскресенье": "11:00 - 22:00"
+    },
+    "contacts": {
+      "phone": "+7 (4012) 123-456",
+      "email": "info@neon-cafe.ru",
+      "social": {
+        "Instagram": "https://instagram.com/neon-cafe",
+        "Facebook": "https://facebook.com/neon-cafe",
+        "VK": "https://vk.com/neon-cafe"
+      }
+    },
+    "menu": {
+      "categories": [
+        {
+          "id": "starters",
+          "name": "Закуски",
+          "items": [
+            {
+              "id": "bruschetta",
+              "name": "Брускетта с томатами",
+              "price": 350,
+              "description": "Хрустящий хлеб с томатами, базиликом и оливковым маслом",
+              "image": "/static/images/placeholder-food.png"
+            },
+            {
+              "id": "carpaccio",
+              "name": "Карпаччо из говядины",
+              "price": 450,
+              "description": "Тонко нарезанная говядина с рукколой, пармезаном и бальзамическим соусом",
+              "image": "/static/images/placeholder-food.png"
+            }
+          ]
+        },
+        {
+          "id": "main",
+          "name": "Основные блюда",
+          "items": [
+            {
+              "id": "steak",
+              "name": "Стейк Рибай",
+              "price": 1200,
+              "description": "Премиальная говядина с овощами гриль и соусом на выбор",
+              "image": "/static/images/placeholder-food.png"
+            },
+            {
+              "id": "pasta",
+              "name": "Паста Карбонара",
+              "price": 550,
+              "description": "Классическая паста с беконом, яйцом и пармезаном",
+              "image": "/static/images/placeholder-food.png"
+            }
+          ]
+        }
+      ]
+    },
+    "gallery": [
+      {
+        "id": "interior-1",
+        "image": "/static/uploads/gallery/interior-1.jpg",
+        "description": "Интерьер кафе"
+      },
+      {
+        "id": "food-1",
+        "image": "/static/uploads/gallery/food-1.jpg",
+        "description": "Фирменные блюда"
+      },
+      {
+        "id": "bar-counter",
+        "image": "/static/images/placeholder-gallery.png",
+        "description": "Барная стойка"
+      },
+      {
+        "id": "summer-terrace",
+        "image": "/static/images/placeholder-gallery.png",
+        "description": "Летняя терраса"
+      }
+    ]
+  },
+  "6df6f543-06e0-4679-9c90-8cc42a34c208": {
+    "id": "6df6f543-06e0-4679-9c90-8cc42a34c208",
+    "name": "Тестов",
+    "type": "shop",
+    "logo": "/static/uploads/logos/6df6f543-06e0-4679-9c90-8cc42a34c208",
+    "description": "котик",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Гога",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "test@test.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "30f4e51e-f701-473e-8620-89059021bd17": {
+    "id": "30f4e51e-f701-473e-8620-89059021bd17",
+    "name": "Тестов",
+    "type": "shop",
+    "logo": "/static/uploads/logos/30f4e51e-f701-473e-8620-89059021bd17",
+    "description": "jnbr",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Гога",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "test@test.rur",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "29511d34-d84d-4546-bbd9-e9e1c992adbb": {
+    "id": "29511d34-d84d-4546-bbd9-e9e1c992adbb",
+    "name": "Рр",
+    "type": "bar",
+    "logo": "/static/uploads/logos/29511d34-d84d-4546-bbd9-e9e1c992adbb.png",
+    "description": "Котан",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "прол",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+79089934001",
+      "email": "it@eazyan.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "c914a345-db04-4e98-a5ca-4a47fa893b36": {
+    "id": "c914a345-db04-4e98-a5ca-4a47fa893b36",
+    "name": "Ррсапролд",
+    "type": "bar",
+    "logo": "/static/uploads/logos/c914a345-db04-4e98-a5ca-4a47fa893b36.png",
+    "description": "Котан",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "прол",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+79089934001",
+      "email": "it@eazyan.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "b4ac2a26-ef8b-42b0-866a-b839bc622bcd": {
+    "id": "b4ac2a26-ef8b-42b0-866a-b839bc622bcd",
+    "name": "РрсапролдАГА",
+    "type": "restaurant",
+    "logo": "/static/uploads/logos/b4ac2a26-ef8b-42b0-866a-b839bc622bcd.png",
+    "description": "Зелёный кот в розовых очках",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "прол",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "it@eazyan.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "a8fda519-e16c-4830-9c2a-ce7fb58310f4": {
+    "id": "a8fda519-e16c-4830-9c2a-ce7fb58310f4",
+    "name": "Джинсы",
+    "type": "shop",
+    "logo": "/static/uploads/logos/a8fda519-e16c-4830-9c2a-ce7fb58310f4.png",
+    "description": "Представляем вашему вниманию стильные и качественные **синие джинсы** – идеальный выбор для тех, кто ценит комфорт и стиль! Наши джинсы созданы с учетом последних модных трендов и произведены из премиальных материалов, что гарантирует их долговечность и отличный внешний вид даже после многократных стирок. \r\n\r\nВыберите свой идеальный оттенок синего и создайте уникальный образ, который подчеркнет вашу индивидуальность и подарит ощущение уверенности каждый день. Мы уверены, что наши джинсы станут незаменимой частью вашего гардероба, ведь они сочетают в себе высокое качество, актуальный дизайн и доступную цену.",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Где-то тут",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "Djinsi@mail.mpit",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "91170ee0-e4bb-4165-86c9-7cd0d98b097c": {
+    "id": "91170ee0-e4bb-4165-86c9-7cd0d98b097c",
+    "name": "dftyuiop",
+    "type": "shop",
+    "logo": "/static/uploads/logos/91170ee0-e4bb-4165-86c9-7cd0d98b097c",
+    "description": "**История успеха, вдохновленная джинсами**\r\n\r\nСегодня «Джинсы» – это не просто бренд, а символ свободы и уверенности, проверенный временем. Мы гордимся тем, что создаем одежду, которая становится частью истории каждого, кто выбирает наши джинсы.\r\n\r\nНаша миссия проста: мы делаем моду доступной каждому, предлагая стильные и качественные джинсы, которые подчеркивают индивидуальность и комфорт. Мы верим, что одежда должна быть не только красивой, но и удобной, поэтому уделяем особое внимание материалам и дизайну, чтобы каждый наш клиент чувствовал себя уверенно и свободно.\r\n\r\nМы стремимся к тому, чтобы каждая пара наших джинсов стала символом вашего стиля и личного триумфа. Ведь именно так начиналась история бренда – с желания создать одежду, которая будет сопровождать вас во всех ваших приключениях и жизненных моментах.\r\n\r\nВыбирайте свободу вместе с нами!",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Гога",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+79089934001",
+      "email": "admin@ios.app",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "20d015c7-13c3-4b52-96fd-9eb2d1baef9f": {
+    "id": "20d015c7-13c3-4b52-96fd-9eb2d1baef9f",
+    "name": "Джинсы",
+    "type": "shop",
+    "logo": "/static/uploads/logos/20d015c7-13c3-4b52-96fd-9eb2d1baef9f.png",
+    "description": "Представляем вам стильные и невероятно комфортные **синие джинсы** – идеальный выбор для тех, кто ценит качество и стиль! Эти джинсы не только подчеркнут вашу индивидуальность, но и подарят ощущение абсолютного комфорта благодаря премиальным материалам и продуманному крою. Каждая пара проходит строгий контроль качества, чтобы вы могли наслаждаться каждой минутой, проведенной в наших джинсах.",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "прол",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "it@eazyan.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "fb285e87-e261-4273-b782-2cfff4fff99f": {
+    "id": "fb285e87-e261-4273-b782-2cfff4fff99f",
+    "name": "Джинсы",
+    "type": "shop",
+    "logo": "/static/uploads/logos/fb285e87-e261-4273-b782-2cfff4fff99f.png",
+    "description": "Добро пожаловать в наш мир стильных решений! Представляем вам уникальные синие джинсы – символ комфорта и моды. Эти джинсы созданы для тех, кто ценит качество и индивидуальность. Они идеально подходят как для повседневной носки, так и для особых случаев. Благодаря высококачественным материалам и вниманию к деталям, наши джинсы прослужат вам долго и будут радовать вас каждый день. Выбирайте стиль и уверенность с нашими эксклюзивными синими джинсами!",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "прол",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "admin@admin.ad",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "35074630-2701-4c04-8824-0ca7983e132b": {
+    "id": "35074630-2701-4c04-8824-0ca7983e132b",
+    "name": "Джинсы",
+    "type": "shop",
+    "logo": "/static/uploads/logos/35074630-2701-4c04-8824-0ca7983e132b.png",
+    "description": "Добро пожаловать в мир стиля и комфорта, где каждая деталь продумана до мелочей, а мода встречается с качеством! В **«Джинсах»** мы создаём одежду, которая становится продолжением вашей личности и позволяет ощутить полную свободу движения. Наши джинсы – это не просто одежда, это символ вашего уникального стиля и уверенности в себе. ",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Где-то тут",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "test@test.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "d8fd933e-9aed-415c-84d7-62023906e0c1": {
+    "id": "d8fd933e-9aed-415c-84d7-62023906e0c1",
+    "name": "Тестов",
+    "type": "shop",
+    "logo": "/static/uploads/logos/d8fd933e-9aed-415c-84d7-62023906e0c1.png",
+    "description": "Гога",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "прол",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "test@test.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "99567003-7008-463b-9f78-ba4ac41d92a3": {
+    "id": "99567003-7008-463b-9f78-ba4ac41d92a3",
+    "name": "Jkl;",
+    "type": "restaurant",
+    "logo": "/static/uploads/logos/99567003-7008-463b-9f78-ba4ac41d92a3",
+    "description": "dfghjikol",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "fghjkl;",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "45678",
+      "email": "it@mail.com",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "547b8038-f613-4ef4-9c40-886d62ca5b9f": {
+    "id": "547b8038-f613-4ef4-9c40-886d62ca5b9f",
+    "name": "sdfghjklkmjhgvcvbhnjmk,lkmjnhbvcxvgbhjk",
+    "type": "cafe",
+    "logo": "/static/uploads/logos/547b8038-f613-4ef4-9c40-886d62ca5b9f.png",
+    "description": "JGjgjdgjdd",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Гога",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+71234567890",
+      "email": "it@eazyan.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "a2193e02-f37c-4d1a-b92b-d17535f61c60": {
+    "id": "a2193e02-f37c-4d1a-b92b-d17535f61c60",
+    "name": "Джинсы",
+    "type": "shop",
+    "logo": "/static/uploads/logos/a2193e02-f37c-4d1a-b92b-d17535f61c60",
+    "description": "мит",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Гога",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+79089934001",
+      "email": "test@test.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "b94f1340-5e69-4d48-b208-5ff2fd9fa78c": {
+    "id": "b94f1340-5e69-4d48-b208-5ff2fd9fa78c",
+    "name": "Джинсы",
+    "type": "shop",
+    "logo": "/static/uploads/logos/b94f1340-5e69-4d48-b208-5ff2fd9fa78c",
+    "description": "мит",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Гога",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+79089934001",
+      "email": "test@test.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": []
+    },
+    "gallery": []
+  },
+  "1b738c4c-79c5-41b8-ae44-c8ac4922d281": {
+    "id": "1b738c4c-79c5-41b8-ae44-c8ac4922d281",
+    "name": "Джинсы",
+    "type": "shop",
+    "logo": "/static/uploads/logos/1b738c4c-79c5-41b8-ae44-c8ac4922d281",
+    "description": "мит",
+    "highlights": [
+      "Новый бизнес",
+      "Открыт для клиентов"
+    ],
+    "address": "Гога",
+    "working_hours": {
+      "monday": "09:00 - 18:00",
+      "tuesday": "09:00 - 18:00",
+      "wednesday": "09:00 - 18:00",
+      "thursday": "09:00 - 18:00",
+      "friday": "09:00 - 18:00",
+      "saturday": "10:00 - 16:00",
+      "sunday": "Закрыто"
+    },
+    "contacts": {
+      "phone": "+79089934001",
+      "email": "test@test.ru",
+      "social": {
+        "instagram": "",
+        "facebook": "",
+        "vk": ""
+      }
+    },
+    "menu": {
+      "categories": [
+        {
+          "id": "id_test123",
+          "name": "Тестовая категория",
+          "items": [
+            {
+              "id": "id_item123",
+              "name": "Тестовый товар",
+              "price": 1500.0,
+              "description": "Тестовое описание товара",
+              "image": null
+            }
+          ]
+        }
+      ]
+    },
+    "gallery": []
+  }
+}

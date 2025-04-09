@@ -5,38 +5,11 @@
     --success-color: #4caf50;
     --warning-color: #ff9800;
     --danger-color: #f44336;
-    --light-color: #f8f9fa;
+    --light-color: #000000;
     --dark-color: #343a40;
     --sidebar-width: 0px;
     --sidebar-collapsed-width: 0px;
     --header-height: 0px;
-    
-    /* Основные цвета - тёмная тема */
-    --bg-dark: #121212;
-    --bg-panel: #1a1a1a;
-    --bg-light: #121212;
-    --text-white: #ffffff;
-    --text-dark: #ffffff;
-    --text-muted: rgba(255, 255, 255, 0.7);
-    --text-muted-light: rgba(255, 255, 255, 0.5);
-    
-    /* Акцентные цвета */
-    --accent-blue: #47c1e8;
-    --accent-purple: #5e5ce6;
-    --accent-pink: #e42bd4;
-    
-    /* Градиенты */
-    --gradient-primary: linear-gradient(135deg, var(--accent-blue), var(--accent-pink));
-    --gradient-secondary: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-    
-    /* Тени и эффекты */
-    --shadow-blue: 0 0 20px rgba(71, 193, 232, 0.3);
-    --shadow-purple: 0 0 20px rgba(94, 92, 230, 0.3);
-    --shadow-pink: 0 0 20px rgba(228, 43, 212, 0.3);
-    --shadow-light: 0 0 20px rgba(0, 0, 0, 0.3);
-    
-    /* Шрифты */
-    --font-family-primary: 'FuturaPT', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {

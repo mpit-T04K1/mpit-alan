@@ -56,4 +56,4 @@ from src.schemas.analytics import (
     AnalyticsCreate,
     AnalyticsResponse,
     AnalyticsPeriodRequest,
-)
+) 

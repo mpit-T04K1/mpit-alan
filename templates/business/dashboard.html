@@ -2,11 +2,112 @@
 
 {% block title %}Ситуационный центр | Система бронирования{% endblock %}
 
-{% block head %}
-<link rel="stylesheet" href="{{ https_url_for(request, '/static/css/situation_center.css') }}">
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/situation_center.css') }}">
+<style>
+/* Адаптивный дизайн для мобильной версии */
+@media (max-width: 991px) {
+    #situation-center {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    #panel-right {
+        order: 1;
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+    
+    #panel-main {
+        order: 2;
+        width: 100%;
+        height: auto;
+        min-height: 60vh;
+    }
+    
+    #panel-bottom {
+        order: 3;
+        width: 100%;
+        height: auto;
+    }
+    
+    .panel-content {
+        position: relative;
+        height: auto;
+        max-height: none;
+    }
+    
+    body {
+        overflow: auto;
+    }
+    
+    /* Мобильная навигация */
+    .mobile-nav-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-panel);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        padding: 10px;
+        z-index: 1000;
+    }
+    
+    .mobile-nav-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px;
+        color: var(--text-light);
+        font-size: 0.75rem;
+    }
+    
+    .mobile-nav-btn i {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+    }
+    
+    .mobile-nav-btn.active {
+        color: var(--primary);
+    }
+    
+    .stats-card {
+        margin-bottom: 15px;
+    }
+}
 
-<!-- Подключаем стандартный Bootstrap -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+@media (max-width: 576px) {
+    .situation-center-layout {
+        padding: 5px;
+    }
+    
+    .panel-content {
+        padding: 10px;
+    }
+    
+    .nav-item span {
+        font-size: 0.85rem;
+    }
+    
+    .panel-header h4 {
+        font-size: 1.1rem;
+    }
+    
+    .dashboard-container .row [class*="col-"] {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+    
+    .table {
+        font-size: 0.8rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -32,12 +133,12 @@
         border-bottom: 2px solid transparent;
         border-radius: 0;
         padding: 10px 15px;
-        color: #6c757d;
+        color: var(--text-light);
     }
     
     .auth-modal .nav-link.active {
-        color: #007bff;
-        border-bottom-color: #007bff;
+        color: var(--primary);
+        border-bottom-color: var(--primary);
         background-color: transparent;
     }
     
@@ -47,7 +148,7 @@
         height: auto;
     }
     
-    .auth-modal .btn-primary {
+    .auth-modal .btn-neon {
         padding: 12px;
         border-radius: 4px;
     }
@@ -65,75 +166,55 @@
     }
     
     .auth-status.success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
+        background-color: var(--success);
+        color: var(--text-light);
     }
     
     .auth-status.error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
+        background-color: var(--danger);
+        color: var(--text-light);
+    }
+    
+    .count-badge {
+        background-color: var(--danger);
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.25em 0.5em;
+        border-radius: 50rem;
     }
 </style>
 
-<!-- Логотип -->
-<img src="{{ https_url_for(request, '/static/img/logo.png') }}" alt="Логотип" class="brand-logo">
 
 
 <!-- Контейнер для ситуационного центра -->
 <div id="situation-center" class="situation-center-layout">
     <!-- Правая панель (навигация и управление) -->
-    <div id="panel-right" class="panel-right">
+    <div id="panel-right" class="panel-right visionos-card">
         <div class="panel-header">
-            <h4>Управление</h4>
+            <h4 class="gradient-text">Управление</h4>
             <div class="panel-controls">
                 <button class="refresh-data" title="Обновить данные">
-                    <i class="fas fa-sync-alt"></i>
+                    <i class="bi bi-arrow-clockwise"></i>
                 </button>
             </div>
         </div>
         <div id="right-panel-content" class="panel-content">
-            <!-- Профиль пользователя - показываем разные данные в зависимости от авторизации -->
-            <div class="user-profile-card" id="user-profile-block">
-                <!-- Если пользователь авторизован -->
-                {% if current_user %}
-                <div class="user-avatar">
-                    <img src="{{ https_url_for(request, '/static/img/default-avatar.png') }}" alt="Профиль">
-                    
-                </div>
-                <div class="user-info">
-                    <div class="user-name">{{ current_user.first_name or 'Пользователь' }}</div>
-                    <div class="user-email">{{ current_user.email }}</div>
-                    <div class="user-role">
-                        <span class="badge bg-danger">{{ current_user.role|title }}</span>
-                    </div>
-                </div>
-                {% else %}
-                <!-- Если пользователь не авторизован -->
-                <div class="text-center w-100">
-                    <p class="mb-2">Для доступа к полному функционалу, пожалуйста, войдите в систему</p>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#authModal">
-                        <i class="fas fa-sign-in-alt me-1"></i> Войти
-                    </button>
-                </div>
-                {% endif %}
-            </div>
+            
             
             <!-- Навигационное меню -->
             <div class="navigation-menu">
                 <div class="nav-section">
                     <div class="nav-section-title">Основное</div>
                     <div class="nav-item active" data-section="dashboard" data-title="Обзор">
-                        <i class="fas fa-home"></i>
+                        <i class="bi bi-house-door"></i>
                         <span>Обзор</span>
                     </div>
-                    <div class="nav-item" data-section="companies" data-title="Компании">
-                        <i class="fas fa-building"></i>
+                    <div class="nav-item" onclick="window.location.href='https://qwerty.love-this.ru/'" data-title="Компании">
+                        <i class="bi bi-building"></i>
                         <span>Компании</span>
                     </div>
                     <div class="nav-item" data-section="services" data-title="Услуги">
-                        <i class="fas fa-concierge-bell"></i>
+                        <i class="bi bi-briefcase"></i>
                         <span>Услуги</span>
                     </div>
                 </div>
@@ -141,16 +222,16 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Бронирования</div>
                     <div class="nav-item" data-section="bookings" data-title="Все бронирования">
-                        <i class="fas fa-calendar-alt"></i>
+                        <i class="bi bi-calendar-check"></i>
                         <span>Все бронирования</span>
                     </div>
                     <div class="nav-item" data-section="new-bookings" data-title="Новые бронирования">
-                        <i class="fas fa-calendar-plus"></i>
+                        <i class="bi bi-calendar-plus"></i>
                         <span>Новые</span>
-                        <span class="badge bg-danger count-badge" id="new-bookings-count">2</span>
+                        <span class="count-badge" id="new-bookings-count">2</span>
                     </div>
                     <div class="nav-item" data-section="schedule" data-title="Расписание">
-                        <i class="fas fa-clock"></i>
+                        <i class="bi bi-clock"></i>
                         <span>Расписание</span>
                     </div>
                 </div>
@@ -158,11 +239,11 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Аналитика</div>
                     <div class="nav-item" data-section="analytics" data-title="Аналитика">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="bi bi-graph-up"></i>
                         <span>Аналитика</span>
                     </div>
                     <div class="nav-item" data-section="reports" data-title="Отчеты">
-                        <i class="fas fa-file-alt"></i>
+                        <i class="bi bi-file-text"></i>
                         <span>Отчеты</span>
                     </div>
                 </div>
@@ -170,16 +251,16 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Администрирование</div>
                     <div class="nav-item" data-section="moderation" data-title="Модерация">
-                        <i class="fas fa-check-square"></i>
+                        <i class="bi bi-check-square"></i>
                         <span>Модерация</span>
-                        <span class="badge bg-warning count-badge" id="moderation-count">0</span>
+                        <span class="count-badge" id="moderation-count">0</span>
                     </div>
                     <div class="nav-item" data-section="telegram" data-title="Настройки Telegram">
-                        <i class="fab fa-telegram-plane"></i>
+                        <i class="bi bi-telegram"></i>
                         <span>Telegram</span>
                     </div>
                     <div class="nav-item" data-section="profile" data-title="Профиль">
-                        <i class="fas fa-user-cog"></i>
+                        <i class="bi bi-person-gear"></i>
                         <span>Профиль</span>
                     </div>
                 </div>
@@ -188,9 +269,9 @@
     </div>
     
     <!-- Основная панель (контент) -->
-    <div id="panel-main" class="panel-main">
+    <div id="panel-main" class="panel-main visionos-card">
         <div class="panel-header">
-            <h4 id="main-panel-title">Обзор</h4>
+            <h4 id="main-panel-title" class="gradient-text">Обзор</h4>
             <div class="panel-controls">
                 <span class="current-section-indicator" id="current-section-indicator">Обзор</span>
             </div>
@@ -207,9 +288,9 @@
     </div>
     
     <!-- Нижняя панель (контекстная информация) -->
-    <div id="panel-bottom" class="panel-bottom">
+    <div id="panel-bottom" class="panel-bottom visionos-card">
         <div class="panel-header">
-            <h4 id="bottom-panel-title">Статистика и аналитика</h4>
+            <h4 id="bottom-panel-title" class="gradient-text">Статистика и аналитика</h4>
             <div class="panel-controls">
                 <button class="refresh-bottom-panel" title="Обновить статистику">
                     <i class="fas fa-sync-alt"></i>
@@ -325,6 +406,30 @@
     </div>
 </div>
 
+<!-- Мобильная навигация - видна только на маленьких экранах -->
+<div class="mobile-nav-bar d-md-none">
+    <div class="mobile-nav-btn active" data-section="dashboard">
+        <i class="bi bi-house-door"></i>
+        <span>Обзор</span>
+    </div>
+    <div class="mobile-nav-btn" data-section="services">
+        <i class="bi bi-briefcase"></i>
+        <span>Услуги</span>
+    </div>
+    <div class="mobile-nav-btn" data-section="bookings">
+        <i class="bi bi-calendar-check"></i>
+        <span>Бронирования</span>
+    </div>
+    <div class="mobile-nav-btn" data-section="analytics">
+        <i class="bi bi-graph-up"></i>
+        <span>Аналитика</span>
+    </div>
+    <div class="mobile-nav-btn" data-section="profile">
+        <i class="bi bi-person-gear"></i>
+        <span>Профиль</span>
+    </div>
+</div>
+
 <!-- Данные компаний (если есть) -->
 {% if companies %}
 <script id="company-data-json" type="application/json">
@@ -336,8 +441,9 @@
 <!-- Шаблон панели управления -->
 <script type="text/template" id="dashboard-template">
     <div class="dashboard-container">
-        <div class="row">
-            <div class="col-md-4 mb-3">
+        <!-- Аналитические карточки -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
                 <div class="stats-card">
                     <div class="stats-card-icon bg-primary">
                         <i class="fas fa-building"></i>
@@ -348,7 +454,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <div class="stats-card">
                     <div class="stats-card-icon bg-success">
                         <i class="fas fa-check-circle"></i>
@@ -359,7 +465,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <div class="stats-card">
                     <div class="stats-card-icon bg-warning">
                         <i class="fas fa-hourglass-half"></i>
@@ -370,19 +476,107 @@
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Активность бронирований</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" style="height: 250px;">
-                    <canvas id="activity-chart"></canvas>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-info">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="total-clients">0</div>
+                        <div class="stats-card-title">Клиентов</div>
+                    </div>
                 </div>
             </div>
         </div>
         
+        <!-- Вторая строка статистики -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-danger">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="total-bookings">0</div>
+                        <div class="stats-card-title">Бронирований</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-secondary">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="total-services">0</div>
+                        <div class="stats-card-title">Услуг</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-primary">
+                        <i class="fas fa-ruble-sign"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="total-revenue">0 ₽</div>
+                        <div class="stats-card-title">Выручка</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-success">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stats-card-content">
+                        <div class="stats-card-value" id="growth-rate">+0%</div>
+                        <div class="stats-card-title">Рост</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Графики -->
+        <div class="row mb-4">
+            <div class="col-md-8 mb-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Активность бронирований</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="activity-chart-period" data-bs-toggle="dropdown" aria-expanded="false">
+                                За неделю
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="activity-chart-period">
+                                <li><a class="dropdown-item" href="#" data-period="week">За неделю</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="month">За месяц</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="quarter">За квартал</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="year">За год</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="activity-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Распределение услуг</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="services-pie-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Последние данные и быстрые действия -->
         <div class="row">
             <div class="col-md-6 mb-3">
                 <div class="card h-100">
@@ -401,15 +595,81 @@
             </div>
             <div class="col-md-6 mb-3">
                 <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="mb-0">Последние события</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Быстрые действия</h5>
                     </div>
-                    <div class="card-body" id="latest-activity">
-                        <div class="loading-placeholder">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Загрузка...</span>
-                            </div>
-                            <p>Загрузка событий...</p>
+                    <div class="card-body">
+                        <div class="action-buttons">
+                            <button class="btn btn-primary mb-2 me-2 create-company-btn">
+                                <i class="fas fa-plus-circle me-2"></i>Создать компанию
+                            </button>
+                            <button class="btn btn-success mb-2 me-2" id="add-service-btn">
+                                <i class="fas fa-plus-circle me-2"></i>Добавить услугу
+                            </button>
+                            <button class="btn btn-info mb-2 me-2">
+                                <i class="fas fa-cog me-2"></i>Настройки
+                            </button>
+                            <button class="btn btn-warning mb-2">
+                                <i class="fas fa-file-export me-2"></i>Экспорт
+                            </button>
+                        </div>
+                        
+                        <!-- Форма быстрого добавления услуги -->
+                        <div class="quick-add-service-form mt-4" style="display: none;">
+                            <h6 class="gradient-text">Быстрое добавление услуги</h6>
+                            <form id="quickAddServiceForm">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="serviceCompany" class="form-label">Компания</label>
+                                        <select class="form-select" id="serviceCompany" required>
+                                            <option value="" selected disabled>Выберите компанию</option>
+                                            <!-- Компании будут добавлены динамически -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="serviceName" class="form-label">Название услуги</label>
+                                        <input type="text" class="form-control" id="serviceName" required>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="serviceCategory" class="form-label">Категория</label>
+                                        <select class="form-select" id="serviceCategory" required>
+                                            <option value="" selected disabled>Выберите категорию</option>
+                                            <option value="1">Красота</option>
+                                            <option value="2">Здоровье</option>
+                                            <option value="3">Спорт</option>
+                                            <option value="4">Авто</option>
+                                            <option value="5">Обучение</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="servicePrice" class="form-label">Цена (₽)</label>
+                                        <input type="number" class="form-control" id="servicePrice" required min="0">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="serviceDuration" class="form-label">Длительность (мин)</label>
+                                        <input type="number" class="form-control" id="serviceDuration" required min="0">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="serviceStatus" class="form-label">Статус</label>
+                                        <select class="form-select" id="serviceStatus">
+                                            <option value="active" selected>Активна</option>
+                                            <option value="inactive">Неактивна</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="serviceDescription" class="form-label">Описание</label>
+                                    <textarea class="form-control" id="serviceDescription" rows="2"></textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-secondary me-2" id="cancel-service-btn">Отмена</button>
+                                    <button type="submit" class="btn btn-primary">Сохранить услугу</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -630,11 +890,11 @@
     </div>
 </script>
 
-<!-- Шаблон для нижней панели: Статистика и аналитика -->
+<!-- Шаблон для нижней панели: Статистика и аналитика (расширенный) -->
 <script type="text/template" id="bottom-panel-stats-template">
     <div class="bottom-panel-container">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="mb-0">Динамика бронирований</h5>
@@ -646,7 +906,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="mb-0">Распределение услуг</h5>
@@ -655,6 +915,33 @@
                         <div class="chart-container" style="height: 150px;">
                             <canvas id="services-distribution-chart"></canvas>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Популярные услуги</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush top-services">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Стрижка мужская</span>
+                                <span class="badge bg-primary rounded-pill">214</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Маникюр</span>
+                                <span class="badge bg-primary rounded-pill">158</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Массаж спины</span>
+                                <span class="badge bg-primary rounded-pill">96</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Шиномонтаж</span>
+                                <span class="badge bg-primary rounded-pill">85</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -722,6 +1009,686 @@
         </div>
     </div>
 </script>
+
+<!-- Шаблон управления услугами -->
+<script type="text/template" id="services-template">
+    <div class="services-container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-3 mb-md-0 w-100 w-md-auto">
+                <div class="filter-controls me-0 me-md-3 mb-2 mb-md-0 w-100 w-md-auto">
+                    <select class="form-select form-select-sm" id="services-filter">
+                        <option value="all">Все услуги</option>
+                        <option value="active">Активные</option>
+                        <option value="inactive">Неактивные</option>
+                    </select>
+                </div>
+                <div class="search-controls w-100 w-md-auto">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Поиск услуг..." id="services-search">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <button class="btn btn-primary w-100 w-md-auto" id="service-add-btn">
+                    <i class="fas fa-plus"></i> Добавить услугу
+                </button>
+            </div>
+        </div>
+        
+        <!-- Таблица услуг для десктопа -->
+        <div class="card mb-4 d-none d-md-block">
+            <div class="card-header">
+                <h5 class="mb-0">Список услуг</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle services-table" id="services-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 50px">#</th>
+                                <th scope="col">Название</th>
+                                <th scope="col">Компания</th>
+                                <th scope="col">Категория</th>
+                                <th scope="col">Цена</th>
+                                <th scope="col">Длительность</th>
+                                <th scope="col">Статус</th>
+                                <th scope="col" style="width: 120px">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="services-list">
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <div class="loading-placeholder">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Загрузка...</span>
+                                        </div>
+                                        <p>Загрузка списка услуг...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <nav aria-label="Страницы услуг">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Предыдущая</a>
+                        </li>
+                        <li class="page-item active" aria-current="page">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Следующая</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Карточки услуг для мобильной версии -->
+        <div class="d-md-none" id="services-cards">
+            <div class="loading-placeholder text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p>Загрузка списка услуг...</p>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон карточки услуги для мобильной версии (будет использоваться в JavaScript) -->
+<script type="text/template" id="service-card-template">
+    <div class="card mb-3 service-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title mb-0">${name}</h5>
+                <span class="badge ${status === 'active' ? 'bg-success' : 'bg-secondary'}">${status === 'active' ? 'Активна' : 'Неактивна'}</span>
+            </div>
+            <p class="card-text text-muted mb-1">${company}</p>
+            <p class="card-text mb-1"><small>Категория: ${category}</small></p>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    <span class="badge bg-primary me-2">${price} ₽</span>
+                    <span class="badge bg-info">${duration} мин</span>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-1 edit-service-btn" data-id="${id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-service-btn" data-id="${id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон модального окна добавления/редактирования услуги -->
+<script type="text/template" id="service-modal-template">
+    <div class="modal fade" id="serviceModal" tabindex="-1" aria-labelledby="serviceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="serviceModalLabel">Добавление услуги</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="serviceForm" class="needs-validation">
+                        <input type="hidden" id="service-id" value="">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="service-company" class="form-label">Компания*</label>
+                                <select class="form-select" id="service-company" required>
+                                    <option value="" selected disabled>Выберите компанию</option>
+                                </select>
+                                <div class="invalid-feedback">Пожалуйста, выберите компанию</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="service-category" class="form-label">Категория*</label>
+                                <select class="form-select" id="service-category" required>
+                                    <option value="" selected disabled>Выберите категорию</option>
+                                    <option value="1">Красота</option>
+                                    <option value="2">Здоровье</option>
+                                    <option value="3">Спорт</option>
+                                    <option value="4">Авто</option>
+                                    <option value="5">Обучение</option>
+                                </select>
+                                <div class="invalid-feedback">Пожалуйста, выберите категорию</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="service-name" class="form-label">Название услуги*</label>
+                            <input type="text" class="form-control" id="service-name" required>
+                            <div class="invalid-feedback">Пожалуйста, введите название услуги</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="service-description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="service-description" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="service-price" class="form-label">Цена (₽)*</label>
+                                <input type="number" class="form-control" id="service-price" min="0" step="0.01" required>
+                                <div class="invalid-feedback">Пожалуйста, укажите цену</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="service-duration" class="form-label">Длительность (мин)*</label>
+                                <input type="number" class="form-control" id="service-duration" min="5" step="5" required>
+                                <div class="invalid-feedback">Пожалуйста, укажите длительность</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="service-max-persons" class="form-label">Макс. клиентов</label>
+                                <input type="number" class="form-control" id="service-max-persons" min="1" value="1">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Дни недели</label>
+                                <div class="d-flex flex-wrap">
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="checkbox" value="1" id="service-day-1" checked>
+                                        <label class="form-check-label" for="service-day-1">Пн</label>
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="checkbox" value="2" id="service-day-2" checked>
+                                        <label class="form-check-label" for="service-day-2">Вт</label>
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="checkbox" value="3" id="service-day-3" checked>
+                                        <label class="form-check-label" for="service-day-3">Ср</label>
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="checkbox" value="4" id="service-day-4" checked>
+                                        <label class="form-check-label" for="service-day-4">Чт</label>
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="checkbox" value="5" id="service-day-5" checked>
+                                        <label class="form-check-label" for="service-day-5">Пт</label>
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input" type="checkbox" value="6" id="service-day-6" checked>
+                                        <label class="form-check-label" for="service-day-6">Сб</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="7" id="service-day-7" checked>
+                                        <label class="form-check-label" for="service-day-7">Вс</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Время работы</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label for="service-time-start" class="form-label small">Начало</label>
+                                        <input type="time" class="form-control" id="service-time-start" value="09:00">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="service-time-end" class="form-label small">Окончание</label>
+                                        <input type="time" class="form-control" id="service-time-end" value="18:00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="service-image" class="form-label">Изображение</label>
+                                <input type="file" class="form-control" id="service-image" accept="image/*">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="service-status" class="form-label">Статус</label>
+                                <select class="form-select" id="service-status">
+                                    <option value="active" selected>Активна</option>
+                                    <option value="inactive">Неактивна</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Дополнительные настройки</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="service-online-booking" checked>
+                                <label class="form-check-label" for="service-online-booking">
+                                    Разрешить онлайн-бронирование
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="service-prepayment">
+                                <label class="form-check-label" for="service-prepayment">
+                                    Требуется предоплата
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="service-featured">
+                                <label class="form-check-label" for="service-featured">
+                                    Рекомендуемая услуга
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="save-service-btn">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Шаблон модального окна подтверждения удаления услуги -->
+<script type="text/template" id="service-delete-modal-template">
+    <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteServiceModalLabel">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите удалить услугу <strong id="delete-service-name"></strong>?</p>
+                    <p class="text-danger">Это действие невозможно отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-service">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Дополнительный JavaScript для управления услугами -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Загружаем начальные данные сервисов
+        function loadServices() {
+            // В реальности здесь мы бы загружали данные с сервера
+            const services = [
+                { id: 1, name: 'Стрижка мужская', company: 'Салон красоты "Эстетика"', company_id: 1, category: 'Красота', category_id: 1, price: 500, duration: 30, status: 'active' },
+                { id: 2, name: 'Маникюр классический', company: 'Салон красоты "Эстетика"', company_id: 1, category: 'Красота', category_id: 1, price: 800, duration: 60, status: 'active' },
+                { id: 3, name: 'Замена масла', company: 'Автосервис "Мастер"', company_id: 2, category: 'Авто', category_id: 4, price: 1500, duration: 45, status: 'active' },
+                { id: 4, name: 'Массаж спины', company: 'Медицинский центр "Здоровье"', company_id: 4, category: 'Здоровье', category_id: 2, price: 1200, duration: 60, status: 'active' },
+                { id: 5, name: 'Персональная тренировка', company: 'Спортзал "Атлетик"', company_id: 3, category: 'Спорт', category_id: 3, price: 1000, duration: 90, status: 'inactive' }
+            ];
+            
+            displayServices(services);
+            return services;
+        }
+        
+        // Отображаем услуги в таблице и карточках
+        function displayServices(services) {
+            // Для десктопной таблицы
+            const tbody = document.getElementById('services-list');
+            if (tbody) {
+                tbody.innerHTML = '';
+                
+                if (services.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <p>Услуги не найдены</p>
+                                <button class="btn btn-sm btn-outline-primary" id="service-add-btn-empty">
+                                    <i class="fas fa-plus"></i> Добавить первую услугу
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    services.forEach((service, index) => {
+                        const statusBadge = service.status === 'active' 
+                            ? '<span class="badge bg-success">Активна</span>' 
+                            : '<span class="badge bg-secondary">Неактивна</span>';
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${service.id}</td>
+                            <td>${service.name}</td>
+                            <td>${service.company}</td>
+                            <td>${service.category}</td>
+                            <td>${service.price.toLocaleString('ru-RU')} ₽</td>
+                            <td>${service.duration} мин</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1 edit-service-btn" data-id="${service.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-service-btn" data-id="${service.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            }
+            
+            // Для мобильных карточек
+            const cardsContainer = document.getElementById('services-cards');
+            if (cardsContainer) {
+                cardsContainer.innerHTML = '';
+                
+                if (services.length === 0) {
+                    cardsContainer.innerHTML = `
+                        <div class="text-center py-4">
+                            <p>Услуги не найдены</p>
+                            <button class="btn btn-sm btn-outline-primary" id="service-add-btn-empty-mobile">
+                                <i class="fas fa-plus"></i> Добавить первую услугу
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const cardTemplate = document.getElementById('service-card-template').innerHTML;
+                    
+                    services.forEach(service => {
+                        // Создаем HTML-карточку на основе шаблона
+                        let cardHtml = cardTemplate;
+                        // Заменяем переменные в шаблоне на значения
+                        Object.keys(service).forEach(key => {
+                            const regex = new RegExp('\\${' + key + '}', 'g');
+                            cardHtml = cardHtml.replace(regex, service[key]);
+                        });
+                        
+                        // Добавляем карточку на страницу
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = cardHtml;
+                        cardsContainer.appendChild(tempDiv.firstElementChild);
+                    });
+                }
+            }
+            
+            // Обработчики кнопок редактирования и удаления для обоих представлений
+            document.querySelectorAll('.edit-service-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const serviceId = this.getAttribute('data-id');
+                    openEditServiceModal(serviceId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-service-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const serviceId = this.getAttribute('data-id');
+                    openDeleteServiceModal(serviceId);
+                });
+            });
+        }
+        
+        // Функция для открытия модального окна с формой добавления услуги
+        function openAddServiceModal() {
+            const serviceModal = document.getElementById('serviceModal');
+            if (!serviceModal) {
+                const template = document.getElementById('service-modal-template');
+                if (template) {
+                    const div = document.createElement('div');
+                    div.innerHTML = template.innerHTML;
+                    document.body.appendChild(div);
+                    
+                    // Загружаем компании для выпадающего списка
+                    loadCompaniesForSelect();
+                    
+                    // Привязываем обработчик для сохранения
+                    document.getElementById('save-service-btn').addEventListener('click', saveService);
+                }
+                
+                const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
+                modal.show();
+            } else {
+                // Сбрасываем форму
+                document.getElementById('serviceForm').reset();
+                document.getElementById('service-id').value = '';
+                document.getElementById('serviceModalLabel').textContent = 'Добавление услуги';
+                
+                // Показываем модальное окно
+                const modal = bootstrap.Modal.getInstance(serviceModal) || new bootstrap.Modal(serviceModal);
+                modal.show();
+                
+                // Загружаем компании для выпадающего списка
+                loadCompaniesForSelect();
+            }
+        }
+        
+        // Функция для открытия модального окна с формой редактирования услуги
+        function openEditServiceModal(serviceId) {
+            // В реальности здесь был бы запрос к API для получения данных услуги
+            // Для примера используем сохраненные данные
+            const serviceData = currentServices.find(s => s.id == serviceId);
+            
+            if (!serviceData) {
+                console.error('Услуга не найдена');
+                return;
+            }
+            
+            const serviceModal = document.getElementById('serviceModal');
+            if (!serviceModal) {
+                const template = document.getElementById('service-modal-template');
+                if (template) {
+                    const div = document.createElement('div');
+                    div.innerHTML = template.innerHTML;
+                    document.body.appendChild(div);
+                    
+                    // Загружаем компании для выпадающего списка
+                    loadCompaniesForSelect();
+                    
+                    // Привязываем обработчик для сохранения
+                    document.getElementById('save-service-btn').addEventListener('click', saveService);
+                }
+            }
+            
+            // Заполняем форму данными услуги
+            document.getElementById('service-id').value = serviceData.id;
+            document.getElementById('serviceModalLabel').textContent = 'Редактирование услуги';
+            
+            // Загружаем компании и затем выбираем нужную
+            loadCompaniesForSelect(serviceData.company_id);
+            
+            // Заполняем остальные поля
+            document.getElementById('service-category').value = serviceData.category_id;
+            document.getElementById('service-name').value = serviceData.name;
+            document.getElementById('service-price').value = serviceData.price;
+            document.getElementById('service-duration').value = serviceData.duration;
+            document.getElementById('service-status').value = serviceData.status;
+            
+            // Показываем модальное окно
+            const modal = bootstrap.Modal.getInstance(serviceModal) || new bootstrap.Modal(serviceModal);
+            modal.show();
+        }
+        
+        // Функция для открытия модального окна подтверждения удаления
+        function openDeleteServiceModal(serviceId) {
+            // В реальности здесь был бы запрос к API для получения данных услуги
+            // Для примера используем сохраненные данные
+            const serviceData = currentServices.find(s => s.id == serviceId);
+            
+            if (!serviceData) {
+                console.error('Услуга не найдена');
+                return;
+            }
+            
+            const deleteModal = document.getElementById('deleteServiceModal');
+            if (!deleteModal) {
+                const template = document.getElementById('service-delete-modal-template');
+                if (template) {
+                    const div = document.createElement('div');
+                    div.innerHTML = template.innerHTML;
+                    document.body.appendChild(div);
+                    
+                    // Привязываем обработчик для подтверждения удаления
+                    document.getElementById('confirm-delete-service').addEventListener('click', function() {
+                        deleteService(serviceId);
+                        bootstrap.Modal.getInstance(document.getElementById('deleteServiceModal')).hide();
+                    });
+                }
+            }
+            
+            // Заполняем данные
+            document.getElementById('delete-service-name').textContent = serviceData.name;
+            
+            // Устанавливаем обработчик для кнопки удаления
+            const confirmButton = document.getElementById('confirm-delete-service');
+            confirmButton.onclick = function() {
+                deleteService(serviceId);
+                bootstrap.Modal.getInstance(document.getElementById('deleteServiceModal')).hide();
+            };
+            
+            // Показываем модальное окно
+            const modal = bootstrap.Modal.getInstance(deleteModal) || new bootstrap.Modal(deleteModal);
+            modal.show();
+        }
+        
+        // Функция для загрузки компаний в выпадающий список
+        function loadCompaniesForSelect(selectedCompanyId) {
+            // В реальности здесь был бы запрос к API
+            const companies = [
+                { id: 1, name: 'Салон красоты "Эстетика"' },
+                { id: 2, name: 'Автосервис "Мастер"' },
+                { id: 3, name: 'Спортзал "Атлетик"' },
+                { id: 4, name: 'Медицинский центр "Здоровье"' }
+            ];
+            
+            const select = document.getElementById('service-company');
+            if (select) {
+                // Очищаем текущие опции, оставляя только первую (placeholder)
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                // Добавляем компании как опции
+                companies.forEach(company => {
+                    const option = document.createElement('option');
+                    option.value = company.id;
+                    option.textContent = company.name;
+                    select.appendChild(option);
+                });
+                
+                // Выбираем компанию, если указана
+                if (selectedCompanyId) {
+                    select.value = selectedCompanyId;
+                }
+            }
+        }
+        
+        // Функция для сохранения услуги
+        function saveService() {
+            const form = document.getElementById('serviceForm');
+            
+            // Валидация формы
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+            
+            // Собираем данные из формы
+            const serviceId = document.getElementById('service-id').value;
+            const serviceData = {
+                id: serviceId ? parseInt(serviceId) : Math.floor(Math.random() * 1000) + 6, // Генерируем ID для новой услуги
+                company_id: parseInt(document.getElementById('service-company').value),
+                company: document.getElementById('service-company').options[document.getElementById('service-company').selectedIndex].text,
+                category_id: parseInt(document.getElementById('service-category').value),
+                category: document.getElementById('service-category').options[document.getElementById('service-category').selectedIndex].text,
+                name: document.getElementById('service-name').value,
+                price: parseFloat(document.getElementById('service-price').value),
+                duration: parseInt(document.getElementById('service-duration').value),
+                status: document.getElementById('service-status').value
+                // В реальном приложении здесь были бы и другие поля
+            };
+            
+            // В реальности здесь был бы запрос к API для сохранения данных
+            console.log('Сохранение услуги:', serviceData);
+            
+            // Обновляем список услуг
+            if (serviceId) {
+                // Редактирование
+                const index = currentServices.findIndex(s => s.id == serviceId);
+                if (index !== -1) {
+                    currentServices[index] = serviceData;
+                }
+            } else {
+                // Добавление новой
+                currentServices.push(serviceData);
+            }
+            
+            // Обновляем таблицу
+            displayServices(currentServices);
+            
+            // Закрываем модальное окно
+            const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
+            modal.hide();
+            
+            // Сбрасываем форму
+            form.reset();
+            form.classList.remove('was-validated');
+        }
+        
+        // Функция для удаления услуги
+        function deleteService(serviceId) {
+            // В реальности здесь был бы запрос к API для удаления
+            console.log('Удаление услуги ID:', serviceId);
+            
+            // Удаляем услугу из массива
+            const index = currentServices.findIndex(s => s.id == serviceId);
+            if (index !== -1) {
+                currentServices.splice(index, 1);
+                
+                // Обновляем таблицу
+                displayServices(currentServices);
+            }
+        }
+        
+        // Обработчик для фильтра услуг
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.id === 'services-search') {
+                const searchText = e.target.value.toLowerCase();
+                const filteredServices = currentServices.filter(service => 
+                    service.name.toLowerCase().includes(searchText) || 
+                    service.company.toLowerCase().includes(searchText) ||
+                    service.category.toLowerCase().includes(searchText)
+                );
+                displayServices(filteredServices);
+            }
+        });
+        
+        // Обработчик для изменения статуса фильтра
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'services-filter') {
+                const filterValue = e.target.value;
+                let filteredServices = currentServices;
+                
+                if (filterValue === 'active') {
+                    filteredServices = currentServices.filter(service => service.status === 'active');
+                } else if (filterValue === 'inactive') {
+                    filteredServices = currentServices.filter(service => service.status === 'inactive');
+                }
+                
+                displayServices(filteredServices);
+            }
+        });
+        
+        // Обработчик для кнопки добавления услуги
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'service-add-btn' || e.target.id === 'service-add-btn-empty' || 
+                (e.target.parentElement && (e.target.parentElement.id === 'service-add-btn' || e.target.parentElement.id === 'service-add-btn-empty'))) {
+                openAddServiceModal();
+            }
+        });
+        
+        // Загружаем начальные данные
+        const currentServices = loadServices();
+    });
+</script>
 {% endblock %}
 
 {% block extra_js %}
@@ -745,6 +1712,88 @@
                     </div>
                 `;
                 eventsContainer.prepend(eventItem);
+            }
+        }
+        
+        // Обработчик для кнопки добавления услуги
+        const addServiceBtn = document.getElementById('add-service-btn');
+        const cancelServiceBtn = document.getElementById('cancel-service-btn');
+        const quickAddServiceForm = document.querySelector('.quick-add-service-form');
+        
+        if (addServiceBtn) {
+            addServiceBtn.addEventListener('click', function() {
+                quickAddServiceForm.style.display = 'block';
+                addServiceBtn.style.display = 'none';
+                
+                // Загружаем список компаний для выпадающего списка
+                fetchCompanies();
+            });
+        }
+        
+        if (cancelServiceBtn) {
+            cancelServiceBtn.addEventListener('click', function() {
+                quickAddServiceForm.style.display = 'none';
+                addServiceBtn.style.display = 'inline-block';
+            });
+        }
+        
+        // Обработчик формы быстрого добавления услуги
+        const quickAddServiceFormEl = document.getElementById('quickAddServiceForm');
+        if (quickAddServiceFormEl) {
+            quickAddServiceFormEl.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Собираем данные услуги
+                const serviceData = {
+                    company_id: document.getElementById('serviceCompany').value,
+                    name: document.getElementById('serviceName').value,
+                    category_id: document.getElementById('serviceCategory').value,
+                    price: document.getElementById('servicePrice').value,
+                    duration: document.getElementById('serviceDuration').value,
+                    description: document.getElementById('serviceDescription').value,
+                    status: document.getElementById('serviceStatus').value
+                };
+                
+                // Отправляем данные на сервер (в реальном приложении)
+                console.log('Добавление услуги:', serviceData);
+                
+                // Симуляция успешного добавления
+                alert('Услуга успешно добавлена!');
+                
+                // Скрываем форму после добавления
+                quickAddServiceForm.style.display = 'none';
+                addServiceBtn.style.display = 'inline-block';
+                
+                // Очищаем форму
+                quickAddServiceFormEl.reset();
+            });
+        }
+        
+        // Функция для загрузки компаний
+        function fetchCompanies() {
+            // В реальном приложении здесь был бы запрос к API
+            // Имитируем загрузку компаний
+            const companies = [
+                { id: 1, name: 'Салон красоты "Эстетика"' },
+                { id: 2, name: 'Автосервис "Мастер"' },
+                { id: 3, name: 'Спортзал "Атлетик"' },
+                { id: 4, name: 'Медицинский центр "Здоровье"' }
+            ];
+            
+            const selectElement = document.getElementById('serviceCompany');
+            if (selectElement) {
+                // Очищаем все опции кроме дефолтной
+                while (selectElement.options.length > 1) {
+                    selectElement.remove(1);
+                }
+                
+                // Добавляем компании в селект
+                companies.forEach(company => {
+                    const option = document.createElement('option');
+                    option.value = company.id;
+                    option.textContent = company.name;
+                    selectElement.appendChild(option);
+                });
             }
         }
     });
@@ -887,6 +1936,69 @@
     });
 </script>
 
-<script src="{{ https_url_for(request, '/static/js/situation_center.js') }}"></script>
+<script src="{{ url_for('static', path='js/situation_center.js') }}"></script>
 
+<!-- JavaScript для мобильной навигации -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработчик для мобильной навигации
+        const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
+        if (mobileNavBtns.length > 0) {
+            mobileNavBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    
+                    // Удаляем активный класс со всех кнопок
+                    mobileNavBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Добавляем активный класс на нажатую кнопку
+                    this.classList.add('active');
+                    
+                    // Находим соответствующий элемент в основной навигации и имитируем клик
+                    const mainNavItem = document.querySelector(`.nav-item[data-section="${section}"]`);
+                    if (mainNavItem) {
+                        mainNavItem.click();
+                    } else if (section === 'profile') {
+                        // Обработка специальных случаев, например профиль
+                        document.querySelector('.nav-item[data-section="profile"]').click();
+                    }
+                    
+                    // Прокручиваем страницу вверх после смены раздела
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        }
+        
+        // Регистрируем обработчик для изменения размера окна
+        window.addEventListener('resize', handleResize);
+        
+        // Вызываем сразу для установки начального состояния
+        handleResize();
+        
+        function handleResize() {
+            if (window.innerWidth < 992) {
+                // Для мобильных устройств убираем overflow: hidden с body
+                document.body.style.overflow = 'auto';
+                
+                // Добавляем отступ внизу контейнера для мобильной навигации
+                const situationCenter = document.getElementById('situation-center');
+                if (situationCenter) {
+                    situationCenter.style.paddingBottom = '70px';
+                }
+            } else {
+                // Для десктопа восстанавливаем overflow: hidden
+                document.body.style.overflow = 'hidden';
+                
+                // Убираем отступ для мобильной навигации
+                const situationCenter = document.getElementById('situation-center');
+                if (situationCenter) {
+                    situationCenter.style.paddingBottom = '0';
+                }
+            }
+        }
+    });
+</script>
 {% endblock %} 

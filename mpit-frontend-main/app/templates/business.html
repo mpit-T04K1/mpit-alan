@@ -1,0 +1,597 @@
+{% extends "modular_base.html" %}
+
+{% block title %}{{ business.name if business else 'Страница бизнеса' }} - QWERTYTOWN{% endblock %}
+
+{% block main_panel %}
+<!-- Главная панель по умолчанию отображает приветствие -->
+<div id="welcome-section" class="section active text-center" style="padding-top: 20px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Добро пожаловать в {{ business.name if business else 'Наше заведение' }}</h2>
+    <div class="main-content d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100% - 60px);">
+        <div class="text-center mb-4">
+            <img src="{{ business.logo if business else '/static/images/placeholder-logo.png' }}" alt="{{ business.name if business else 'Логотип' }}" class="img-fluid rounded" style="max-height: 200px;">
+        </div>
+        <p class="text-light text-center">{{ business.description if business else 'Описание заведения' }}</p>
+        
+        <div class="highlights mt-5 text-center w-100">
+            <h3 class="text-light mb-3 text-center">Почему мы?</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card p-3 text-center d-flex flex-column justify-content-center align-items-center" style="border-radius: 10px; border: 1px solid rgba(71, 193, 232, 0.3); height: 100%;">
+                        <i class="bi bi-stars text-info mb-2" style="font-size: 2rem;"></i>
+                        <h5 class="text-light">Особая атмосфера</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3 text-center d-flex flex-column justify-content-center align-items-center" style="border-radius: 10px; border: 1px solid rgba(71, 193, 232, 0.3); height: 100%;">
+                        <i class="bi bi-cup-hot text-info mb-2" style="font-size: 2rem;"></i>
+                        <h5 class="text-light">Качественные продукты</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3 text-center d-flex flex-column justify-content-center align-items-center" style="border-radius: 10px; border: 1px solid rgba(71, 193, 232, 0.3); height: 100%;">
+                        <i class="bi bi-people text-info mb-2" style="font-size: 2rem;"></i>
+                        <h5 class="text-light">Профессиональный персонал</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция меню -->
+<div id="menu-section" class="section" style="display: none; padding-top: 20px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Меню</h2>
+    <div class="main-content">
+        <div id="menu-display" class="menu-display mt-4">
+            <div class="text-center text-light-50">
+                <div class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-2">Загрузка меню...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция расположения -->
+<div id="map-section" class="section" style="display: none; padding-top: 20px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Где нас найти</h2>
+    <div class="main-content d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100% - 60px);">
+        <div id="demo-map" style="width: 100%; height: 400px; border-radius: 15px; overflow: hidden;"></div>
+        <div class="address-info text-center mt-4">
+            <h4 class="text-light">Наш адрес</h4>
+            <p class="text-light-50">{{ business.address if business else 'Адрес заведения' }}</p>
+            <h5 class="text-light mt-3">Часы работы</h5>
+            <div class="working-hours mt-2">
+                {% if business and business.working_hours %}
+                    {% for day, hours in business.working_hours.items() %}
+                        <div class="day-hours text-light-50">
+                            <span class="day">{{ day }}:</span>
+                            <span class="hours">{{ hours }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="day-hours text-light-50">
+                        <span class="day">Пн-Пт:</span>
+                        <span class="hours">10:00 - 22:00</span>
+                    </div>
+                    <div class="day-hours text-light-50">
+                        <span class="day">Сб-Вс:</span>
+                        <span class="hours">12:00 - 22:00</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция контактов -->
+<div id="contacts-section" class="section" style="display: none; padding-top: 20px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Контакты</h2>
+    <div class="main-content d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100% - 60px);">
+        <div class="contact-details text-center">
+            <div class="contact-item mb-4">
+                <i class="bi bi-telephone-fill text-info mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-light">Телефон</h4>
+                <p class="text-light-50">{{ business.contacts.phone if business and business.contacts else '+7 (XXX) XXX-XX-XX' }}</p>
+            </div>
+            <div class="contact-item mb-4">
+                <i class="bi bi-envelope-fill text-info mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-light">Email</h4>
+                <p class="text-light-50">{{ business.contacts.email if business and business.contacts else 'example@email.com' }}</p>
+            </div>
+            <div class="contact-item">
+                <i class="bi bi-chat-fill text-info mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-light">Социальные сети</h4>
+                <div class="social-links mt-2 d-flex justify-content-center gap-3">
+                    {% if business and business.contacts and business.contacts.social %}
+                        {% if business.contacts.social.instagram %}
+                            <a href="{{ business.contacts.social.instagram }}" class="social-link" target="_blank">
+                                <i class="bi bi-instagram text-light" style="font-size: 1.5rem;"></i>
+                            </a>
+                        {% endif %}
+                        {% if business.contacts.social.facebook %}
+                            <a href="{{ business.contacts.social.facebook }}" class="social-link" target="_blank">
+                                <i class="bi bi-facebook text-light" style="font-size: 1.5rem;"></i>
+                            </a>
+                        {% endif %}
+                        {% if business.contacts.social.vk %}
+                            <a href="{{ business.contacts.social.vk }}" class="social-link" target="_blank">
+                                <i class="bi bi-telegram text-light" style="font-size: 1.5rem;"></i>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="#" class="social-link">
+                            <i class="bi bi-instagram text-light" style="font-size: 1.5rem;"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="bi bi-facebook text-light" style="font-size: 1.5rem;"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="bi bi-telegram text-light" style="font-size: 1.5rem;"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция галереи -->
+<div id="gallery-section" class="section" style="display: none; padding-top: 20px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Галерея</h2>
+    <div class="main-content">
+        <div class="gallery-grid row g-4 mt-3">
+            {% if business and business.gallery %}
+                {% for item in business.gallery %}
+                    <div class="col-md-4">
+                        <div class="gallery-item" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#galleryModal" data-img="{{ item.image }}" data-desc="{{ item.description }}">
+                            <img src="{{ item.image }}" alt="{{ item.description }}" class="img-fluid" style="border-radius: 10px; object-fit: cover; height: 250px; width: 100%;">
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-md-4">
+                    <div class="gallery-item">
+                        <img src="/static/images/placeholder-gallery.png" alt="Изображение 1" class="img-fluid" style="border-radius: 10px; object-fit: cover; height: 250px; width: 100%;">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="gallery-item">
+                        <img src="/static/images/placeholder-gallery.png" alt="Изображение 2" class="img-fluid" style="border-radius: 10px; object-fit: cover; height: 250px; width: 100%;">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="gallery-item">
+                        <img src="/static/images/placeholder-gallery.png" alt="Изображение 3" class="img-fluid" style="border-radius: 10px; object-fit: cover; height: 250px; width: 100%;">
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar_panel %}
+<div class="logo-container text-center mb-4" style="background-color: #1a1a1a;">
+    <div class="brand-logo">{{ business.name if business else 'QWERTYTOWN' }}</div>
+</div>
+
+<div class="navigation" style="background-color: #1a1a1a;">
+    {% if config and config.panels %}
+        {% if config.panels.get('business-info', True) %}
+        <div class="nav-item active" data-target="welcome">
+            <i class="bi bi-house text-light"></i>
+            <span class="text-light">О нас</span>
+        </div>
+        {% endif %}
+        
+        {% if config.panels.get('menu', True) %}
+        <div class="nav-item" data-target="menu">
+            <i class="bi bi-journal-text text-light"></i>
+            <span class="text-light">Меню</span>
+        </div>
+        {% endif %}
+        
+        {% if config.panels.get('map', True) %}
+        <div class="nav-item" data-target="map">
+            <i class="bi bi-geo-alt text-light"></i>
+            <span class="text-light">Где мы</span>
+        </div>
+        {% endif %}
+        
+        {% if config.panels.get('contacts', True) %}
+        <div class="nav-item" data-target="contacts">
+            <i class="bi bi-telephone text-light"></i>
+            <span class="text-light">Контакты</span>
+        </div>
+        {% endif %}
+        
+        {% if config.panels.get('gallery', True) %}
+        <div class="nav-item" data-target="gallery">
+            <i class="bi bi-images text-light"></i>
+            <span class="text-light">Галерея</span>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="nav-item active" data-target="welcome">
+            <i class="bi bi-house text-light"></i>
+            <span class="text-light">О нас</span>
+        </div>
+        <div class="nav-item" data-target="menu">
+            <i class="bi bi-journal-text text-light"></i>
+            <span class="text-light">Меню</span>
+        </div>
+        <div class="nav-item" data-target="map">
+            <i class="bi bi-geo-alt text-light"></i>
+            <span class="text-light">Где мы</span>
+        </div>
+        <div class="nav-item" data-target="contacts">
+            <i class="bi bi-telephone text-light"></i>
+            <span class="text-light">Контакты</span>
+        </div>
+        <div class="nav-item" data-target="gallery">
+            <i class="bi bi-images text-light"></i>
+            <span class="text-light">Галерея</span>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Подменю для категорий меню -->
+<div id="menu-categories" class="navigation submenu" style="background-color: #2a2a2a; display: none;">
+    <!-- Сюда динамически будут добавляться категории меню -->
+</div>
+{% endblock %}
+
+{% block info_panel %}
+<div id="welcome-info" class="info-section text-center" style="background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">О нас</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <p class="text-light-50 opacity-75 text-center">
+            {{ business.description if business else 'Описание заведения' }}
+        </p>
+    </div>
+</div>
+
+<div id="menu-info" class="info-section text-center" style="display: none; background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">О нашем меню</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <p class="text-light-50 opacity-75 text-center">
+            Наше меню состоит из тщательно подобранных блюд, приготовленных из свежих ингредиентов. 
+            Мы обновляем наше меню каждый сезон, чтобы предложить вам самые свежие и вкусные блюда.
+            У нас есть опции для вегетарианцев и веганов, а также блюда, не содержащие глютен.
+        </p>
+    </div>
+</div>
+
+<div id="map-info" class="info-section text-center" style="display: none; background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">Как нас найти</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <div class="row w-100">
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Адрес</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    {{ business.address if business else 'Наш адрес' }}
+                </p>
+            </div>
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Транспорт</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    Автобусы: 10, 24, 33<br>
+                    Ближайшее метро: Площадь Победы
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="contacts-info" class="info-section text-center" style="display: none; background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">Наши контакты</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <div class="row w-100">
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Свяжитесь с нами</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    Телефон: {{ business.contacts.phone if business and business.contacts else 'Наш телефон' }}<br>
+                    Email: {{ business.contacts.email if business and business.contacts else 'Наш email' }}
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-instagram me-2"></i> Instagram
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-facebook me-2"></i> Facebook
+                </p>
+            </div>
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Корпоративные мероприятия</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    Для организации корпоративных мероприятий свяжитесь с нашим менеджером по телефону: 
+                    <strong class="text-light">{{ business.phone if business else 'Наш телефон' }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="gallery-info" class="info-section text-center" style="display: none; background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">О галерее</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <p class="text-light-50 opacity-75 text-center">
+            Здесь представлены фотографии интерьера, наших блюд и проводимых мероприятий. 
+            Все фотографии сделаны профессиональными фотографами и отражают реальную атмосферу заведения.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Загружен шаблон бизнеса');
+    
+    // Отладочная информация о данных конфигурации
+    const configData = JSON.parse('{{ config|tojson if config else "null" }}');
+    const businessData = JSON.parse('{{ business|tojson if business else "null" }}');
+    console.log('Конфигурация:', { config: configData, business: businessData });
+
+    const sections = document.querySelectorAll('.section');
+    const navItems = document.querySelectorAll('.nav-item[data-target]');
+    const menuCategoriesContainer = document.getElementById('menu-categories');
+    const infoSections = document.querySelectorAll('.info-section');
+    const menuCategoryElements = document.querySelectorAll('.menu-category');
+    const menuItemElements = document.querySelectorAll('.menu-item');
+    
+    // Функция для показа информационной секции
+    function showInfoSection(sectionId) {
+        infoSections.forEach(section => {
+            section.style.display = 'none';
+        });
+        const targetInfo = document.getElementById(sectionId + '-info');
+        if (targetInfo) {
+            targetInfo.style.display = 'block';
+        }
+    }
+
+    // Функция для показа выбранной секции
+    function showSection(sectionId) {
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
+        const targetSection = document.getElementById(sectionId + '-section');
+        if (targetSection) {
+            targetSection.style.display = 'block';
+        }
+        
+        // Показываем/скрываем категории меню
+        if (menuCategoriesContainer) {
+            menuCategoriesContainer.style.display = sectionId === 'menu' ? 'block' : 'none';
+        }
+        
+        // Показываем соответствующую информационную секцию
+        showInfoSection(sectionId);
+    }
+
+    // Обработчики для навигационных элементов
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const target = this.getAttribute('data-target');
+            if (target) {
+                navItems.forEach(ni => ni.classList.remove('active'));
+                this.classList.add('active');
+                showSection(target);
+            }
+        });
+    });
+
+    // Инициализируем Яндекс.Карты, если необходимо показать карту
+    if (businessData && configData && configData.panels && configData.panels['map']) {
+        if (document.getElementById('demo-map')) {
+            try {
+                ymaps.ready(function() {
+                    var businessAddress = businessData.address;
+                    var myMap = new ymaps.Map('demo-map', {
+                        center: [54.7107, 20.5106], // Координаты центра Калининграда
+                        zoom: 13,
+                        controls: ['zoomControl', 'fullscreenControl']
+                    });
+                    
+                    var myGeocoder = ymaps.geocode(businessAddress);
+                    myGeocoder.then(function(res) {
+                        var coords = res.geoObjects.get(0).geometry.getCoordinates();
+                        myMap.setCenter(coords, 16);
+                        var placemark = new ymaps.Placemark(coords, {
+                            hintContent: businessData.name,
+                            balloonContent: businessData.name + "<br>" + businessData.address
+                        });
+                        myMap.geoObjects.add(placemark);
+                    }, function(err) {
+                        console.error('Ошибка геокодирования:', err);
+                    });
+                });
+            } catch (e) {
+                console.error('Ошибка инициализации карты:', e);
+            }
+        }
+    }
+    
+    // Загружаем меню из конфигурации
+    function loadMenu() {
+        const menuDisplay = document.getElementById('menu-display');
+        if (!menuDisplay) return;
+        
+        console.log('Загрузка меню из конфигурации...');
+        console.log('businessData:', businessData);
+        console.log('configData:', configData);
+        
+        // Добавляем заголовок и описание меню
+        let menuHeader = `
+            <div class="text-center mb-4">
+                <h3 class="text-light">Наше меню</h3>
+                <p class="text-light-50 opacity-75">Насладитесь нашими фирменными блюдами, приготовленными из свежих ингредиентов</p>
+            </div>
+        `;
+        
+        menuDisplay.innerHTML = menuHeader;
+        
+        // Проверяем структуру данных конфигурации, если есть
+        if (configData && configData.menu && configData.menu.categories && configData.menu.categories.length > 0) {
+            console.log('Отображаем меню из configData');
+            displayMenu(configData.menu.categories);
+        } 
+        // Затем проверяем наличие непустого меню в бизнесе
+        else if (businessData && businessData.menu && businessData.menu.categories && businessData.menu.categories.length > 0) {
+            console.log('Отображаем меню из businessData');
+            displayMenu(businessData.menu.categories);
+        } 
+        // Если меню нет или оно пустое в обоих местах
+        else {
+            console.log('Меню не найдено или пусто в обоих источниках');
+            menuDisplay.innerHTML += `
+                <div class="text-center text-light mt-5">
+                    <i class="bi bi-exclamation-circle" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">Меню не найдено</h4>
+                    <p class="text-light-50">Меню еще не добавлено или недоступно.</p>
+                </div>
+            `;
+        }
+    }
+    
+    // Отображаем меню на странице
+    function displayMenu(categories) {
+        const menuDisplay = document.getElementById('menu-display');
+        if (!menuDisplay) return;
+        
+        if (!categories || categories.length === 0) {
+            menuDisplay.innerHTML += `
+                <div class="text-center text-light mt-5">
+                    <i class="bi bi-exclamation-circle" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">Меню пусто</h4>
+                    <p class="text-light-50">В меню еще нет категорий или блюд.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Создаем категории меню в боковой панели
+        createMenuCategories(categories);
+        
+        // Добавляем HTML для категорий и их блюд
+        let html = '';
+        
+        categories.forEach(category => {
+            html += `
+                <div class="menu-category mt-5 mb-4" id="category-${category.id}">
+                    <h4 class="text-light text-center mb-4" style="position: relative; padding-bottom: 10px;">
+                        ${category.name}
+                        <span style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background: linear-gradient(90deg, #47c1e8, #e42bd4);"></span>
+                    </h4>
+                    <div class="row g-4">
+            `;
+            
+            if (category.items && category.items.length > 0) {
+                category.items.forEach(item => {
+                    // Создаем путь к заглушке изображения, если нет своего
+                    const imagePath = item.image || '/static/images/placeholder-food.png';
+                    
+                    html += `
+                        <div class="col-md-6 mb-4">
+                            <div class="menu-item-card" style="position: relative; height: 200px; overflow: hidden; border-radius: 15px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);">
+                                <div class="image-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('${imagePath}'); background-size: cover; background-position: center; filter: blur(3px) brightness(0.6); opacity: 0.7; transform: scale(1.1);"></div>
+                                <div class="image-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));"></div>
+                                <div class="menu-item-content" style="position: relative; z-index: 2; padding: 20px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="text-light mb-0">${item.name}</h5>
+                                            <span class="badge" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white; font-size: 1rem; padding: 5px 15px;">${item.price} ₽</span>
+                                        </div>
+                                        <p class="text-light-50 mb-0" style="font-size: 0.9rem; line-height: 1.4;">${item.description || 'Без описания'}</p>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-sm" style="background: rgba(71, 193, 232, 0.2); color: white; border: 1px solid rgba(71, 193, 232, 0.5); backdrop-filter: blur(5px);">
+                                            <i class="bi bi-cart-plus me-1"></i> Заказать
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `
+                    <div class="col-12 text-center">
+                        <p class="text-light-50">В этой категории пока нет блюд</p>
+                    </div>
+                `;
+            }
+            
+            html += `
+                    </div>
+                </div>
+            `;
+        });
+        
+        menuDisplay.innerHTML += html;
+    }
+    
+    // Функция для создания категорий меню в боковой панели
+    function createMenuCategories(categories) {
+        const menuCategoriesContainer = document.getElementById('menu-categories');
+        if (!menuCategoriesContainer) return;
+        
+        menuCategoriesContainer.innerHTML = '<h5 class="text-light mb-3 text-center">Категории</h5>';
+        
+        // Добавляем каждую категорию в боковую панель
+        categories.forEach((category, index) => {
+            const bgColors = [
+                'rgba(71, 193, 232, 0.15)',  // голубой
+                'rgba(228, 43, 212, 0.15)',  // розовый
+                'rgba(94, 92, 230, 0.15)',   // фиолетовый
+                'rgba(255, 153, 0, 0.15)',   // оранжевый
+                'rgba(46, 204, 113, 0.15)'   // зеленый
+            ];
+            
+            const borderColors = [
+                'rgba(71, 193, 232, 0.3)',
+                'rgba(228, 43, 212, 0.3)',
+                'rgba(94, 92, 230, 0.3)',
+                'rgba(255, 153, 0, 0.3)',
+                'rgba(46, 204, 113, 0.3)'
+            ];
+            
+            // Выбираем цвет для категории
+            const colorIndex = index % bgColors.length;
+            const bgColor = bgColors[colorIndex];
+            const borderColor = borderColors[colorIndex];
+            
+            const categoryItem = document.createElement('div');
+            categoryItem.className = 'menu-category mb-3';
+            categoryItem.setAttribute('data-category', category.id);
+            categoryItem.innerHTML = `
+                <div class="category-header nav-item" style="background-color: ${bgColor}; border: 1px solid ${borderColor}; border-radius: 8px; cursor: pointer; padding: 8px 12px; margin-bottom: 5px;">
+                    <i class="bi bi-menu-button text-light"></i>
+                    <span class="text-light">${category.name}</span>
+                </div>
+            `;
+            
+            // Добавляем обработчик события для прокрутки к категории при клике
+            categoryItem.querySelector('.category-header').addEventListener('click', (e) => {
+                const targetCategoryId = category.id;
+                const targetCategory = document.getElementById(`category-${targetCategoryId}`);
+                if (targetCategory) {
+                    // Прокручиваем к категории с плавной анимацией
+                    targetCategory.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+            
+            menuCategoriesContainer.appendChild(categoryItem);
+        });
+    }
+    
+    // Вызываем функцию загрузки меню при загрузке страницы
+    loadMenu();
+    
+    // Показываем начальную секцию
+    showSection('welcome');
+});
+</script>
+{% endblock %} 

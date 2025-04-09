@@ -1,0 +1,13 @@
+services:
+  mpit-frontend:
+    build: .
+    container_name: mpit-frontend
+    ports:
+      - 8080:8080
+    env_file: .env
+    environment:
+      MAIN_PATH: ${MAIN_PATH}
+      YANDEX_MAPS_API_KEY: ${YANDEX_MAPS_API_KEY}
+    restart: unless-stopped
+    volumes:
+      - ./app:/app/app

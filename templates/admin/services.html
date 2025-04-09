@@ -1,0 +1,495 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Услуги - Админ панель Джинсы{% endblock %}
+
+{% block main_panel %}
+<div class="container-fluid py-4">
+    <h1 class="text-center mb-5 gradient-text">Управление услугами</h1>
+    
+    <!-- Форма добавления новой услуги -->
+    <div class="visionos-card mb-4 p-4">
+        <h3 class="gradient-text mb-4">Добавить новую услугу</h3>
+        
+        <form id="addServiceForm">
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3">
+                    <label for="serviceName" class="form-label">Название услуги</label>
+                    <input type="text" class="form-control bg-dark text-white" id="serviceName" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="serviceCategory" class="form-label">Категория</label>
+                    <select class="form-select bg-dark text-white" id="serviceCategory" required>
+                        <option value="" selected disabled>Выберите категорию</option>
+                        <option value="repair">Ремонт</option>
+                        <option value="custom">Кастомизация</option>
+                        <option value="wash">Стирка и уход</option>
+                        <option value="design">Дизайн</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3">
+                    <label for="servicePrice" class="form-label">Стоимость (₽)</label>
+                    <input type="number" class="form-control bg-dark text-white" id="servicePrice" min="0" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="serviceDuration" class="form-label">Длительность (мин)</label>
+                    <input type="number" class="form-control bg-dark text-white" id="serviceDuration" min="0" required>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="serviceDescription" class="form-label">Описание услуги</label>
+                <textarea class="form-control bg-dark text-white" id="serviceDescription" rows="3" required></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="serviceImage" class="form-label">Изображение</label>
+                <input type="file" class="form-control bg-dark text-white" id="serviceImage" accept="image/*">
+            </div>
+            
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="serviceActive" checked>
+                <label class="form-check-label" for="serviceActive">Активна</label>
+            </div>
+            
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Добавить услугу
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Список существующих услуг -->
+    <div class="visionos-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="gradient-text mb-0">Список услуг</h3>
+            <div class="input-group w-25">
+                <span class="input-group-text bg-dark text-white border-secondary">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control bg-dark text-white border-secondary" 
+                       placeholder="Поиск..." id="searchServices">
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Стоимость</th>
+                        <th>Длительность</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td>Подшив джинсов</td>
+                        <td>Ремонт</td>
+                        <td>800 ₽</td>
+                        <td>30 мин</td>
+                        <td><span class="badge bg-success">Активна</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Нанесение рисунка</td>
+                        <td>Кастомизация</td>
+                        <td>1,500 ₽</td>
+                        <td>60 мин</td>
+                        <td><span class="badge bg-success">Активна</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Стирка и выведение пятен</td>
+                        <td>Стирка и уход</td>
+                        <td>600 ₽</td>
+                        <td>120 мин</td>
+                        <td><span class="badge bg-success">Активна</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Замена молнии</td>
+                        <td>Ремонт</td>
+                        <td>900 ₽</td>
+                        <td>45 мин</td>
+                        <td><span class="badge bg-secondary">Неактивна</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Создание индивидуального дизайна</td>
+                        <td>Дизайн</td>
+                        <td>2,500 ₽</td>
+                        <td>90 мин</td>
+                        <td><span class="badge bg-success">Активна</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Пагинация -->
+        <nav aria-label="Навигация по страницам" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link bg-dark text-white border-secondary" href="#" tabindex="-1" aria-disabled="true">Предыдущая</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="#">2</a></li>
+                <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link bg-dark text-white border-secondary" href="#">Следующая</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования услуги -->
+<div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="editServiceModalLabel">Редактирование услуги</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editServiceForm">
+                    <input type="hidden" id="editServiceId">
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="editServiceName" class="form-label">Название услуги</label>
+                            <input type="text" class="form-control bg-dark text-white border-secondary" id="editServiceName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editServiceCategory" class="form-label">Категория</label>
+                            <select class="form-select bg-dark text-white border-secondary" id="editServiceCategory" required>
+                                <option value="repair">Ремонт</option>
+                                <option value="custom">Кастомизация</option>
+                                <option value="wash">Стирка и уход</option>
+                                <option value="design">Дизайн</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="editServicePrice" class="form-label">Стоимость (₽)</label>
+                            <input type="number" class="form-control bg-dark text-white border-secondary" id="editServicePrice" min="0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editServiceDuration" class="form-label">Длительность (мин)</label>
+                            <input type="number" class="form-control bg-dark text-white border-secondary" id="editServiceDuration" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editServiceDescription" class="form-label">Описание услуги</label>
+                        <textarea class="form-control bg-dark text-white border-secondary" id="editServiceDescription" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editServiceImage" class="form-label">Изображение</label>
+                        <input type="file" class="form-control bg-dark text-white border-secondary" id="editServiceImage" accept="image/*">
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editServiceActive">
+                        <label class="form-check-label" for="editServiceActive">Активна</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveServiceChanges">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="deleteServiceModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить услугу <span id="deleteServiceName" class="fw-bold"></span>?</p>
+                <p class="text-danger">Это действие невозможно отменить.</p>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteService">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar_panel %}
+<div class="nav-section">
+    <div class="nav-section-title">Меню</div>
+    <div class="nav-item" onclick="window.location='/admin/'">
+        <i class="bi bi-house-door"></i>
+        <span>О нас</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/menu'">
+        <i class="bi bi-list-check"></i>
+        <span>Меню</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/location'">
+        <i class="bi bi-geo-alt"></i>
+        <span>Где мы</span>
+    </div>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Управление</div>
+    <div class="nav-item" onclick="window.location='/admin/products'">
+        <i class="bi bi-bag"></i>
+        <span>Товары</span>
+    </div>
+    <div class="nav-item active" onclick="window.location='/admin/services'">
+        <i class="bi bi-tools"></i>
+        <span>Услуги</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/orders'">
+        <i class="bi bi-cart-check"></i>
+        <span>Заказы</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/users'">
+        <i class="bi bi-people"></i>
+        <span>Пользователи</span>
+    </div>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Аналитика</div>
+    <div class="nav-item" onclick="window.location='/admin/analytics'">
+        <i class="bi bi-graph-up"></i>
+        <span>Статистика</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/admin/reports'">
+        <i class="bi bi-file-earmark-bar-graph"></i>
+        <span>Отчеты</span>
+    </div>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Настройки</div>
+    <div class="nav-item" onclick="window.location='/admin/settings'">
+        <i class="bi bi-gear"></i>
+        <span>Настройки</span>
+    </div>
+    <div class="nav-item" onclick="window.location='/logout'">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Выход</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Анимация для карточек
+        const cards = document.querySelectorAll('.visionos-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('fade-in');
+            }, 100 * index);
+        });
+        
+        // Обработка формы добавления услуги
+        const addServiceForm = document.getElementById('addServiceForm');
+        if (addServiceForm) {
+            addServiceForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Здесь будет логика отправки данных на сервер
+                const formData = {
+                    name: document.getElementById('serviceName').value,
+                    category: document.getElementById('serviceCategory').value,
+                    price: document.getElementById('servicePrice').value,
+                    duration: document.getElementById('serviceDuration').value,
+                    description: document.getElementById('serviceDescription').value,
+                    is_active: document.getElementById('serviceActive').checked
+                };
+                
+                console.log('Добавление новой услуги:', formData);
+                
+                // Имитация успешного добавления
+                const newServiceId = Math.floor(Math.random() * 1000) + 6;
+                
+                // Добавляем новую услугу в таблицу
+                const tbody = document.getElementById('servicesTableBody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${newServiceId}</td>
+                    <td>${formData.name}</td>
+                    <td>${getCategoryName(formData.category)}</td>
+                    <td>${formData.price} ₽</td>
+                    <td>${formData.duration} мин</td>
+                    <td><span class="badge bg-success">Активна</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.prepend(newRow);
+                
+                // Очищаем форму
+                addServiceForm.reset();
+                
+                // Показываем уведомление об успешном добавлении
+                alert('Услуга успешно добавлена!');
+            });
+        }
+        
+        // Функция для получения названия категории
+        function getCategoryName(categoryValue) {
+            const categories = {
+                'repair': 'Ремонт',
+                'custom': 'Кастомизация',
+                'wash': 'Стирка и уход',
+                'design': 'Дизайн'
+            };
+            return categories[categoryValue] || categoryValue;
+        }
+        
+        // Обработка кнопок редактирования и удаления
+        const servicesTableBody = document.getElementById('servicesTableBody');
+        if (servicesTableBody) {
+            servicesTableBody.addEventListener('click', function(e) {
+                // Находим ближайшую кнопку
+                const button = e.target.closest('button');
+                if (!button) return;
+                
+                // Находим строку, к которой относится кнопка
+                const row = button.closest('tr');
+                const serviceId = row.cells[0].textContent;
+                const serviceName = row.cells[1].textContent;
+                
+                // Обработка кнопки редактирования
+                if (button.classList.contains('btn-outline-primary')) {
+                    console.log('Редактирование услуги ID:', serviceId);
+                    
+                    // Заполняем форму редактирования данными
+                    document.getElementById('editServiceId').value = serviceId;
+                    document.getElementById('editServiceName').value = serviceName;
+                    document.getElementById('editServicePrice').value = row.cells[3].textContent.replace(' ₽', '');
+                    document.getElementById('editServiceDuration').value = row.cells[4].textContent.replace(' мин', '');
+                    document.getElementById('editServiceActive').checked = row.cells[5].querySelector('.badge').classList.contains('bg-success');
+                    
+                    // Открываем модальное окно
+                    const editModal = new bootstrap.Modal(document.getElementById('editServiceModal'));
+                    editModal.show();
+                }
+                
+                // Обработка кнопки удаления
+                if (button.classList.contains('btn-outline-danger')) {
+                    console.log('Удаление услуги ID:', serviceId);
+                    
+                    // Заполняем данные в модальном окне подтверждения
+                    document.getElementById('deleteServiceName').textContent = serviceName;
+                    
+                    // Открываем модальное окно
+                    const deleteModal = new bootstrap.Modal(document.getElementById('deleteServiceModal'));
+                    deleteModal.show();
+                    
+                    // Обработчик подтверждения удаления
+                    document.getElementById('confirmDeleteService').onclick = function() {
+                        // Здесь будет логика удаления на сервере
+                        console.log('Подтверждено удаление услуги ID:', serviceId);
+                        
+                        // Удаляем строку из таблицы
+                        row.remove();
+                        
+                        // Закрываем модальное окно
+                        deleteModal.hide();
+                    };
+                }
+            });
+        }
+        
+        // Поиск услуг
+        const searchInput = document.getElementById('searchServices');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                const rows = servicesTableBody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const serviceName = row.cells[1].textContent.toLowerCase();
+                    const serviceCategory = row.cells[2].textContent.toLowerCase();
+                    const visible = serviceName.includes(searchText) || serviceCategory.includes(searchText);
+                    row.style.display = visible ? '' : 'none';
+                });
+            });
+        }
+        
+        // Сохранение изменений услуги
+        const saveChangesBtn = document.getElementById('saveServiceChanges');
+        if (saveChangesBtn) {
+            saveChangesBtn.addEventListener('click', function() {
+                const serviceId = document.getElementById('editServiceId').value;
+                const serviceName = document.getElementById('editServiceName').value;
+                const servicePrice = document.getElementById('editServicePrice').value;
+                const serviceDuration = document.getElementById('editServiceDuration').value;
+                const serviceActive = document.getElementById('editServiceActive').checked;
+                
+                console.log('Сохранение изменений услуги ID:', serviceId);
+                
+                // Здесь будет логика отправки изменений на сервер
+                
+                // Обновляем данные в таблице
+                const rows = servicesTableBody.querySelectorAll('tr');
+                for (const row of rows) {
+                    if (row.cells[0].textContent === serviceId) {
+                        row.cells[1].textContent = serviceName;
+                        row.cells[3].textContent = servicePrice + ' ₽';
+                        row.cells[4].textContent = serviceDuration + ' мин';
+                        row.cells[5].innerHTML = serviceActive 
+                            ? '<span class="badge bg-success">Активна</span>' 
+                            : '<span class="badge bg-secondary">Неактивна</span>';
+                        break;
+                    }
+                }
+                
+                // Закрываем модальное окно
+                const editModal = bootstrap.Modal.getInstance(document.getElementById('editServiceModal'));
+                editModal.hide();
+                
+                // Показываем уведомление об успешном обновлении
+                alert('Услуга успешно обновлена!');
+            });
+        }
+    });
+</script>
+{% endblock %} 

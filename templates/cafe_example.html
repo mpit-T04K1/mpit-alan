@@ -1,0 +1,683 @@
+{% extends "modular_base.html" %}
+
+{% block title %}Кафе "Неоновый закат" - QWERTYTOWN{% endblock %}
+
+{% block main_panel %}
+<!-- Главная панель по умолчанию отображает приветствие -->
+<div id="welcome-section" class="section active text-center" style="padding-top: 20px; height: 100%; overflow-y: auto; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Добро пожаловать в кафе "Неоновый закат"</h2>
+    <div class="main-content d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100% - 60px);">
+        <div class="text-center mb-4">
+            <!-- <img src="{{ url_for('static', path='/images/qwertytown-logo.png') }}" alt="Неоновый закат" class="img-fluid rounded" style="max-height: 200px;"> -->
+        </div>
+        <p class="text-light text-center">Кафе "Неоновый закат" — место, где каждый гость становится частью нашей истории.</p>
+        <p class="text-light text-center">Уютная атмосфера, изысканная кухня и безупречный сервис — вот что делает нас особенными.</p>
+        <p class="text-light text-center">Выберите один из разделов в правой панели, чтобы узнать больше о нашем кафе.</p>
+        
+        <!-- Кнопка для перехода в конструктор меню -->
+        <div class="mt-4 mb-5">
+            <a href="/constructor" class="btn btn-lg" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white; border: none; padding: 10px 30px; border-radius: 30px; font-weight: 500;">
+                <i class="bi bi-tools me-2"></i> Конструктор меню
+            </a>
+        </div>
+        
+        <h3 class="text-light mt-3 mb-0 text-center">Почему мы?</h3>
+        <div class="highlights mt-5 text-center w-100" style="display: flex; justify-content: center;">
+            <div class="row g-4 " style="width: 100%;">
+                <div class="col-md-4">
+                    <div class="feature-card p-3 text-center d-flex flex-column justify-content-center align-items-center" style="border-radius: 10px; border: 1px solid rgba(71, 193, 232, 0.3); height: 100%;">
+                        <i class="bi bi-stars text-info mb-2" style="font-size: 2rem;"></i>
+                        <h5 class="text-light">Особая атмосфера</h5>
+                        <p class="text-light-50 opacity-75">Интерьер в стиле киберпанк и неоновое освещение создают уникальную атмосферу.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3 text-center d-flex flex-column justify-content-center align-items-center" style="border-radius: 10px; border: 1px solid rgba(228, 43, 212, 0.3); height: 100%;">
+                        <i class="bi bi-award text-danger mb-2" style="font-size: 2rem;"></i>
+                        <h5 class="text-light">Авторская кухня</h5>
+                        <p class="text-light-50 opacity-75">Шеф-повар создает неповторимые блюда, сочетая традиции и инновации.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3 text-center d-flex flex-column justify-content-center align-items-center" style="border-radius: 10px; border: 1px solid rgba(94, 92, 230, 0.3); height: 100%;">
+                        <i class="bi bi-people text-primary mb-2" style="font-size: 2rem;"></i>
+                        <h5 class="text-light">Душевный сервис</h5>
+                        <p class="text-light-50 opacity-75">Наша команда сделает всё, чтобы ваш отдых был комфортным и приятным.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция с меню -->
+<div id="menu-section" class="section text-center" style="height: 100%; overflow: auto; display: none; background-color: #121212;">
+    <div class="menu-content text-center d-flex flex-column align-items-center justify-content-center" style="height: 100%; position: relative; padding: 20px;">
+        <div id="menu-item-display" class="text-center w-100" style="height: 100%;">
+            <div class="image-container" style="position: relative; height: 100%; overflow: hidden; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);">
+                <!-- <div class="image-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('{{ url_for('static', path='/images/qwertytown-logo.png') }}'); background-size: cover; background-position: center; filter: blur(5px) brightness(0.6); opacity: 0.7; transform: scale(1.1);"></div> -->
+                <div class="image-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));"></div>
+                <div class="image-content" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+                    <!-- <img src="{{ url_for('static', path='/images/qwertytown-logo.png') }}" alt="Выберите блюдо" class="img-fluid" style="max-height: 60%; object-fit: contain; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); transition: all 0.3s ease;"> -->
+                    <div class="dish-info" style="margin-top: 30px; background-color: rgba(30, 30, 30, 0.8); padding: 20px; border-radius: 15px; backdrop-filter: blur(5px); max-width: 80%; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
+                        <h3 class="text-light my-3">Выберите категорию и блюдо</h3>
+                        <p class="text-light-50 opacity-75">Информация о выбранном блюде появится здесь</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция с картой -->
+<div id="location-section" class="section text-center" style="padding-top: 20px; height: 100%; overflow-y: auto; display: none; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Где мы находимся</h2>
+    <div class="location-content text-center d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100% - 60px);">
+        <div class="map-container" style="display: flex; height: 350px; width: 100%; border-radius: 10px; position: relative; justify-content: center;">
+            <!-- Интерактивная карта Яндекс -->
+            <div id="demo-map" style="width: 50%; height: 100%; border-radius: 10px;"></div>
+        </div>
+        <div class="address-info mt-4 text-center">
+            <h4 class="text-light mb-3">Наш адрес</h4>
+            <p class="text-light-50 opacity-75">
+                <i class="bi bi-geo-alt me-2"></i> г. Калиниград, ул. Виктора Гюго, д. 1
+            </p>
+            <p class="text-light-50 opacity-75">
+                <i class="bi bi-clock me-2"></i> Ежедневно с 10:00 до 23:00
+            </p>
+            <p class="text-light-50 opacity-75">
+                <i class="bi bi-telephone me-2"></i> +7 (999) 123-45-67
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Секция с контактами -->
+<div id="contacts-section" class="section text-center" style="padding-top: 20px; height: 100%; overflow-y: auto; display: none; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Контакты и бронирование</h2>
+    <div class="contacts-content text-center d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100% - 60px);">
+        <div class="row g-4" style="width: 100%;">
+            <div class="col-md-6 d-flex">
+                <div class="contact-card p-4 text-center d-flex flex-column justify-content-center align-items-center" style="background-color: rgba(71, 193, 232, 0.15); border-radius: 10px; border: 1px solid rgba(71, 193, 232, 0.3); width: 100%;">
+                    <h4 class="text-light mb-3">Свяжитесь с нами</h4>
+                    <p class="text-light-50 opacity-75">
+                        <i class="bi bi-telephone me-2"></i> +7 (999) 123-45-67
+                    </p>
+                    <p class="text-light-50 opacity-75">
+                        <i class="bi bi-envelope me-2"></i> info@neon-sunset.ru
+                    </p>
+                    <p class="text-light-50 opacity-75">
+                        <i class="bi bi-chat me-2"></i> Telegram: @neon_sunset
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex">
+                <div class="booking-card p-4 text-center d-flex flex-column justify-content-center align-items-center" style="background-color: rgba(228, 43, 212, 0.15); border-radius: 10px; border: 1px solid rgba(228, 43, 212, 0.3); width: 100%;">
+                    <h4 class="text-light mb-3">Забронировать столик</h4>
+                    <form class="text-center w-100">
+                        <div class="mb-3">
+                            <input type="text" class="form-control form-control-sm border-1" style="background-color: #1a1a1a; color: #fff; border-color: #333;" placeholder="Ваше имя">
+                        </div>
+                        <div class="mb-3">
+                            <input type="tel" class="form-control form-control-sm border-1" style="background-color: #1a1a1a; color: #fff; border-color: #333;" placeholder="Телефон">
+                        </div>
+                        <div class="mb-3">
+                            <input type="date" class="form-control form-control-sm border-1" style="background-color: #1a1a1a; color: #fff; border-color: #333;">
+                        </div>
+                        <div class="mb-3">
+                            <select class="form-control form-control-sm border-1" style="background-color: #1a1a1a; color: #fff; border-color: #333;">
+                                <option>Выберите время</option>
+                                <option>12:00</option>
+                                <option>13:00</option>
+                                <option>14:00</option>
+                                <!-- Остальные варианты времени -->
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm w-100" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white;">Забронировать</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция с галереей -->
+<div id="gallery-section" class="section text-center" style="padding-top: 20px; height: 100%; overflow-y: auto; display: none; background-color: #121212;">
+    <h2 class="panel-title text-center text-light">Галерея</h2>
+    <div class="gallery-content text-center d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100% - 60px);">
+        <div class="row g-3 w-100">
+            <!-- Заглушки для фотографий -->
+            <div class="col-md-4">
+                <div class="gallery-item text-center d-flex justify-content-center align-items-center" style="height: 120px; background-color: rgba(71, 193, 232, 0.15); border-radius: 10px; border: 1px solid rgba(71, 193, 232, 0.3);">
+                    <i class="bi bi-image text-info" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gallery-item text-center d-flex justify-content-center align-items-center" style="height: 120px; background-color: rgba(228, 43, 212, 0.15); border-radius: 10px; border: 1px solid rgba(228, 43, 212, 0.3);">
+                    <i class="bi bi-image text-danger" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gallery-item text-center d-flex justify-content-center align-items-center" style="height: 120px; background-color: rgba(94, 92, 230, 0.15); border-radius: 10px; border: 1px solid rgba(94, 92, 230, 0.3);">
+                    <i class="bi bi-image text-primary" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gallery-item text-center d-flex justify-content-center align-items-center" style="height: 150px; background-color: rgba(71, 193, 232, 0.1); border-radius: 10px; border: 1px solid rgba(71, 193, 232, 0.2);">
+                    <i class="bi bi-image text-info" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gallery-item text-center d-flex justify-content-center align-items-center" style="height: 150px; background-color: rgba(228, 43, 212, 0.1); border-radius: 10px; border: 1px solid rgba(228, 43, 212, 0.2);">
+                    <i class="bi bi-image text-danger" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar_panel %}
+<div class="logo-container text-center mb-4" style="background-color: #1a1a1a;">
+    <div class="brand-logo">QWERTY.TOWN</div>
+    <h4 class="text-light">Кафе "Неоновый закат"</h4>
+</div>
+
+<div class="navigation" style="background-color: #1a1a1a;">
+    <div class="nav-item active" data-target="welcome">
+        <i class="bi bi-house text-light"></i>
+        <span class="text-light">Главная</span>
+    </div>
+    <div class="nav-item" data-target="menu">
+        <i class="bi bi-journal-text text-light"></i>
+        <span class="text-light">Меню</span>
+    </div>
+    <div class="nav-item" data-target="location">
+        <i class="bi bi-geo-alt text-light"></i>
+        <span class="text-light">Где мы</span>
+    </div>
+    <div class="nav-item" data-target="contacts">
+        <i class="bi bi-telephone text-light"></i>
+        <span class="text-light">Контакты</span>
+    </div>
+    <div class="nav-item" data-target="gallery">
+        <i class="bi bi-images text-light"></i>
+        <span class="text-light">Галерея</span>
+    </div>
+</div>
+
+<!-- Подменю для категорий меню -->
+<div id="menu-categories" class="mt-4" style="display: none;">
+    <h5 class="text-light mb-3 text-center">Категории</h5>
+    <div class="menu-category mb-3" data-category="appetizers">
+        <div class="category-header nav-item" style="background-color: rgba(71, 193, 232, 0.15); cursor: pointer;">
+            <i class="bi bi-menu-button text-light"></i>
+            <span class="text-light">Закуски</span>
+        </div>
+        <div class="menu-items ps-3 mt-2">
+            <div class="menu-item nav-item" data-item="bruschetta">
+                <span class="text-light">Брускетта</span>
+            </div>
+            <div class="menu-item nav-item" data-item="carpaccio">
+                <span class="text-light">Карпаччо</span>
+            </div>
+        </div>
+    </div>
+    <div class="menu-category mb-3" data-category="main">
+        <div class="category-header nav-item" style="background-color: rgba(228, 43, 212, 0.15); cursor: pointer;">
+            <i class="bi bi-menu-button text-light"></i>
+            <span class="text-light">Основные блюда</span>
+        </div>
+        <div class="menu-items ps-3 mt-2">
+            <div class="menu-item nav-item" data-item="steak">
+                <span class="text-light">Стейк Рибай</span>
+            </div>
+            <div class="menu-item nav-item" data-item="pasta">
+                <span class="text-light">Паста Карбонара</span>
+            </div>
+        </div>
+    </div>
+    <div class="menu-category mb-3" data-category="desserts">
+        <div class="category-header nav-item" style="background-color: rgba(94, 92, 230, 0.15); cursor: pointer;">
+            <i class="bi bi-menu-button text-light"></i>
+            <span class="text-light">Десерты</span>
+        </div>
+        <div class="menu-items ps-3 mt-2">
+            <div class="menu-item nav-item" data-item="tiramisu">
+                <span class="text-light">Тирамису</span>
+            </div>
+            <div class="menu-item nav-item" data-item="cheesecake">
+                <span class="text-light">Чизкейк</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block info_panel %}
+<div id="welcome-info" class="info-section active text-center" style="background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">Информация</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <div class="row w-100">
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">О нас</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    Кафе "Неоновый закат" — это уникальное место, где сочетаются современные технологии 
+                    и уютная атмосфера. Основанное в 2020 году, наше кафе быстро стало популярным местом 
+                    для встреч, деловых обедов и романтических ужинов.
+                </p>
+            </div>
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Часы работы</h5>
+                <ul class="list-unstyled text-light-50 opacity-75 text-center">
+                    <li><i class="bi bi-clock me-2"></i> Пн-Чт: 10:00 - 22:00</li>
+                    <li><i class="bi bi-clock me-2"></i> Пт-Сб: 10:00 - 23:00</li>
+                    <li><i class="bi bi-clock me-2"></i> Вс: 11:00 - 22:00</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="menu-item-info" class="info-section text-center" style="   display: none; background-color: #1a1a1a; position: fixed; bottom: 0; left: 0; right: 0; padding: 2px; z-index: 1000;">
+    <div class="container">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 100px;">
+            <p class="m-0 text-center" style="font-size: 1.75rem; font-weight: 300; line-height: 1.5; color: #fff; max-width: 800px;"></p>
+        </div>
+    </div>
+</div>
+
+<div id="location-info" class="info-section text-center" style="display: none; background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">Как добраться</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <div class="row w-100">
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Транспорт</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-train-front me-2"></i> Метро "Цифровая", выход №3
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-bus-front me-2"></i> Автобусы: 123, 456, 789
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-car-front me-2"></i> Парковка: есть, бесплатная для гостей
+                </p>
+            </div>
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Рядом с нами</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-building me-2"></i> Технопарк "Цифровой город" (300 м)
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-tree me-2"></i> Парк "Алгоритм" (500 м)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="contacts-info" class="info-section text-center" style="display: none; background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">Связаться с нами</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <div class="row w-100">
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Социальные сети</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-instagram me-2"></i> @neon_sunset_cafe
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-facebook me-2"></i> Неоновый закат
+                </p>
+                <p class="text-light-50 opacity-75 text-center">
+                    <i class="bi bi-telegram me-2"></i> @neon_sunset
+                </p>
+            </div>
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h5 class="text-light text-center">Корпоративные мероприятия</h5>
+                <p class="text-light-50 opacity-75 text-center">
+                    Для организации корпоративных мероприятий свяжитесь с нашим менеджером по телефону: 
+                    <strong class="text-light">+7 (999) 987-65-43</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="gallery-info" class="info-section text-center" style="display: none; background-color: #1a1a1a;">
+    <h4 class="text-light text-center mb-4">О галерее</h4>
+    <div class="d-flex align-items-center justify-content-center" style="height: calc(100% - 50px);">
+        <p class="text-light-50 opacity-75 text-center">
+            Здесь представлены фотографии интерьера, наших блюд и проводимых мероприятий. 
+            Все фотографии сделаны профессиональными фотографами и отражают реальную атмосферу кафе.
+        </p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center align-items-center h-100">
+    <!-- <p class="m-0 text-center" style="font-size: 1.2rem; color: #fff; max-width: 80%;">Используйте кнопки в нижней части экрана для переключения между проектами <strong>kaliningrad-1</strong> и <strong>kaliningrad-master</strong>. Каждый проект содержит свои уникальные функции и интерфейс.</p> -->
+</div>
+
+<!-- Кнопка регистрации бизнеса -->
+<div class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1000;">
+    <a href="/business/register" class="btn btn-neon" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 500; box-shadow: 0 0 15px rgba(71, 193, 232, 0.5);">
+        <i class="bi bi-building-add me-2"></i>Регистрация бизнеса
+    </a>
+</div>
+
+<!-- Кнопка регистрации бизнеса -->
+<div class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1000;">
+    <a href="/business/register" class="btn btn-neon" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 500; box-shadow: 0 0 15px rgba(71, 193, 232, 0.5);">
+        <i class="bi bi-building-add me-2"></i>Регистрация бизнеса
+    </a>
+</div>
+
+<script>
+    // Функция для отображения информации о меню
+    function showMenuItem(item) {
+        const menuItemInfo = document.getElementById('menu-item-info');
+        const description = menuItemInfo.querySelector('p');
+        
+        description.textContent = item.description;
+        menuItemInfo.style.display = 'block';
+        
+        // Плавное появление
+        menuItemInfo.style.opacity = '0';
+        setTimeout(() => {
+            menuItemInfo.style.opacity = '1';
+        }, 100);
+    }
+
+    function hideMenuItemInfo() {
+        const menuItemInfo = document.getElementById('menu-item-info');
+        menuItemInfo.style.opacity = '0';
+        setTimeout(() => {
+            menuItemInfo.style.display = 'none';
+        }, 300);
+    }
+
+    // Добавляем обработчики событий
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('.menu-item');
+        const menuItemInfo = document.getElementById('menu-item-info');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const itemData = {
+                    description: this.getAttribute('data-description')
+                };
+                showMenuItem(itemData);
+            });
+        });
+        
+        // Скрываем описание при клике вне меню
+        // document.addEventListener('click', function(e) {
+        //     if (!e.target.closest('.menu-item') && !e.target.closest('#menu-item-info')) {
+        //         hideMenuItemInfo();
+        //     }
+        // });
+    });
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.section');
+    const navItems = document.querySelectorAll('.nav-item[data-target]');
+    const menuCategoriesContainer = document.getElementById('menu-categories');
+    const infoSections = document.querySelectorAll('.info-section');
+    const menuCategoryElements = document.querySelectorAll('.menu-category');
+    const menuItemElements = document.querySelectorAll('.menu-item');
+    
+    // Функция для показа информационной секции
+    function showInfoSection(sectionId) {
+        infoSections.forEach(section => {
+            section.style.display = 'none';
+        });
+        const targetInfo = document.getElementById(sectionId + '-info');
+        if (targetInfo) {
+            targetInfo.style.display = 'block';
+        }
+    }
+
+    // Функция для показа выбранной секции
+    function showSection(sectionId) {
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
+        const targetSection = document.getElementById(sectionId + '-section');
+        if (targetSection) {
+            targetSection.style.display = 'block';
+        }
+        
+        // Показываем/скрываем категории меню
+        if (menuCategoriesContainer) {
+            menuCategoriesContainer.style.display = sectionId === 'menu' ? 'block' : 'none';
+        }
+        
+        // Показываем соответствующую информационную секцию
+        showInfoSection(sectionId);
+    }
+
+    // Обработчики для навигационных элементов
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const target = this.getAttribute('data-target');
+            if (target) {
+                navItems.forEach(ni => ni.classList.remove('active'));
+                this.classList.add('active');
+                showSection(target);
+            }
+        });
+    });
+    
+    // Обработчики для категорий меню
+    menuCategoryElements.forEach(category => {
+        category.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const items = this.querySelector('.menu-items');
+            if (items) {
+                const isVisible = items.style.display === 'block';
+                // Скрываем все открытые подменю
+                document.querySelectorAll('.menu-items').forEach(item => {
+                    item.style.display = 'none';
+                });
+                // Показываем текущее подменю, если оно было скрыто
+                if (!isVisible) {
+                    items.style.display = 'block';
+                }
+            }
+        });
+    });
+
+    // Обработчики для элементов меню
+    menuItemElements.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const itemId = this.getAttribute('data-item');
+            console.log('Clicked menu item:', itemId);
+            const itemData = getMenuItemData(itemId);
+            if (itemData) {
+                showMenuItem(itemData);
+            }
+        });
+    });
+
+    // Функция для получения данных о блюде
+    function getMenuItemData(itemId) {
+        const menuData = {
+            bruschetta: {
+                name: 'Брускетта',
+                price: '450 ₽',
+                description: 'Хрустящий багет с томатами, базиликом и оливковым маслом',
+                image: '/static/images/menu/bruschetta.jpg'
+            },
+            carpaccio: {
+                name: 'Карпаччо',
+                price: '750 ₽',
+                description: 'Тонко нарезанная говядина с рукколой и пармезаном',
+                image: '/static/images/menu/carpaccio.jpg'
+            },
+            steak: {
+                name: 'Стейк Рибай',
+                price: '2500 ₽',
+                description: 'Сочный стейк из мраморной говядины',
+                image: '/static/images/menu/steak.jpg'
+            },
+            pasta: {
+                name: 'Паста Карбонара',
+                price: '850 ₽',
+                description: 'Классическая итальянская паста с беконом и сливочным соусом',
+                image: '/static/images/menu/pasta.jpg'
+            },
+            tiramisu: {
+                name: 'Тирамису',
+                price: '450 ₽',
+                description: 'Классический итальянский десерт с кофе и маскарпоне',
+                image: '/static/images/menu/tiramisu.jpg'
+            },
+            cheesecake: {
+                name: 'Чизкейк',
+                price: '400 ₽',
+                description: 'Нежный чизкейк с ягодным соусом',
+                image: '/static/images/menu/cheesecake.jpg'
+            }
+        };
+        return menuData[itemId] || null;
+    }
+
+    // Функция для отображения информации о меню
+    function showMenuItem(itemData) {
+        if (!itemData) return;
+        
+        const displayEl = document.getElementById('menu-item-display');
+        if (!displayEl) return;
+        
+        displayEl.innerHTML = `
+            <div class="image-container" style="position: relative; height: 100%; overflow: hidden; border-radius: 15px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);">
+                <div class="image-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('${itemData.image}'); background-size: cover; background-position: center; filter: blur(5px) brightness(0.6); opacity: 0.7; transform: scale(1.1);"></div>
+                <div class="image-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));"></div>
+                <div class="image-content" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+                    <img src="${itemData.image}" alt="${itemData.name}" class="img-fluid" style="max-height: 65%; object-fit: contain; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); transition: all 0.3s ease;">
+                    <div class="dish-info" style="margin-top: 30px; background-color: rgba(30, 30, 30, 0.8); padding: 20px; border-radius: 15px; backdrop-filter: blur(5px); max-width: 80%; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
+                        <h3 class="text-light mb-2">${itemData.name}</h3>
+                        <div class="badge mb-2" style="background: linear-gradient(90deg, #47c1e8, #e42bd4); color: white; font-size: 1.1rem; padding: 5px 15px;">${itemData.price}</div>
+                        <p class="text-light mb-0">${itemData.description}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Обновляем информацию в нижней панели
+        const infoEl = document.getElementById('menu-item-info');
+        if (infoEl) {
+            infoEl.innerHTML = `
+                <p style="font-size: 1.75rem; font-weight: 300; line-height: 1.5; color: #fff; padding: 0 20px; margin: 0; width: 100%; text-align: center;">${itemData.description}</p>
+            `;
+        }
+    }
+
+    // Показываем начальную секцию
+    showSection('welcome');
+});
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+.section {
+    display: none;
+    padding: 20px;
+}
+
+.menu-section {
+    overflow: auto;
+    height: calc(100vh - 60px);
+}
+
+.menu-content {
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.menu-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    min-width: 300px;
+    height: fit-content;
+}
+
+.menu-categories {
+    flex: 1;
+    margin-top: 20px;
+}
+
+.menu-category {
+    margin-bottom: 15px;
+}
+
+.category-header {
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.category-header:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.category-header.active {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.menu-items {
+    display: none;
+    padding: 10px 0;
+}
+
+.menu-item {
+    padding: 8px 15px;
+    margin: 5px 0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item.active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-item {
+    cursor: pointer;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.menu-item-details {
+    margin-top: 15px;
+}
+</style>
+{% endblock %} 
