@@ -44,14 +44,9 @@ class WorkingHoursInDB(WorkingHoursBase):
     id: int
     company_id: int
     
-    class Config:
-        orm_mode = True
 
 
 class WorkingHoursResponse(WorkingHoursBase):
     """Схема ответа с данными рабочих часов"""
     id: int
     company_id: int
-    
-    class Config:
-        orm_mode = True 
