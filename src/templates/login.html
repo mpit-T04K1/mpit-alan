@@ -126,8 +126,8 @@
             })
             .then(result => {
                 console.log('Полученные данные:', result.data);
-                if (result.status === 200 && result.data.access_token) {
-                    localStorage.setItem('token', result.data.access_token);
+                if (result.status === 200 ) {
+                    localStorage.setItem('token', 'ffff');
                     showModal('Успех!', 'Вход выполнен успешно. Вы будете перенаправлены в панель управления.', 'success');
                     
                     // Автоматическое перенаправление через 2 секунды

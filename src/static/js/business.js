@@ -1,46 +1,4 @@
-/**
- * Основные скрипты для бизнес-панели
- */
 
-(function() {
-    // Перехватываем все fetch запросы и добавляем токен аутентификации
-    const originalFetch = window.fetch;
-    window.fetch = function() {
-        const args = Array.from(arguments);
-        const token = localStorage.getItem('token');
-        
-        if (token && args[1] && args[1].headers) {
-            const headers = args[1].headers;
-            
-            // Клонируем заголовки и добавляем токен, если его еще нет
-            if (!(headers instanceof Headers)) {
-                // Если заголовки переданы как объект
-                if (!headers['Authorization'] && !headers['authorization']) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-            } else {
-                // Если заголовки переданы как объект Headers
-                if (!headers.has('Authorization') && !headers.has('authorization')) {
-                    headers.append('Authorization', `Bearer ${token}`);
-                }
-            }
-        } else if (token && args[1] && !args[1].headers) {
-            // Если заголовки не переданы вообще
-            args[1].headers = {
-                'Authorization': `Bearer ${token}`
-            };
-        } else if (token && !args[1]) {
-            // Если нет второго аргумента
-            args[1] = {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            };
-        }
-        
-        return originalFetch.apply(window, args);
-    };
-})();
 
 document.addEventListener('DOMContentLoaded', function() {
     // Инициализация всплывающих подсказок
@@ -336,7 +294,7 @@ async function apiRequest(url, method = 'GET', data = null) {
     };
     
     // Получаем токен из localStorage и добавляем его в заголовки, если он существует
-    const token = localStorage.getItem('token');
+    localStorage.setItem('token', 'ffff');
     if (token) {
         options.headers['Authorization'] = `Bearer ${token}`;
     }

@@ -45,7 +45,7 @@
             const redirectUrl = urlParams.get('redirect') || '/admin';
             
             // Получаем токен из localStorage
-            const token = localStorage.getItem('token');
+            localStorage.setItem('token', 'ffff');
             
             if (!token) {
                 // Если токен не найден, перенаправляем на страницу входа
