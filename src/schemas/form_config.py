@@ -45,7 +45,9 @@ class FormConfigInDB(FormConfigBase):
     id: int
     created_at: datetime
     updated_at: datetime
-
+    
+    class Config:
+        orm_mode = True
         
 class FormConfigResponse(FormConfigInDB):
     """Схема ответа с данными конфигурации формы"""

@@ -1576,16 +1576,7 @@ function loadTelegramSettings() {
     }
 }
 
-/**
- * Сохранение настроек Telegram
- */
-function saveTelegramSettings() {
-    const token = document.getElementById('telegram-token').value;
-    const notifications = document.getElementById('telegram-notifications').checked;
-    
-    // В реальном приложении здесь был бы AJAX-запрос к API
-    addEvent('success', 'Настройки Telegram успешно сохранены');
-}
+
 
 /**
  * Загрузка раздела "Профиль пользователя"
