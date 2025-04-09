@@ -9,8 +9,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', path='css/business.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/situation_center.css') }}">
+    <link rel="stylesheet" href="/static/css/business.css">
+    <link rel="stylesheet" href="/static/css/situation_center.css">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -24,7 +24,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom JS -->
-    <script src="{{ url_for('static', path='js/business.js') }}"></script>
+    <script src="/static/js/business.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html> 
